@@ -4,13 +4,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-<<<<<<< HEAD
-    "types": []
-=======
-    "types": [
-      "node"
-    ]
->>>>>>> sprint1-alvaro
+  "types": []
   },
   "include": [
     "src/**/*.ts"

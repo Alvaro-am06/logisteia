@@ -1,0 +1,70 @@
+<div class="usuarios-container">
+  <div class="header">
+    <h1>Gestión de Usuarios</h1>
+    <button (click)="loadUsuarios()" class="btn-refresh" [disabled]="loading">
+      {{ loading ? 'Cargando...' : 'Actualizar' }}
+    </button>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <div class="table-container" *ngIf="!loading && !error">
+    <table class="usuarios-table">
+      <thead>
+        <tr>
+          <th>DNI</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Estado</th>
+          <th>Fecha Registro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuarios">
+          <td>{{ usuario.dni }}</td>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span class="estado-badge" [ngClass]="getEstadoClass(usuario.estado)">
+              {{ usuario.estado || 'Desconocido' }}
+            </span>
+          </td>
+          <td>{{ usuario.fecha_registro | date:'dd/MM/yyyy' }}</td>
+          <td class="acciones">
+            <button [routerLink]="['/usuarios', usuario.dni]" class="btn-ver">
+              Ver Detalle
+            </button>
+            <button
+              (click)="cambiarRol(usuario.dni, 'activar')"
+              class="btn-activar"
+              [disabled]="usuario.estado === 'activo'">
+              Activar
+            </button>
+            <button
+              (click)="cambiarRol(usuario.dni, 'suspender')"
+              class="btn-suspender"
+              [disabled]="usuario.estado === 'suspendido'">
+              Suspender
+            </button>
+            <button
+              (click)="cambiarRol(usuario.dni, 'eliminar')"
+              class="btn-eliminar">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="no-data" *ngIf="usuarios.length === 0">
+      <p>No hay usuarios registrados.</p>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando usuarios...</p>
+  </div>
+</div>
