@@ -17,8 +17,8 @@ class Administrador {
     // Email del administrador
     public $email;
     // Contraseña del administrador
-    public $contrase;
-    // Rol del usuario (administrador)
+    public $password;
+    // Rol del usuario (jefe_equipo, trabajador, moderador)
     public $rol;
     // Teléfono del administrador
     public $telefono;
@@ -55,7 +55,7 @@ class Administrador {
         }
         
         // Preparar consulta con parámetros para prevenir SQL injection
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'administrador'";
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol IN ('jefe_equipo', 'moderador')";
         $stmt = $this->conn->prepare($query);
         
         if ($stmt->execute([':email' => $email])) {
@@ -63,12 +63,12 @@ class Administrador {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // Verificar contraseña usando hash bcrypt
-                if (password_verify($password, $row['contrase'])) {
+                if (password_verify($password, $row['password'])) {
                     // Cargar datos del administrador
                     $this->dni = $row['dni'];
                     $this->nombre = $row['nombre'];
                     $this->email = $row['email'];
-                    $this->contrase = $row['contrase'];
+                    $this->password = $row['password'];
                     $this->rol = $row['rol'];
                     $this->telefono = $row['telefono'] ?? null;
                     $this->fecha_registro = $row['fecha_registro'];
@@ -96,7 +96,7 @@ class Administrador {
         }
         
         // Preparar consulta con parámetros para prevenir SQL injection
-        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'administrador'";
+        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol IN ('jefe_equipo', 'moderador')";
         $stmt = $this->conn->prepare($query);
         
         if ($stmt->execute([':dni' => $dni])) {
