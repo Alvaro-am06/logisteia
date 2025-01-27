@@ -279,7 +279,7 @@ export class MisProyectos implements OnInit {
       this.equipoService.getMiembrosEquipo().subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            // Filtrar miembros que ya están asignados
+            // Filtrar miembros que ya están asignados (sin importar estado_invitacion)
             const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
             this.miembrosDisponiblesDetalle = (response.data.miembros || [])
               .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];

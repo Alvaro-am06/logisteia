@@ -154,24 +154,6 @@ export class MiEquipo implements OnInit {
     }
   }
 
-  getInvitacionBadgeClass(estado: string): string {
-    switch (estado) {
-      case 'aceptada':
-        return 'bg-green-100 text-green-800';
-      case 'pendiente':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'rechazada':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
-
-  mostrarColumnaInvitacion(): boolean {
-    // Mostrar columna solo si hay al menos un miembro con invitación pendiente
-    return this.miembros.some(m => m.estado_invitacion === 'pendiente');
-  }
-
   eliminarMiembro(miembro: any) {
     if (!confirm(`¿Estás seguro de eliminar a ${miembro.nombre} del equipo?`)) {
       return;
