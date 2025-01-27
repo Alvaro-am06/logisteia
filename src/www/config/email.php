@@ -88,10 +88,15 @@ function enviarEmail($destinatario, $nombreDestinatario, $asunto, $mensajeHTML, 
         $mail->AltBody = strip_tags($mensajeHTML);
 
         $mail->send();
-        error_log("✅ Email enviado exitosamente a: $destinatario");
+        error_log("✅ Email enviado exitosamente a: $destinatario | Asunto: $asunto");
         return true;
     } catch (Exception $e) {
-        error_log("❌ Error enviando email: {$mail->ErrorInfo}");
+        error_log("❌ ERROR ENVIANDO EMAIL a: $destinatario");
+        error_log("   Mensaje de error: {$mail->ErrorInfo}");
+        error_log("   Excepción: " . $e->getMessage());
+        error_log("   SMTP Host: {$mail->Host}");
+        error_log("   SMTP Username: {$mail->Username}");
+        error_log("   GMAIL_APP_PASSWORD configurado: " . (getenv('GMAIL_APP_PASSWORD') ? 'SÍ' : 'NO'));
         
         // En desarrollo, guardar en log como fallback
         if (APP_ENV === 'development') {
