@@ -4,6 +4,7 @@ import { PanelAdmin } from './panel-admin/panel-admin';
 import { PanelRegistrado } from './panel-registrado/panel-registrado';
 import { Plantilla } from './plantilla/plantilla';
 import { Usuarios } from './usuarios/usuarios';
+import { Presupuesto } from './presupuesto/presupuesto';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'panel-registrado', component: PanelRegistrado },
   { path: 'plantilla', component: Plantilla },
   { path: 'usuarios', component: Usuarios },
+  { path: 'presupuesto', component: Presupuesto },
 ];

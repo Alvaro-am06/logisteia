@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-panel-admin',
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class PanelAdmin {
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
   
   totalUsuarios = 0;
   totalClientes = 0;
@@ -16,9 +17,12 @@ export class PanelAdmin {
   ventasMes = 0;
 
   cerrarSesion() {
-    // Limpiar datos de sesión
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
+    // Solo ejecutar en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      // Limpiar datos de sesión
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+    }
     this.router.navigate(['/login']);
   }
 }

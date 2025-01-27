@@ -1,6 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-panel-registrado',
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class PanelRegistrado implements OnInit {
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   // Datos del usuario registrado
   nombreUsuario = 'Usuario Registrado';
@@ -16,6 +17,11 @@ export class PanelRegistrado implements OnInit {
   proyectosCompletados = 0;
 
   ngOnInit() {
+    // Solo ejecutar en el navegador
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Cargar datos del usuario desde localStorage
     const usuarioData = localStorage.getItem('usuario');
     if (usuarioData) {
@@ -28,8 +34,15 @@ export class PanelRegistrado implements OnInit {
   }
 
   cerrarSesion() {
-    // Limpiar datos de sesión
-    localStorage.removeItem('usuario');
+    // Solo ejecutar en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      // Limpiar datos de sesión
+      localStorage.removeItem('usuario');
+    }
     this.router.navigate(['/']);
+  }
+
+  crearPresupuesto() {
+    this.router.navigate(['/presupuesto']);
   }
 }

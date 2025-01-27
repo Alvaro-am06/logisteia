@@ -40,7 +40,12 @@
   <!-- Contenido principal -->
   <main class="flex-1 p-8">
     <div class="max-w-7xl mx-auto">
-      <h1 class="text-3xl font-bold text-gray-900 mb-8">Bienvenido, {{ nombreUsuario }}</h1>
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Bienvenido, {{ nombreUsuario }}</h1>
+        <button (click)="crearPresupuesto()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+          <i class="bi bi-plus-circle mr-2"></i> Crear Presupuesto
+        </button>
+      </div>
 
       <!-- Cards de resumen -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
