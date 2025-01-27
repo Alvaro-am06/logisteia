@@ -338,15 +338,6 @@ export class MisProyectos implements OnInit {
     });
   }
 
-  // Editar proyecto
-  editarProyecto(proyecto: Proyecto | null) {
-    if (!proyecto) return;
-    this.cerrarModalDetalle();
-    // Cargar datos del proyecto en el formulario de edición
-    this.nuevoProyecto = { ...proyecto };
-    this.mostrarModalCrear = true;
-  }
-
   crearNuevo() {
     if (this.usuarioRol === 'jefe_equipo') {
       // Redirigir al wizard de presupuesto para crear un nuevo proyecto
