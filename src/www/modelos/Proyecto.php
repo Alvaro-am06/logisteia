@@ -200,13 +200,13 @@ class Proyecto {
      * Obtener miembros disponibles de un equipo para asignar
      */
     public function obtenerMiembrosEquipoDisponibles($equipo_id, $proyecto_id = null) {
-        // Obtener todos los miembros del equipo que estén activos (sin filtrar por estado_invitacion)
-        $sql = "SELECT u.dni, u.nombre, u.email, u.rol
+        // Obtener todos los miembros del equipo que estén activos
+        $sql = "SELECT u.dni, u.nombre, u.email, u.rol, me.rol_proyecto
                 FROM usuarios u
                 INNER JOIN miembros_equipo me ON u.dni = me.trabajador_dni
                 WHERE me.equipo_id = :equipo_id
-                AND me.activo = 1
-                AND u.estado = 'activo'";
+                AND u.estado = 'activo'
+                AND me.activo = 1";
 
         $params = [':equipo_id' => $equipo_id];
 
@@ -218,6 +218,8 @@ class Proyecto {
             )";
             $params[':proyecto_id'] = $proyecto_id;
         }
+        
+        $sql .= " ORDER BY u.nombre";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
