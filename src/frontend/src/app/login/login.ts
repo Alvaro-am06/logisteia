@@ -140,6 +140,7 @@ export class Login implements AfterViewInit {
           }
         } else if (res.success && res.data && res.data.exists === false) {
           // Usuario nuevo - redirigir a completar registro
+          console.log('Usuario NO existe, redirigiendo a completar-registro');
           if (isPlatformBrowser(this.platformId)) {
             sessionStorage.setItem('google_temp_data', JSON.stringify({
               email: payload.email,
@@ -147,8 +148,13 @@ export class Login implements AfterViewInit {
               picture: payload.picture,
               googleToken: response.credential
             }));
+            console.log('Datos temporales guardados en sessionStorage');
+            // Forzar navegación en el navegador
+            setTimeout(() => {
+              console.log('Navegando a completar-registro');
+              this.router.navigate(['/completar-registro']);
+            }, 100);
           }
-          this.router.navigate(['/completar-registro']);
         } else {
           this.message = 'Error inesperado del servidor';
         }
