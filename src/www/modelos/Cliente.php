@@ -55,6 +55,25 @@ class Cliente {
         return false;
     }
 
+    public function obtenerPorEmail($email) {
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'registrado' LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($usuario) {
+            $this->dni = $usuario['dni'];
+            $this->nombre = $usuario['nombre'];
+            $this->email = $usuario['email'];
+            $this->contrase = $usuario['contrase'];
+            $this->telefono = $usuario['telefono'];
+            $this->fecha_registro = $usuario['fecha_registro'];
+            return true;
+        }
+        return false;
+    }
+
     public function actualizar() {
         $query = "UPDATE " . $this->table . " SET email = :email, nombre = :nombre, contrase = :contrase, telefono = :telefono WHERE dni = :dni AND rol = 'registrado'";
         $stmt = $this->conn->prepare($query);
@@ -78,6 +97,22 @@ class Cliente {
             return true;
         }
         return false;
+    }
+
+    public function contarProyectosCreados($dni) {
+        $query = "SELECT COUNT(*) as total FROM presupuestos WHERE usuario_dni = :dni";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':dni' => $dni]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'] ?? 0;
+    }
+
+    public function contarProyectosCompletados($dni) {
+        $query = "SELECT COUNT(*) as total FROM presupuestos WHERE usuario_dni = :dni AND estado = 'aprobado'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':dni' => $dni]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'] ?? 0;
     }
 
     public function buscar($termino) {
