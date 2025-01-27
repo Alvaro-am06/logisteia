@@ -43,23 +43,26 @@ try {
     $usuarios = new Usuarios($conn);
 
     // Verificar autenticación
+    error_log("=== PROYECTOS.PHP DEBUG START ===");
     $usuario_actual = verificarAutenticacion();
-    
-    // DEBUG: Loguear autenticación
-    error_log("API Proyectos - Usuario autenticado: " . ($usuario_actual ? json_encode($usuario_actual) : "NO"));
+    error_log("Usuario autenticado: " . ($usuario_actual ? json_encode($usuario_actual) : "NULL"));
     
     // Si no hay autenticación, devolver error
     if (!$usuario_actual) {
+        error_log("ERROR: No autenticado");
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'No autenticado']);
         exit();
     }
+
+    error_log("Método: $method, Rol: " . $usuario_actual['rol']);
 
     switch ($method) {
         case 'GET':
             if (empty($path_parts[0])) {
                 // GET /api/proyectos - Obtener proyectos del usuario
                 $rol = $usuario_actual['rol'];
+                error_log("Obteniendo proyectos para rol: $rol, DNI: " . $usuario_actual['dni']);
 
                 if ($rol === 'jefe_equipo') {
                     $proyectos = $proyecto->obtenerProyectosPorJefe($usuario_actual['dni']);
@@ -70,6 +73,7 @@ try {
                     $proyectos = $proyecto->obtenerProyectosPorJefe($usuario_actual['dni']); // Temporal
                 }
 
+                error_log("Proyectos obtenidos: " . count($proyectos));
                 echo json_encode(['success' => true, 'proyectos' => $proyectos]);
 
             } elseif ($path_parts[0] === 'miembros-disponibles' && isset($path_parts[1])) {
