@@ -5,7 +5,7 @@
       <a routerLink="/panel-jefe-equipo" class="text-white font-bold text-xl">Logisteia</a>
       <div navbar-actions class="flex items-center space-x-4">
         <span class="text-white text-sm">{{ nombreUsuario }}</span>
-        <button (click)="cerrarSesion()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition">
+        <button (click)="cerrarSesion()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition border border-white/20">
           Cerrar sesión
         </button>
       </div>
@@ -103,17 +103,15 @@
                   <div class="flex items-center justify-center space-x-2">
                     <button 
                       (click)="verPresupuesto(p)" 
-                      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1"
+                      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
                       title="Ver presupuesto">
-                      <span>👁️</span>
-                      <span>Ver</span>
+                      Ver
                     </button>
                     <button 
                       (click)="eliminarPresupuesto(p)" 
-                      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center space-x-1"
+                      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
                       title="Eliminar presupuesto">
-                      <span>🗑️</span>
-                      <span>Eliminar</span>
+                      Eliminar
                     </button>
                   </div>
                 </td>
