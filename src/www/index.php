@@ -1,37 +1,74 @@
-﻿<?php
-// Índice mínimo: solo enruta a la vista correspondiente.
-// NOTA: las vistas deben requerir los modelos/controladores que necesiten.
-if (session_status() === PHP_SESSION_NONE) session_start();
+<?php
+/**
+ * Página de inicio de sesión del sistema.
+ * 
+ * Muestra el formulario de login y redirige a usuarios autenticados
+ * al panel de administración.
+ * 
+ */
+session_start();
 
-$accion = isset($_GET['accion']) ? $_GET['accion'] : 'listar';
-
-// atajos de login/logout (solo desarrollo)
-if ($accion === 'login') {
-    $_SESSION['administrador_email'] = 'admin@example.com';
-    header('Location: index.php?accion=listar');
-    exit;
+// Procesar login si se envió el formulario
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once 'controladores/ControladorDeAutenticacion.php';
+    $controller = new ControladordeAutenticacion();
+    $controller->procesarLogin();
+    exit();
 }
-if ($accion === 'logout') {
-    unset($_SESSION['administrador_email']);
-    header('Location: index.php?accion=listar');
-    exit;
+
+// Redirigir usuarios ya autenticados al panel de administración
+if (isset($_SESSION['admin_id'])) {
+    header('Location: vistas/panel_admin.php');
+    exit();
 }
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Gestión de Clientes</title>
+</head>
+<body>
+    <h1>Sistema de Gestión de Clientes</h1>
+    <h2>Iniciar Sesión</h2>
 
-// Mapa simple acción -> fichero de vista (todas las vistas viven en /vistas)
-$mapa = array(
-    'listar'   => 'vistas/usuarios.php',
-    'ver'      => 'vistas/usuarios.php',
-    'cambiar'  => 'vistas/usuarios.php',
-    'historial'=> 'vistas/usuarios.php',
-);
+    <?php if (isset($_SESSION['error'])): ?>
+        <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+            <?php 
+                // Sanitizar salida de mensaje de error
+                echo htmlspecialchars($_SESSION['error'], ENT_QUOTES, 'UTF-8'); 
+                unset($_SESSION['error']);
+            ?>
+        </div>
+    <?php endif; ?>
 
-// seleccionar vista (por defecto lista)
-$vistaRel = isset($mapa[$accion]) ? $mapa[$accion] : 'vistas/usuarios.php';
-$vista = __DIR__ . '/' . $vistaRel;
+    <?php if (isset($_SESSION['mensaje'])): ?>
+        <div style="color: green; border: 1px solid green; padding: 10px; margin: 10px 0;">
+            <?php 
+                // Sanitizar salida de mensaje de éxito
+                echo htmlspecialchars($_SESSION['mensaje'], ENT_QUOTES, 'UTF-8'); 
+                unset($_SESSION['mensaje']);
+            ?>
+        </div>
+    <?php endif; ?>
 
-if (file_exists($vista)) {
-    include $vista;
-} else {
-    http_response_code(404);
-    echo "Vista no encontrada: " . htmlspecialchars($vistaRel);
-}
+    <form action="index.php" method="POST">
+        <div>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div>
+            <label for="password">Contraseña:</label><br>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <div>
+            <button type="submit">Iniciar Sesión</button>
+        </div>
+    </form>
+
+    <p><small>Usuario de ejemplo: admin@example.com | Contraseña: 1234</small></p>
+</body>
+</html>
