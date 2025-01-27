@@ -84,8 +84,9 @@
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Miembro</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Invitación</th>
+                <th *ngIf="mostrarColumnaInvitacion()" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Invitación</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Fecha Ingreso</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -106,7 +107,7 @@
                     {{ miembro.estado_usuario }}
                   </span>
                 </td>
-                <td class="px-4 py-4">
+                <td *ngIf="mostrarColumnaInvitacion()" class="px-4 py-4">
                   <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full"
                         [ngClass]="getInvitacionBadgeClass(miembro.estado_invitacion)">
                     {{ miembro.estado_invitacion }}
@@ -115,9 +116,15 @@
                 <td class="px-4 py-4 text-sm text-gray-500">
                   {{ miembro.fecha_ingreso | date:'dd/MM/yyyy' }}
                 </td>
+                <td class="px-4 py-4">
+                  <button (click)="eliminarMiembro(miembro)" 
+                          class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition">
+                    Eliminar
+                  </button>
+                </td>
               </tr>
               <tr *ngIf="miembros.length === 0">
-                <td colspan="5" class="px-4 py-12 text-center text-gray-500">
+                <td colspan="6" class="px-4 py-12 text-center text-gray-500">
                   <div class="text-gray-400 mb-2">
                     <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -158,10 +165,17 @@
                     [ngClass]="getEstadoBadgeClass(miembro.estado_usuario)">
                 {{ miembro.estado_usuario }}
               </span>
-              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+              <span *ngIf="miembro.estado_invitacion === 'pendiente'" 
+                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
                     [ngClass]="getInvitacionBadgeClass(miembro.estado_invitacion)">
                 {{ miembro.estado_invitacion }}
               </span>
+            </div>
+            <div class="mt-3">
+              <button (click)="eliminarMiembro(miembro)" 
+                      class="w-full px-3 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition">
+                Eliminar del equipo
+              </button>
             </div>
           </div>
           
