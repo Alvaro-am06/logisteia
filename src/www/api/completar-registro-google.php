@@ -9,6 +9,7 @@ handlePreflight();
 header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../config/jwt.php';
 
 try {
     // Obtener datos JSON
@@ -118,6 +119,14 @@ try {
         // Continuar aunque falle el registro de la acción
     }
     
+    // Generar token JWT
+    $token = generarTokenJWT([
+        'dni' => $dni,
+        'rol' => $rol,
+        'nombre' => $nombre,
+        'email' => $email
+    ]);
+    
     // Obtener datos adicionales según el rol (para consistencia con login normal)
     $datosAdicionales = [];
     
@@ -146,6 +155,7 @@ try {
         'rol' => $rol,
         'estado' => 'activo',
         'fecha_registro' => date('Y-m-d H:i:s'),
+        'token' => $token,
         'nuevo_usuario' => true
     ], $datosAdicionales);
     
