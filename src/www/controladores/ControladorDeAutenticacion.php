@@ -405,15 +405,15 @@ class ControladorDeAutenticacion {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             // Insertar usuario directamente con el rol correcto
-            $query = "INSERT INTO usuarios (dni, email, nombre, password, rol, telefono, estado) 
-                      VALUES (:dni, :email, :nombre, :password, :rol, :telefono, 'activo')";
+            $query = "INSERT INTO usuarios (dni, email, nombre, contrase, rol, telefono, estado) 
+                      VALUES (:dni, :email, :nombre, :contrase, :rol, :telefono, 'activo')";
             
             $stmt = $this->db->prepare($query);
             $resultado = $stmt->execute([
                 ':dni' => $dni,
                 ':email' => $email,
                 ':nombre' => $nombre,
-                ':password' => $hashedPassword,
+                ':contrase' => $hashedPassword,
                 ':rol' => $rol,
                 ':telefono' => $telefono
             ]);
