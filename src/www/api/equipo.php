@@ -25,19 +25,26 @@ function getConexion() {
     }
 }
 
-// Función para enviar email de bienvenida a equipo
-function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreEquipo, $jefeNombre, $jefeEmail) {
+// Función para enviar email de bienvenida a equipo con enlace de confirmación
+function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreEquipo, $jefeNombre, $jefeEmail, $token_invitacion) {
     try {
         require_once __DIR__ . '/../config/email.php';
-        
-        $asunto = "Bienvenido al equipo $nombreEquipo - Logisteia";
+
+        $asunto = "Invitación al equipo $nombreEquipo - Logisteia";
+        $enlaceConfirmacion = "https://logisteia.com/api/confirmar-invitacion.php?token=$token_invitacion";
 
         $mensaje = "<html><body>
-            <h2>¡Bienvenido $nombreDestinatario!</h2>
-            <p>Te damos la bienvenida al equipo <strong>$nombreEquipo</strong> en la plataforma Logisteia.</p>
-            <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
-            <p><strong>Agregado por:</strong> $jefeNombre ($jefeEmail)</p>
-            <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+            <h2>¡Hola $nombreDestinatario!</h2>
+            <p>Has sido invitado al equipo <strong>$nombreEquipo</strong> en la plataforma Logisteia.</p>
+            <p><strong>Invitado por:</strong> $jefeNombre ($jefeEmail)</p>
+            <p>Para aceptar la invitación y comenzar a colaborar en proyectos, haz clic en el siguiente enlace:</p>
+            <p style='text-align: center; margin: 30px 0;'>
+                <a href='$enlaceConfirmacion' style='background-color: #102a41; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;'>
+                    Aceptar Invitación
+                </a>
+            </p>
+            <p style='font-size: 12px; color: #666;'>O copia y pega este enlace en tu navegador:<br>
+            <a href='$enlaceConfirmacion'>$enlaceConfirmacion</a></p>
             <br>
             <p>Saludos,<br>Equipo Logisteia</p>
         </body></html>";
@@ -217,34 +224,38 @@ switch ($method) {
             // Asignar rol por defecto
             $rol_proyecto = 'Miembro del Equipo';
 
+            // Generar token único para la invitación
+            $token_invitacion = bin2hex(random_bytes(32));
+            
             // Agregar o actualizar el miembro al equipo (reenvío de invitación)
             if ($existe) {
-                // Reenviar invitación - actualizar fecha
+                // Reenviar invitación - actualizar fecha y token
                 $stmt = $conn->prepare("
                     UPDATE miembros_equipo 
-                    SET fecha_ingreso = NOW(), rol_proyecto = ?
+                    SET fecha_ingreso = NOW(), rol_proyecto = ?, token_invitacion = ?, estado_invitacion = 'pendiente'
                     WHERE equipo_id = ? AND trabajador_dni = ?
                 ");
-                $stmt->execute([$rol_proyecto, $equipo['id'], $trabajador['dni']]);
+                $stmt->execute([$rol_proyecto, $token_invitacion, $equipo['id'], $trabajador['dni']]);
                 $esReenvio = true;
             } else {
                 // Nueva invitación
                 $stmt = $conn->prepare("
-                    INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, estado_invitacion, fecha_ingreso)
-                    VALUES (?, ?, ?, 'pendiente', NOW())
+                    INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, estado_invitacion, fecha_ingreso, token_invitacion)
+                    VALUES (?, ?, ?, 'pendiente', NOW(), ?)
                 ");
-                $stmt->execute([$equipo['id'], $trabajador['dni'], $rol_proyecto]);
+                $stmt->execute([$equipo['id'], $trabajador['dni'], $rol_proyecto, $token_invitacion]);
                 $esReenvio = false;
             }
 
-            // Enviar email de bienvenida
+            // Enviar email de bienvenida con enlace de confirmación
             try {
                 $emailEnviado = enviarEmailBienvenida(
                     $trabajador['email'],
                     $trabajador['nombre'],
                     $equipo['nombre'],
                     $usuario['nombre'],
-                    $usuario['email']
+                    $usuario['email'],
+                    $token_invitacion
                 );
             } catch (Exception $e) {
                 error_log('Error enviando email: ' . $e->getMessage());
