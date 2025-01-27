@@ -98,4 +98,42 @@ class ControladordeAutenticacion {
             exit();
         }
     }
+
+    /**
+     * API endpoint para login.
+     * Devuelve JSON para integración con frontend SPA.
+     */
+    public function apiLogin() {
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Allow-Headers: Content-Type');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['error' => 'Método no permitido']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $email = $input['email'] ?? '';
+        $password = $input['password'] ?? '';
+
+        if (empty($email) || empty($password)) {
+            echo json_encode(['error' => 'Email y contraseña requeridos']);
+            return;
+        }
+
+        if ($this->administrador->login($email, $password)) {
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'dni' => $this->administrador->dni,
+                    'nombre' => $this->administrador->nombre,
+                    'email' => $this->administrador->email
+                ]
+            ]);
+        } else {
+            echo json_encode(['error' => 'Credenciales incorrectas']);
+        }
+    }
 }
