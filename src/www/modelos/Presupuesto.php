@@ -245,7 +245,13 @@ class Presupuesto {
      * @return bool
      */
     public function eliminar($numero) {
-        $query = "UPDATE " . $this->table . " SET estado = 'eliminado' WHERE numero_presupuesto = :numero";
+        // Primero eliminar los detalles del presupuesto
+        $queryDelete = "DELETE FROM " . $this->tableDetalle . " WHERE numero_presupuesto = :numero";
+        $stmtDelete = $this->conn->prepare($queryDelete);
+        $stmtDelete->execute([':numero' => $numero]);
+        
+        // Luego eliminar el presupuesto
+        $query = "DELETE FROM " . $this->table . " WHERE numero_presupuesto = :numero";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([':numero' => $numero]);
     }

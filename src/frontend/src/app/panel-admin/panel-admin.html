@@ -2,11 +2,12 @@
 <nav class="bg-[#102a41] shadow-lg">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center h-16">
-      <a href="#" class="text-white font-bold text-xl">Logisteia</a>
-      <div class="flex items-center space-x-4">
-        <span class="text-white">Administrador</span>
-        <button (click)="cerrarSesion()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
-          Cerrar Sesión
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base">{{ admin?.nombre || 'Administrador' }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          <span class="hidden sm:inline">Cerrar Sesión</span>
+          <span class="sm:hidden">Salir</span>
         </button>
       </div>
     </div>
@@ -15,69 +16,38 @@
 
 <div class="flex min-h-screen bg-gray-100">
   <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-lg">
-    <nav class="p-4">
-      <ul class="space-y-2">
-        <li>
-          <a href="#dashboard" class="flex items-center px-4 py-2 text-gray-700 bg-blue-50 rounded-lg hover:bg-blue-100">
-            <i class="bi bi-house-door mr-3"></i> Dashboard
-          </a>
-        </li>
-        <li>
-          <a routerLink="/usuarios" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-            <i class="bi bi-people mr-3"></i> Usuarios
-          </a>
-        </li>
-        <li>
-          <a href="#clientes" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-            <i class="bi bi-person-badge mr-3"></i> Clientes
-          </a>
-        </li>
-        <li>
-          <a href="#pedidos" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-            <i class="bi bi-box-seam mr-3"></i> Pedidos
-          </a>
-        </li>
-        <li>
-          <a href="#reportes" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
-            <i class="bi bi-graph-up mr-3"></i> Reportes
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </aside>
-
+  <app-sidebar [rol]="'admin'"></app-sidebar>
   <!-- Contenido principal -->
-  <main class="flex-1 p-8">
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
     <div class="flex justify-between items-center pb-4 mb-6 border-b border-gray-200">
-      <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Dashboard</h1>
     </div>
 
     <!-- Tarjetas de estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-[#102a41] text-white rounded-lg shadow-lg p-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+      <div class="bg-[#102a41] text-white rounded-lg shadow-lg p-4 md:p-6">
         <div class="flex justify-between items-center">
           <div>
-            <h6 class="text-sm uppercase text-gray-300 mb-1">Usuarios</h6>
-            <h2 class="text-3xl font-bold">{{ totalUsuarios }}</h2>
+            <h6 class="text-xs md:text-sm uppercase text-gray-300 mb-1">Usuarios</h6>
+            <h2 class="text-2xl md:text-3xl font-bold">{{ totalUsuarios }}</h2>
           </div>
         </div>
       </div>
 
-      <div class="bg-green-500 text-white rounded-lg shadow-lg p-6">
+      <div class="bg-green-500 text-white rounded-lg shadow-lg p-4 md:p-6">
         <div class="flex justify-between items-center">
           <div>
-            <h6 class="text-sm uppercase text-green-100 mb-1">Clientes</h6>
-            <h2 class="text-3xl font-bold">{{ totalClientes }}</h2>
+            <h6 class="text-xs md:text-sm uppercase text-green-100 mb-1">Clientes</h6>
+            <h2 class="text-2xl md:text-3xl font-bold">{{ totalClientes }}</h2>
           </div>
         </div>
       </div>
 
-      <div class="bg-yellow-500 text-white rounded-lg shadow-lg p-6">
+      <div class="bg-yellow-500 text-white rounded-lg shadow-lg p-4 md:p-6">
         <div class="flex justify-between items-center">
           <div>
-            <h6 class="text-sm uppercase text-yellow-100 mb-1">Pedidos Pendientes</h6>
-            <h2 class="text-3xl font-bold">{{ pedidosPendientes }}</h2>
+            <h6 class="text-xs md:text-sm uppercase text-yellow-100 mb-1">Pedidos Pendientes</h6>
+            <h2 class="text-2xl md:text-3xl font-bold">{{ pedidosPendientes }}</h2>
           </div>
         </div>
       </div>

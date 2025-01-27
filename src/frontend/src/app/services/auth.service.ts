@@ -1,6 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface LoginRequest {
   email: string;
@@ -22,29 +24,43 @@ export interface LoginResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private platformId = inject(PLATFORM_ID);
 
-  private apiUrl = '/api/auth';
+  private apiUrl = `${environment.apiUrl}/api`;
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials);
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login.php`, credentials);
   }
 
   logout(): Observable<{success: boolean}> {
-    return this.http.post<{success: boolean}>(`${this.apiUrl}/logout`, {});
+    // Logout es solo local, no hay endpoint de logout en el backend
+    this.clearSession();
+    return new Observable(observer => {
+      observer.next({ success: true });
+      observer.complete();
+    });
   }
 
-  // Método para verificar si hay sesión activa (puedes implementar lógica adicional)
+  // Método para verificar si hay sesión activa (compatible con SSR)
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('admin_token');
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    return !!localStorage.getItem('admin_token') || !!localStorage.getItem('usuario');
   }
 
-  // Guardar token de sesión
+  // Guardar token de sesión (compatible con SSR)
   setSession(token: string): void {
-    localStorage.setItem('admin_token', token);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('admin_token', token);
+    }
   }
 
-  // Limpiar sesión
+  // Limpiar sesión (compatible con SSR)
   clearSession(): void {
-    localStorage.removeItem('admin_token');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('usuario');
+    }
   }
 }

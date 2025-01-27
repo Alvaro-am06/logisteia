@@ -1,0 +1,139 @@
+<div class="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-primary via-dark to-primary relative overflow-hidden">
+  <!-- Decoración de fondo -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-40 right-40 w-64 h-64 bg-light rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-40 left-40 w-80 h-80 bg-pink rounded-full blur-3xl animate-pulse"></div>
+  </div>
+
+  <div class="w-full max-w-2xl mx-auto px-4 relative z-10">
+    <div class="bg-white rounded-lg shadow-2xl p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="transform hover:rotate-12 transition-transform duration-300 inline-block">
+          <img src="/img/icono.png" alt="Logisteia Logo" class="w-16 h-16 mx-auto mb-4 drop-shadow-lg">
+        </div>
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Completa tu Registro</h2>
+        <p class="text-gray-600">Bienvenido, {{ datosGoogle.nombre }}</p>
+        <p class="text-sm text-gray-500 mt-1">{{ datosGoogle.email }}</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="mensaje" class="mb-4 p-3 rounded" 
+           [ngClass]="mensaje.includes('exitoso') ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'">
+        <strong>{{ mensaje.includes('exitoso') ? 'Éxito:' : 'Error:' }}</strong> {{ mensaje }}
+      </div>
+
+      <form (ngSubmit)="completarRegistro()">
+        <!-- DNI -->
+        <div class="mb-4">
+          <label for="dni" class="block text-gray-700 text-sm font-medium mb-2">
+            DNI <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="dni"
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            [(ngModel)]="dni"
+            name="dni"
+            placeholder="12345678A"
+            required
+            maxlength="20"
+            pattern="[A-Za-z0-9]+"
+            autocomplete="off">
+          <p class="text-xs text-gray-500 mt-1">Documento de identidad (DNI, NIE, pasaporte)</p>
+        </div>
+
+        <!-- Rol -->
+        <div class="mb-4">
+          <label for="rol" class="block text-gray-700 text-sm font-medium mb-2">
+            Rol <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="rol"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            [(ngModel)]="rol"
+            name="rol"
+            required>
+            <option value="">Selecciona un rol</option>
+            <option value="trabajador">Trabajador</option>
+            <option value="jefe_equipo">Jefe de Equipo</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">Puedes cambiarlo más tarde desde tu perfil</p>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="mb-4">
+          <label for="telefono" class="block text-gray-700 text-sm font-medium mb-2">
+            Teléfono <span class="text-gray-400 text-xs">(opcional)</span>
+          </label>
+          <input
+            id="telefono"
+            type="tel"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            [(ngModel)]="telefono"
+            name="telefono"
+            placeholder="+34 600 123 456"
+            maxlength="20"
+            autocomplete="tel">
+        </div>
+
+        <!-- Contraseña opcional -->
+        <div class="mb-4">
+          <label for="password" class="block text-gray-700 text-sm font-medium mb-2">
+            Contraseña <span class="text-gray-400 text-xs">(opcional - para login sin Google)</span>
+          </label>
+          <input
+            id="password"
+            type="password"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            minlength="6"
+            autocomplete="new-password">
+          <p class="text-xs text-gray-500 mt-1">Si no estableces contraseña, solo podrás entrar con Google</p>
+        </div>
+
+        <!-- Confirmar contraseña (solo si hay contraseña) -->
+        <div class="mb-6" *ngIf="password">
+          <label for="confirmPassword" class="block text-gray-700 text-sm font-medium mb-2">
+            Confirmar Contraseña <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            placeholder="••••••••"
+            [required]="password.length > 0"
+            autocomplete="new-password">
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3">
+          <button 
+            type="button"
+            (click)="cancelar()"
+            class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200">
+            Cancelar
+          </button>
+          <button 
+            type="submit"
+            [disabled]="!dni || !rol"
+            class="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-dark focus:outline-none focus:ring-2 focus:ring-light focus:ring-offset-2 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+            Completar Registro
+          </button>
+        </div>
+      </form>
+
+      <!-- Nota de privacidad -->
+      <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-xs text-blue-800">
+          <strong>ℹ️ Privacidad:</strong> Tus datos se utilizan únicamente para gestionar tu cuenta en Logisteia. 
+          Tu información de Google no se comparte con terceros.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

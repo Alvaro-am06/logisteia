@@ -1,0 +1,716 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <!-- Navbar -->
+  <nav class="bg-gradient-to-r from-primary to-dark shadow-lg">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4">
+      <div class="flex justify-between items-center h-14 sm:h-16">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span class="text-white font-bold text-base sm:text-xl">Configurar Presupuesto</span>
+        </div>
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <button (click)="cerrarSesion()" class="px-3 py-1.5 sm:px-4 sm:py-2 border-2 border-white text-white rounded-lg hover:bg-white hover:text-primary transition font-medium text-sm sm:text-base">
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    <!-- Barra de Progreso -->
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+      <div class="flex justify-between items-center mb-3 sm:mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-800">Paso {{ pasoActual }} de {{ totalPasos }}</h2>
+        <span class="text-xs sm:text-sm font-medium text-primary">{{ obtenerProgreso().toFixed(0) }}%</span>
+      </div>
+      
+      <!-- Barra de progreso visual -->
+      <div class="relative">
+        <div class="overflow-hidden h-3 text-xs flex rounded-full bg-gray-200">
+          <div 
+            [style.width.%]="obtenerProgreso()" 
+            class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-primary to-blue-600 transition-all duration-500 ease-out">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Indicadores de pasos -->
+      <div class="flex justify-between mt-3 sm:mt-4 gap-1 sm:gap-2">
+        <div *ngFor="let paso of [1,2,3,4,5,6]" class="flex flex-col items-center flex-1">
+          <div 
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300"
+            [ngClass]="{
+              'bg-primary text-white': pasoActual >= paso,
+              'bg-gray-300 text-gray-600': pasoActual < paso
+            }">
+            {{ paso }}
+          </div>
+          <span class="text-xs mt-1 sm:mt-2 text-center font-medium hidden sm:block" [ngClass]="pasoActual >= paso ? 'text-primary' : 'text-gray-500'">
+            <ng-container *ngIf="paso === 1">Proyecto</ng-container>
+            <ng-container *ngIf="paso === 2">Tipo</ng-container>
+            <ng-container *ngIf="paso === 3">Servicios</ng-container>
+            <ng-container *ngIf="paso === 4">Detalles</ng-container>
+            <ng-container *ngIf="paso === 5">Metodología</ng-container>
+            <ng-container *ngIf="paso === 6">Resumen</ng-container>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensajes de error -->
+    <div *ngIf="erroresPaso.length > 0" class="bg-red-50 border-l-4 border-red-500 p-3 sm:p-4 mb-4 sm:mb-6 rounded-lg shadow-md">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-500 mt-0.5 mr-2 sm:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="font-bold text-red-800 mb-1 text-sm sm:text-base">Por favor corrija los siguientes errores:</h3>
+          <ul class="list-disc list-inside text-red-700 text-sm">
+            <li *ngFor="let error of erroresPaso">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido de los pasos -->
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
+      <!-- PASO 1: Información del Proyecto -->
+      <div *ngIf="pasoActual === 1" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Información del Proyecto
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Cuéntanos sobre tu proyecto</p>
+        </div>
+
+        <div>
+          <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2">Nombre del Proyecto *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="formulario.nombreProyecto"
+            #nombreProyecto="ngModel"
+            required
+            minlength="3"
+            maxlength="100"
+            placeholder="Ej: Aplicación web de gestión empresarial"
+            class="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg transition text-sm sm:text-base"
+            [class.border-red-500]="nombreProyecto.invalid && nombreProyecto.touched"
+            [class.border-gray-300]="nombreProyecto.valid || nombreProyecto.untouched"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary]="nombreProyecto.valid || nombreProyecto.untouched"
+            [class.focus:ring-red-500]="nombreProyecto.invalid && nombreProyecto.touched"
+            [class.focus:border-transparent]="true">
+          <div *ngIf="nombreProyecto.invalid && nombreProyecto.touched" class="mt-1 text-sm text-red-600">
+            <p *ngIf="nombreProyecto.errors?.['required']">El nombre del proyecto es obligatorio</p>
+            <p *ngIf="nombreProyecto.errors?.['minlength']">Mínimo 3 caracteres</p>
+            <p *ngIf="nombreProyecto.errors?.['maxlength']">Máximo 100 caracteres</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Proyecto *</label>
+          <textarea 
+            [(ngModel)]="formulario.descripcionProyecto"
+            #descripcionProyecto="ngModel"
+            required
+            minlength="10"
+            maxlength="500"
+            rows="4"
+            placeholder="Describe brevemente qué quieres desarrollar, cuál es el objetivo principal y qué funcionalidades necesitas..."
+            class="w-full px-4 py-3 border-2 rounded-lg transition resize-none"
+            [class.border-red-500]="descripcionProyecto.invalid && descripcionProyecto.touched"
+            [class.border-gray-300]="descripcionProyecto.valid || descripcionProyecto.untouched"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary]="descripcionProyecto.valid || descripcionProyecto.untouched"
+            [class.focus:ring-red-500]="descripcionProyecto.invalid && descripcionProyecto.touched"
+            [class.focus:border-transparent]="true"></textarea>
+          <div class="flex justify-between items-start mt-1">
+            <div *ngIf="descripcionProyecto.invalid && descripcionProyecto.touched" class="text-sm text-red-600">
+              <p *ngIf="descripcionProyecto.errors?.['required']">La descripción es obligatoria</p>
+              <p *ngIf="descripcionProyecto.errors?.['minlength']">Mínimo 10 caracteres</p>
+              <p *ngIf="descripcionProyecto.errors?.['maxlength']">Máximo 500 caracteres</p>
+            </div>
+            <span class="text-xs text-gray-500">{{ formulario.descripcionProyecto.length }}/500</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Cliente *</label>
+          <div *ngIf="cargandoClientes" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-500 flex items-center">
+            <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-2"></div>
+            Cargando clientes...
+          </div>
+          <select 
+            *ngIf="!cargandoClientes"
+            [(ngModel)]="formulario.clienteSeleccionadoId"
+            (ngModelChange)="seleccionarCliente($event)"
+            class="w-full px-4 py-3 border-2 rounded-lg transition"
+            [class.border-red-500]="!formulario.clienteSeleccionadoId"
+            [class.border-gray-300]="formulario.clienteSeleccionadoId"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary]="formulario.clienteSeleccionadoId"
+            [class.focus:ring-red-500]="!formulario.clienteSeleccionadoId"
+            [class.focus:border-transparent]="true">
+            <option [ngValue]="null">-- Selecciona un cliente --</option>
+            <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombre }}</option>
+          </select>
+          <div *ngIf="!cargandoClientes && clientes.length === 0" class="mt-1 text-sm text-yellow-600">
+            <p>⚠️ No hay clientes disponibles. <a href="/registrar-cliente" class="font-semibold underline">Crear uno</a></p>
+          </div>
+          <div *ngIf="!formulario.clienteSeleccionadoId && !cargandoClientes" class="mt-1 text-sm text-red-600">
+            <p>Debe seleccionar un cliente</p>
+          </div>
+        </div>
+
+        <!-- Datos del cliente seleccionado -->
+        <div *ngIf="clienteSeleccionado" class="col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h3 class="text-sm font-semibold text-blue-900 mb-3">Datos del Cliente</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-blue-700 font-medium">Nombre</p>
+              <p class="text-sm text-gray-900">{{ clienteSeleccionado.nombre }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-blue-700 font-medium">Email</p>
+              <p class="text-sm text-gray-900">{{ clienteSeleccionado.email }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-blue-700 font-medium">Empresa</p>
+              <p class="text-sm text-gray-900">{{ clienteSeleccionado.empresa || 'N/A' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-blue-700 font-medium">Teléfono</p>
+              <p class="text-sm text-gray-900">{{ clienteSeleccionado.telefono || 'N/A' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Tipo de Proyecto -->
+      <div *ngIf="pasoActual === 2" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+            </svg>
+            Tipo de Proyecto
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Define el alcance y categoría principal</p>
+        </div>
+
+        <div>
+          <label class="block text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Categoría Principal del Proyecto *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <div 
+              *ngFor="let categoria of categorias"
+              (click)="formulario.categoriaPrincipal = categoria"
+              class="p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md"
+              [ngClass]="{
+                'border-primary bg-blue-50': formulario.categoriaPrincipal === categoria,
+                'border-gray-300 hover:border-primary': formulario.categoriaPrincipal !== categoria
+              }">
+              <div class="flex items-center">
+                <div 
+                  class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 mr-2 sm:mr-3 flex items-center justify-center flex-shrink-0"
+                  [ngClass]="formulario.categoriaPrincipal === categoria ? 'border-primary' : 'border-gray-400'">
+                  <div *ngIf="formulario.categoriaPrincipal === categoria" class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-primary"></div>
+                </div>
+                <span class="font-medium text-sm sm:text-base" [ngClass]="formulario.categoriaPrincipal === categoria ? 'text-primary' : 'text-gray-700'">
+                  {{ categoria }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Tiempo Estimado de Desarrollo *</label>
+          <select 
+            [(ngModel)]="formulario.tiempoEstimado"
+            #tiempoEstimado="ngModel"
+            required
+            class="w-full px-4 py-3 border-2 rounded-lg transition"
+            [class.border-red-500]="tiempoEstimado.invalid && tiempoEstimado.touched"
+            [class.border-gray-300]="tiempoEstimado.valid || tiempoEstimado.untouched"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary]="tiempoEstimado.valid || tiempoEstimado.untouched"
+            [class.focus:ring-red-500]="tiempoEstimado.invalid && tiempoEstimado.touched"
+            [class.focus:border-transparent]="true">
+            <option value="">Seleccione un tiempo estimado</option>
+            <option value="1-2-semanas">1-2 semanas</option>
+            <option value="3-4-semanas">3-4 semanas</option>
+            <option value="1-2-meses">1-2 meses</option>
+            <option value="3-6-meses">3-6 meses</option>
+            <option value="mas-6-meses">Más de 6 meses</option>
+          </select>
+          <div *ngIf="tiempoEstimado.invalid && tiempoEstimado.touched" class="mt-1 text-sm text-red-600">
+            <p *ngIf="tiempoEstimado.errors?.['required']">Debe seleccionar un tiempo estimado</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Presupuesto Aproximado *</label>
+          <select 
+            [(ngModel)]="formulario.presupuestoAproximado"
+            #presupuestoAproximado="ngModel"
+            required
+            class="w-full px-4 py-3 border-2 rounded-lg transition"
+            [class.border-red-500]="presupuestoAproximado.invalid && presupuestoAproximado.touched"
+            [class.border-gray-300]="presupuestoAproximado.valid || presupuestoAproximado.untouched"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary]="presupuestoAproximado.valid || presupuestoAproximado.untouched"
+            [class.focus:ring-red-500]="presupuestoAproximado.invalid && presupuestoAproximado.touched"
+            [class.focus:border-transparent]="true">
+            <option value="">Seleccione un rango de presupuesto</option>
+            <option value="menos-1000">Menos de 1.000€</option>
+            <option value="1000-3000">1.000€ - 3.000€</option>
+            <option value="3000-5000">3.000€ - 5.000€</option>
+            <option value="5000-10000">5.000€ - 10.000€</option>
+            <option value="mas-10000">Más de 10.000€</option>
+          </select>
+          <div *ngIf="presupuestoAproximado.invalid && presupuestoAproximado.touched" class="mt-1 text-sm text-red-600">
+            <p *ngIf="presupuestoAproximado.errors?.['required']">Debe seleccionar un rango de presupuesto</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 3: Selección de Tecnologías -->
+      <div *ngIf="pasoActual === 3" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+            </svg>
+            Selección de Tecnologías
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Selecciona las tecnologías que se utilizarán en el proyecto</p>
+          
+          <!-- Contador de tecnologías seleccionadas -->
+          <div *ngIf="formulario.tecnologiasSeleccionadas.length > 0" class="ml-8 sm:ml-11 mt-2 sm:mt-3">
+            <div class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-green-100 text-green-800 rounded-full text-sm">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span class="font-bold">{{ formulario.tecnologiasSeleccionadas.length }} tecnología(s)</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="tecnologiasDisponiblesFiltradas.length === 0" class="text-center py-6 sm:py-8 bg-gray-50 rounded-lg">
+          <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-sm sm:text-base text-gray-600 font-medium px-4">Primero debes seleccionar una categoría en el paso anterior</p>
+        </div>
+
+        <div *ngIf="tecnologiasDisponiblesFiltradas.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+          <div 
+            *ngFor="let tecnologia of tecnologiasDisponiblesFiltradas"
+            (click)="toggleTecnologia(tecnologia)"
+            class="p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md text-center"
+            [ngClass]="{
+              'border-primary bg-blue-50 shadow-md': isTecnologiaSeleccionada(tecnologia),
+              'border-gray-300 hover:border-primary': !isTecnologiaSeleccionada(tecnologia)
+            }">
+            <div class="flex items-center justify-center mb-1 sm:mb-2">
+              <div 
+                class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center"
+                [ngClass]="isTecnologiaSeleccionada(tecnologia) ? 'border-primary bg-primary' : 'border-gray-400'">
+                <svg *ngIf="isTecnologiaSeleccionada(tecnologia)" class="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            </div>
+            <span 
+              class="font-medium text-xs sm:text-sm block"
+              [ngClass]="isTecnologiaSeleccionada(tecnologia) ? 'text-primary' : 'text-gray-700'">
+              {{ tecnologia }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 4: Detalles Adicionales -->
+      <div *ngIf="pasoActual === 4" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            Detalles Adicionales
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Información sobre plazos y prioridades</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Fecha de Inicio *</label>
+            <input 
+              type="date" 
+              [(ngModel)]="formulario.fechaInicio"
+              #fechaInicio="ngModel"
+              required
+              [min]="getFechaMinima()"
+              class="w-full px-4 py-3 border-2 rounded-lg transition"
+              [class.border-red-500]="fechaInicio.invalid && fechaInicio.touched"
+              [class.border-gray-300]="fechaInicio.valid || fechaInicio.untouched"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary]="fechaInicio.valid || fechaInicio.untouched"
+              [class.focus:ring-red-500]="fechaInicio.invalid && fechaInicio.touched"
+              [class.focus:border-transparent]="true">
+            <div *ngIf="fechaInicio.invalid && fechaInicio.touched" class="mt-1 text-sm text-red-600">
+              <p *ngIf="fechaInicio.errors?.['required']">La fecha de inicio es obligatoria</p>
+              <p *ngIf="fechaInicio.errors?.['min']">La fecha debe ser hoy o posterior</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Plazo de Entrega *</label>
+            <select 
+              [(ngModel)]="formulario.plazoEntrega"
+              #plazoEntrega="ngModel"
+              required
+              class="w-full px-4 py-3 border-2 rounded-lg transition"
+              [class.border-red-500]="plazoEntrega.invalid && plazoEntrega.touched"
+              [class.border-gray-300]="plazoEntrega.valid || plazoEntrega.untouched"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary]="plazoEntrega.valid || plazoEntrega.untouched"
+              [class.focus:ring-red-500]="plazoEntrega.invalid && plazoEntrega.touched"
+              [class.focus:border-transparent]="true">
+              <option value="">Seleccione un plazo</option>
+              <option value="urgente">Urgente (1-2 semanas)</option>
+              <option value="normal">Normal (1 mes)</option>
+              <option value="flexible">Flexible (2-3 meses)</option>
+              <option value="largo">Largo plazo (3+ meses)</option>
+            </select>
+            <div *ngIf="plazoEntrega.invalid && plazoEntrega.touched" class="mt-1 text-sm text-red-600">
+              <p *ngIf="plazoEntrega.errors?.['required']">Debe seleccionar un plazo de entrega</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-3">Prioridad del Proyecto *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div 
+              (click)="formulario.prioridad = 'baja'"
+              class="p-4 border-2 rounded-lg cursor-pointer transition-all text-center hover:shadow-md"
+              [ngClass]="{
+                'border-green-500 bg-green-50': formulario.prioridad === 'baja',
+                'border-gray-300 hover:border-green-400': formulario.prioridad !== 'baja'
+              }">
+              <div class="text-3xl mb-2">🟢</div>
+              <span class="font-bold block">Baja</span>
+              <span class="text-xs text-gray-600">Sin prisa</span>
+            </div>
+            
+            <div 
+              (click)="formulario.prioridad = 'media'"
+              class="p-4 border-2 rounded-lg cursor-pointer transition-all text-center hover:shadow-md"
+              [ngClass]="{
+                'border-yellow-500 bg-yellow-50': formulario.prioridad === 'media',
+                'border-gray-300 hover:border-yellow-400': formulario.prioridad !== 'media'
+              }">
+              <div class="text-3xl mb-2">🟡</div>
+              <span class="font-bold block">Media</span>
+              <span class="text-xs text-gray-600">Normal</span>
+            </div>
+            
+            <div 
+              (click)="formulario.prioridad = 'alta'"
+              class="p-4 border-2 rounded-lg cursor-pointer transition-all text-center hover:shadow-md"
+              [ngClass]="{
+                'border-red-500 bg-red-50': formulario.prioridad === 'alta',
+                'border-gray-300 hover:border-red-400': formulario.prioridad !== 'alta'
+              }">
+              <div class="text-3xl mb-2">🔴</div>
+              <span class="font-bold block">Alta</span>
+              <span class="text-xs text-gray-600">Urgente</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-2">Notas Adicionales</label>
+          <textarea 
+            [(ngModel)]="formulario.notasAdicionales"
+            #notasAdicionales="ngModel"
+            maxlength="500"
+            rows="4"
+            placeholder="Comentarios adicionales, requisitos especiales, consideraciones técnicas..."
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none"></textarea>
+          <div class="flex justify-end mt-1">
+            <span class="text-xs text-gray-500">{{ formulario.notasAdicionales.length }}/500</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 5: Metodología de Trabajo -->
+      <div *ngIf="pasoActual === 5" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+            Metodología de Trabajo
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Selecciona la metodología a seguir en este proyecto</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-4">Metodología *</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div 
+              *ngFor="let metodologia of metodologiasDisponibles"
+              (click)="formulario.metodologia = metodologia"
+              class="p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all hover:shadow-lg"
+              [ngClass]="{
+                'border-primary bg-blue-50': formulario.metodologia === metodologia,
+                'border-gray-300 hover:border-primary': formulario.metodologia !== metodologia
+              }">
+              <div class="flex items-start">
+                <div 
+                  class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex-shrink-0 mr-3 flex items-center justify-center transition-all"
+                  [ngClass]="{
+                    'border-primary bg-primary': formulario.metodologia === metodologia,
+                    'border-gray-300': formulario.metodologia !== metodologia
+                  }">
+                  <svg 
+                    *ngIf="formulario.metodologia === metodologia" 
+                    class="w-3 h-3 sm:w-4 sm:h-4 text-white" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <span 
+                    class="font-bold text-sm sm:text-base block mb-1"
+                    [ngClass]="{
+                      'text-primary': formulario.metodologia === metodologia,
+                      'text-gray-900': formulario.metodologia !== metodologia
+                    }">{{ metodologia }}</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Scrum'">Framework ágil con sprints</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Kanban'">Visualización de flujo continuo</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Waterfall (Cascada)'">Enfoque secuencial tradicional</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Agile'">Metodología iterativa flexible</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Lean'">Maximizar valor, minimizar desperdicio</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'XP (Extreme Programming)'">Enfocado en calidad de código</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'DevOps'">Integración desarrollo y operaciones</span>
+                  <span 
+                    class="text-xs text-gray-600"
+                    *ngIf="metodologia === 'Six Sigma'">Mejora de procesos y calidad</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h4 class="font-bold text-blue-800 mb-1 text-sm sm:text-base">Sobre las metodologías</h4>
+              <p class="text-xs sm:text-sm text-blue-700">La metodología define cómo se organizará el trabajo del proyecto. Puedes cambiarla más adelante si es necesario.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 6: Resumen y Confirmación -->
+      <div *ngIf="pasoActual === 6" class="space-y-4 sm:space-y-6 animate-fade-in-up">
+        <div class="border-b border-gray-200 pb-3 sm:pb-4">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-primary mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Resumen del Presupuesto
+          </h3>
+          <p class="text-sm sm:text-base text-gray-600 mt-2 ml-8 sm:ml-11">Revisa la información antes de confirmar</p>
+        </div>
+
+        <!-- Información del Proyecto -->
+        <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <span class="bg-primary text-white w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mr-2 sm:mr-3 text-xs sm:text-sm">1</span>
+            Información del Proyecto
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ml-8 sm:ml-11">
+            <div>
+              <span class="text-xs sm:text-sm text-gray-600">Nombre:</span>
+              <p class="font-semibold text-sm sm:text-base text-gray-900">{{ formulario.nombreProyecto }}</p>
+            </div>
+            <div>
+              <span class="text-xs sm:text-sm text-gray-600">Cliente:</span>
+              <p class="font-semibold text-sm sm:text-base text-gray-900">{{ clienteSeleccionado?.nombre }}</p>
+            </div>
+            <div class="sm:col-span-2">
+              <span class="text-xs sm:text-sm text-gray-600">Descripción:</span>
+              <p class="font-semibold text-sm sm:text-base text-gray-900">{{ formulario.descripcionProyecto }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tipo de Proyecto -->
+        <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <span class="bg-primary text-white w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mr-2 sm:mr-3 text-xs sm:text-sm">2</span>
+            Tipo de Proyecto
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 ml-8 sm:ml-11">
+            <div>
+              <span class="text-xs sm:text-sm text-gray-600">Categoría:</span>
+              <p class="font-semibold text-sm sm:text-base text-primary">{{ formulario.categoriaPrincipal }}</p>
+            </div>
+            <div>
+              <span class="text-xs sm:text-sm text-gray-600">Tiempo estimado:</span>
+              <p class="font-semibold text-sm sm:text-base text-gray-900">{{ formulario.tiempoEstimado }}</p>
+            </div>
+            <div>
+              <span class="text-xs sm:text-sm text-gray-600">Presupuesto:</span>
+              <p class="font-semibold text-sm sm:text-base text-gray-900">{{ formulario.presupuestoAproximado }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tecnologías Seleccionadas -->
+        <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <span class="bg-primary text-white w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mr-2 sm:mr-3 text-xs sm:text-sm">3</span>
+            Tecnologías Seleccionadas
+          </h4>
+          <div class="ml-8 sm:ml-11">
+            <div class="flex flex-wrap gap-2">
+              <span 
+                *ngFor="let tecnologia of formulario.tecnologiasSeleccionadas"
+                class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-primary text-white rounded-full font-medium text-xs sm:text-sm">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                {{ tecnologia }}
+              </span>
+            </div>
+            
+            <div *ngIf="formulario.tecnologiasSeleccionadas.length === 0" class="text-sm text-gray-500 italic">
+              No se han seleccionado tecnologías
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles Adicionales -->
+        <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <span class="bg-primary text-white w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mr-2 sm:mr-3 text-xs sm:text-sm">4</span>
+            Detalles Adicionales
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 ml-8 sm:ml-11">
+            <div>
+              <span class="text-sm text-gray-600">Fecha inicio:</span>
+              <p class="font-semibold text-gray-900">{{ formulario.fechaInicio }}</p>
+            </div>
+            <div>
+              <span class="text-sm text-gray-600">Plazo:</span>
+              <p class="font-semibold text-gray-900">{{ formulario.plazoEntrega }}</p>
+            </div>
+            <div>
+              <span class="text-sm text-gray-600">Prioridad:</span>
+              <p class="font-semibold text-gray-900 capitalize">{{ formulario.prioridad }}</p>
+            </div>
+            <div *ngIf="formulario.notasAdicionales" class="md:col-span-3">
+              <span class="text-sm text-gray-600">Notas:</span>
+              <p class="font-semibold text-gray-900">{{ formulario.notasAdicionales }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metodología -->
+        <div class="bg-gray-50 rounded-lg p-4 sm:p-6">
+          <h4 class="font-bold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 flex items-center">
+            <span class="bg-primary text-white w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mr-2 sm:mr-3 text-xs sm:text-sm">5</span>
+            Metodología de Trabajo
+          </h4>
+          <div class="ml-8 sm:ml-11">
+            <div class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg font-medium">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              {{ formulario.metodologia }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje de confirmación -->
+        <div *ngIf="message" class="bg-green-100 border-l-4 border-green-500 p-4 rounded-lg">
+          <p class="text-green-700 font-medium">{{ message }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de navegación -->
+    <div class="flex justify-between mt-4 sm:mt-6 gap-2">
+      <button 
+        *ngIf="pasoActual > 1"
+        (click)="pasoAnterior()"
+        class="px-4 py-2 sm:px-6 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium flex items-center text-sm sm:text-base">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        <span class="hidden sm:inline">Anterior</span>
+        <span class="sm:hidden">Atrás</span>
+      </button>
+      <button 
+        (click)="cancelar()"
+        class="px-4 py-2 sm:px-6 sm:py-3 border-2 border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition font-medium flex items-center text-sm sm:text-base">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span class="hidden sm:inline">Cancelar</span>
+        <span class="sm:hidden">X</span>
+      </button>
+      <div class="flex-1"></div>
+
+      <button 
+        *ngIf="pasoActual < totalPasos"
+        (click)="siguientePaso()"
+        class="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-primary to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium flex items-center text-sm sm:text-base">
+        Siguiente
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+
+      <button 
+        *ngIf="pasoActual === totalPasos"
+        (click)="enviarPresupuesto()"
+        class="px-4 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-bold flex items-center text-sm sm:text-base">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span class="hidden sm:inline">Confirmar Presupuesto</span>
+        <span class="sm:hidden">Confirmar</span>
+      </button>
+    </div>
+  </div>
+</div>

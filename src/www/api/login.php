@@ -6,26 +6,27 @@
  * Devuelve JSON con success o error.
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Cargar configuración centralizada
+require_once __DIR__ . '/../config/config.php';
 
-// Establecer el header JSON antes que nada
+// Configurar CORS y headers
+setupCors();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-// Manejar preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+handlePreflight();
 
 try {
-    require_once '../controladores/ControladorDeAutenticacion.php';
+    require_once __DIR__ . '/../controladores/ControladorDeAutenticacion.php';
     
     $controller = new ControladorDeAutenticacion(); 
     $controller->apiLogin();
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
+    // Registrar error en log
+    logError('Error en endpoint de login', $e);
+    
+    // No exponer detalles en producción
+    sendJsonError(
+        'Error interno del servidor',
+        500,
+        APP_ENV === 'development' ? $e->getMessage() : null
+    );
 }

@@ -7,7 +7,7 @@ import { HistorialService, HistorialItem } from '../../services/historial.servic
   standalone: true,
   imports: [CommonModule],
   templateUrl: './historial.component.html',
-  styleUrls: ['./historial.component.scss']
+  styleUrls: ['./historial.component.css']
 })
 export class HistorialComponent implements OnInit {
   private historialService = inject(HistorialService);
@@ -36,7 +36,6 @@ export class HistorialComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         this.error = 'Error de conexión con el servidor';
-        console.error('Error cargando historial:', err);
       }
     });
   }

@@ -18,7 +18,7 @@ class Administrador {
     public $email;
     // Contraseña del administrador
     public $password;
-    // Rol del usuario (jefe_equipo, trabajador, moderador)
+    // Rol del usuario (administrador)
     public $rol;
     // Teléfono del administrador
     public $telefono;
@@ -55,7 +55,7 @@ class Administrador {
         }
         
         // Preparar consulta con parámetros para prevenir SQL injection
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol IN ('jefe_equipo', 'moderador')";
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'administrador'";
         $stmt = $this->conn->prepare($query);
         
         if ($stmt->execute([':email' => $email])) {
@@ -96,7 +96,7 @@ class Administrador {
         }
         
         // Preparar consulta con parámetros para prevenir SQL injection
-        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol IN ('jefe_equipo', 'moderador')";
+        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'administrador'";
         $stmt = $this->conn->prepare($query);
         
         if ($stmt->execute([':dni' => $dni])) {
@@ -107,7 +107,7 @@ class Administrador {
                 $this->dni = $row['dni'];
                 $this->nombre = $row['nombre'];
                 $this->email = $row['email'];
-                $this->contrase = $row['contrase'];
+                $this->password = $row['password'];
                 $this->rol = $row['rol'];
                 $this->telefono = $row['telefono'] ?? null;
                 $this->fecha_registro = $row['fecha_registro'];
