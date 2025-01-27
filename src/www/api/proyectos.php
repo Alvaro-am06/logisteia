@@ -111,19 +111,26 @@ switch ($method) {
         if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
             $proyectoId = intval($matches[1]);
             
+            error_log("🔵 POST /trabajadores - Proyecto ID: $proyectoId");
+            error_log("🔵 Input recibido: " . json_encode($input));
+            
             if (!isset($input['trabajadores']) || !is_array($input['trabajadores'])) {
+                error_log("❌ Error: No se envió array de trabajadores");
                 http_response_code(400);
                 echo json_encode(['error' => 'Se requiere un array de trabajadores']);
                 exit();
             }
             
             try {
+                error_log("🔵 Intentando asignar " . count($input['trabajadores']) . " trabajadores");
                 $proyecto->asignarTrabajadores($proyectoId, $input['trabajadores']);
+                error_log("✅ Trabajadores asignados correctamente");
                 echo json_encode([
                     'success' => true,
                     'message' => 'Trabajadores asignados correctamente'
                 ]);
             } catch (Exception $e) {
+                error_log("❌ Error asignando trabajadores: " . $e->getMessage());
                 http_response_code(500);
                 echo json_encode([
                     'success' => false,
