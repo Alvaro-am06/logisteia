@@ -1,0 +1,79 @@
+<!-- Navbar superior -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-xl">Logisteia</a>
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Usuario Registrado</span>
+        <button (click)="cerrarSesion()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-lg">
+    <nav class="p-4">
+      <ul class="space-y-2">
+        <li>
+          <a href="#dashboard" class="flex items-center px-4 py-2 text-gray-700 bg-blue-50 rounded-lg hover:bg-blue-100">
+            <i class="bi bi-house-door mr-3"></i> Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="#mis-proyectos" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
+            <i class="bi bi-folder mr-3"></i> Mis Proyectos
+          </a>
+        </li>
+        <li>
+          <a href="#perfil" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100">
+            <i class="bi bi-person mr-3"></i> Mi Perfil
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">Bienvenido, {{ nombreUsuario }}</h1>
+
+      <!-- Cards de resumen -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center">
+            <div class="p-3 bg-blue-100 rounded-full">
+              <i class="bi bi-folder text-blue-600 text-2xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-600">Proyectos Creados</p>
+              <p class="text-2xl font-bold text-gray-900">{{ proyectosCreados }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="flex items-center">
+            <div class="p-3 bg-green-100 rounded-full">
+              <i class="bi bi-check-circle text-green-600 text-2xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-gray-600">Proyectos Completados</p>
+              <p class="text-2xl font-bold text-gray-900">{{ proyectosCompletados }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenido adicional -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Actividad Reciente</h2>
+        <p class="text-gray-600">Aquí puedes gestionar tus proyectos y actualizar tu perfil.</p>
+      </div>
+    </div>
+  </main>
+</div>

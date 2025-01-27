@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 try {
     require_once '../controladores/ControladorDeAutenticacion.php';
     
-    $controller = new ControladorDeAutenticacion();
+    $controller = new ControladorDeAutenticacion(); 
     $controller->apiLogin();
 } catch (Exception $e) {
     echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);

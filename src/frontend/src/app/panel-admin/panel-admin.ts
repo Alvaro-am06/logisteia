@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
   selector: 'app-panel-admin',
   imports: [CommonModule, RouterLink],
   templateUrl: './panel-admin.html',
-  styleUrl: './panel-admin.css',
 })
 export class PanelAdmin {
   private router = inject(Router);
