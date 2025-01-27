@@ -1,23 +1,22 @@
 {
-    # Tu email para avisos de seguridad de los certificados SSL
-    email admin@logisteia.com 
+    email admin@logisteia.com
 }
 
+# --- Tu web principal (Angular + PHP) ---
 logisteia.com, www.logisteia.com {
-    # 1. Configuración básica
     root * /srv
     encode gzip
-
-    # 2. PROXY INVERSO al Backend (PHP)
-    # Todo archivo .php se manda al contenedor 'backend'
+    
     php_fastcgi backend:9000 {
-        # Si tienes archivos subidos, asegúrate que las rutas coincidan
         root /var/www/html
     }
-
-    # 3. Servidor de Archivos (Frontend Angular)
+    
     file_server
-
-    # Routing de Angular (Si no existe el archivo, carga index.html)
     try_files {path} {path}/ /index.html
+}
+
+# --- NUEVO: phpMyAdmin ---
+pma.logisteia.com {
+    # Redirige el tráfico al contenedor de phpmyadmin en su puerto interno (80)
+    reverse_proxy phpmyadmin:80
 }
