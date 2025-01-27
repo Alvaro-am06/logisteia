@@ -12,7 +12,6 @@ export interface MiembroEquipo {
   telefono: string | null;
   rol_proyecto: string;
   fecha_ingreso: string;
-  estado_invitacion: 'pendiente' | 'aceptada' | 'rechazada';
   activo: boolean;
   estado_usuario: string;
 }
@@ -37,7 +36,6 @@ export interface AgregarMiembroResponse {
     email: string;
     nombre: string;
     rol_proyecto: string;
-    estado_invitacion: string;
   };
 }
 
