@@ -1,0 +1,25 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+table th {
+  background: #333;
+  color: #fff;
+}
+table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+.acciones a {
+  margin-right: 8px;
+  color: #337ab7;
+  text-decoration: none;
+}
+.acciones a:hover {
+  text-decoration: underline;
+}
