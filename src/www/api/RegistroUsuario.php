@@ -90,27 +90,32 @@ try {
     $result = $authController->procesarRegistro($dni, $nombre, $email, $password, $telefono, $rol);
 
     if ($result['success']) {
-        // Enviar email de bienvenida
-        require_once __DIR__ . '/../config/email.php';
-        
-        $asunto = "Bienvenido a Logisteia";
-        $mensajeHTML = "<html><body>
-            <h2>¡Bienvenido a Logisteia, $nombre!</h2>
-            <p>Tu cuenta ha sido creada exitosamente.</p>
-            <p><strong>Datos de acceso:</strong></p>
-            <ul>
-                <li>Email: $email</li>
-                <li>Rol: $rol</li>
-            </ul>
-            <p>Ya puedes iniciar sesión en la plataforma y comenzar a utilizar nuestros servicios.</p>
-            <br>
-            <p>Saludos,<br>Equipo Logisteia</p>
-        </body></html>";
-        
-        enviarEmail($email, $nombre, $asunto, $mensajeHTML, 'logisteiaa@gmail.com', 'Equipo Logisteia');
+        // Intentar enviar email de bienvenida (no bloquear si falla)
+        try {
+            require_once __DIR__ . '/../config/email.php';
+            
+            $asunto = "Bienvenido a Logisteia";
+            $mensajeHTML = "<html><body>
+                <h2>¡Bienvenido a Logisteia, $nombre!</h2>
+                <p>Tu cuenta ha sido creada exitosamente.</p>
+                <p><strong>Datos de acceso:</strong></p>
+                <ul>
+                    <li>Email: $email</li>
+                    <li>Rol: $rol</li>
+                </ul>
+                <p>Ya puedes iniciar sesión en la plataforma y comenzar a utilizar nuestros servicios.</p>
+                <br>
+                <p>Saludos,<br>Equipo Logisteia</p>
+            </body></html>";
+            
+            enviarEmail($email, $nombre, $asunto, $mensajeHTML, 'logisteiaa@gmail.com', 'Equipo Logisteia');
+        } catch (Exception $emailError) {
+            // Log del error pero no detener el proceso
+            logError('Error al enviar email de bienvenida', $emailError);
+        }
         
         sendJsonSuccess([
-            'message' => 'Usuario registrado exitosamente. Se ha enviado un email de bienvenida.',
+            'message' => 'Usuario registrado exitosamente.',
             'rol' => $rol
         ], 201);
     } else {
