@@ -201,7 +201,8 @@ class Proyecto {
      */
     public function obtenerMiembrosEquipoDisponibles($equipo_id, $proyecto_id = null) {
         // Obtener todos los miembros del equipo que estén activos
-        $sql = "SELECT u.dni, u.nombre, u.email, u.rol, me.rol_proyecto
+        // SIN filtrar por estado_invitacion ni rol_proyecto
+        $sql = "SELECT DISTINCT u.dni, u.nombre, u.email, u.rol
                 FROM usuarios u
                 INNER JOIN miembros_equipo me ON u.dni = me.trabajador_dni
                 WHERE me.equipo_id = :equipo_id
@@ -223,8 +224,10 @@ class Proyecto {
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("✅ Miembros disponibles para equipo $equipo_id: " . count($resultado) . " encontrados");
+        return $resultado;
     }
 
     /**
