@@ -6,21 +6,12 @@
 api.logisteia.com {
     root * /var/www/html
     
-    # Headers CORS
-    header {
-        Access-Control-Allow-Origin "*"
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email"
-        Access-Control-Allow-Credentials "false"
-    }
-    
-    # Manejar OPTIONS directamente
+    # Manejar OPTIONS directamente (dejar pasar al PHP)
     @options {
         method OPTIONS
     }
-    respond @options 204
     
-    # PHP-FPM
+    # PHP-FPM (PHP maneja los headers CORS)
     php_fastcgi backend:9000 {
         root /var/www/html
     }
