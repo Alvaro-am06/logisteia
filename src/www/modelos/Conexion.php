@@ -1,5 +1,4 @@
 <?php
-<?php
 /**
  * Clase Conexion
  * Proporciona una instancia PDO reutilizable.
