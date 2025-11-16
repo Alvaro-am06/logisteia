@@ -1,1 +1,1 @@
--- Script de datos de pruebas
+﻿-- datos_pruebas.sql
