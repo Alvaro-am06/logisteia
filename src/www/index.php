@@ -1,2 +1,3 @@
 <?php
-// Punto de entrada principal del proyecto
+header('Location: login.php');
+exit();
