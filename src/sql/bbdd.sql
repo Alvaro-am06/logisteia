@@ -40,7 +40,7 @@ ALTER TABLE
 CREATE TABLE `detalle_presupuesto`(
   `id_linea` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `numero_presupuesto` VARCHAR(255) NOT NULL,
-  `presupuesto_id` INT NULL DEFAULT 'DEFAULT NULL',
+  `presupuesto_id` INT NULL,
   `servicio_nombre` VARCHAR(255) NOT NULL,
   `cantidad` INT NOT NULL DEFAULT '1',
   `preci` DECIMAL(10, 2) NOT NULL,
