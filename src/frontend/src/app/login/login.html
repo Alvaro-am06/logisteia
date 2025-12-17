@@ -13,12 +13,18 @@
       <div class="rounded-lg shadow-lg p-8 bg-white w-full">
         <div class="text-center mb-8">
           <img src="/img/icono.png" alt="Logisteia Logo" class="w-16 h-16 mx-auto mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
+          <h2 class="text-2xl font-bold text-gray-800">{{ isLogin ? 'Iniciar Sesión' : 'Registrarse' }}</h2>
+          <p class="text-gray-600 mt-2">
+            {{ isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}
+            <a (click)="toggleMode()" class="text-primary hover:underline cursor-pointer">
+              {{ isLogin ? 'Regístrate aquí' : 'Inicia sesión aquí' }}
+            </a>
+          </p>
         </div>
         <div *ngIf="message" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          <strong>Error:</strong> {{ message }}
+          <strong>{{ isLogin ? 'Error:' : 'Éxito:' }}</strong> {{ message }}
         </div>
-        <form (ngSubmit)="onSubmit()">
+        <form *ngIf="isLogin" (ngSubmit)="onSubmit()">
           <div class="mb-4">
             <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Correo Electrónico</label>
             <input
@@ -45,6 +51,67 @@
           </div>
           <button type="submit" class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-dark focus:outline-none focus:ring-2 focus:ring-light focus:ring-offset-2 transition duration-200">
             Iniciar Sesión
+          </button>
+        </form>
+        <form *ngIf="!isLogin" (ngSubmit)="onRegister()">
+          <div class="mb-4">
+            <label for="dni" class="block text-gray-700 text-sm font-medium mb-2">DNI</label>
+            <input
+              id="dni"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              [(ngModel)]="dni"
+              name="dni"
+              placeholder="12345678A"
+              required>
+          </div>
+          <div class="mb-4">
+            <label for="nombre" class="block text-gray-700 text-sm font-medium mb-2">Nombre Completo</label>
+            <input
+              id="nombre"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              [(ngModel)]="nombre"
+              name="nombre"
+              placeholder="Juan Pérez"
+              required>
+          </div>
+          <div class="mb-4">
+            <label for="telefono" class="block text-gray-700 text-sm font-medium mb-2">Teléfono</label>
+            <input
+              id="telefono"
+              type="tel"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              [(ngModel)]="telefono"
+              name="telefono"
+              placeholder="600123456">
+          </div>
+          <div class="mb-4">
+            <label for="emailReg" class="block text-gray-700 text-sm font-medium mb-2">Correo Electrónico</label>
+            <input
+              id="emailReg"
+              type="email"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              [(ngModel)]="email"
+              name="emailReg"
+              placeholder="correo@ejemplo.com"
+              required
+              autocomplete="email">
+          </div>
+          <div class="mb-6">
+            <label for="passwordReg" class="block text-gray-700 text-sm font-medium mb-2">Contraseña</label>
+            <input
+              id="passwordReg"
+              type="password"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              [(ngModel)]="password"
+              name="passwordReg"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password">
+          </div>
+          <button type="submit" class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-dark focus:outline-none focus:ring-2 focus:ring-light focus:ring-offset-2 transition duration-200">
+            Registrarse
           </button>
         </form>
       </div>
