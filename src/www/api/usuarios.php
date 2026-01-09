@@ -64,9 +64,10 @@ try {
             // Obtener historial del usuario
             $historial = $modeloAccion->obtenerPorUsuario($dni);
             
-            // Agregar campo 'estado' basado en rol (para compatibilidad con frontend)
-            $usuario['estado'] = $usuario['rol'] === 'administrador' ? 'activo' : 'suspendido';
-            $usuario['telefono'] = $usuario['telefono'] ?? '';
+            // El campo 'estado' ya viene de la BD, agregar telefono si es null
+            if (!isset($usuario['telefono']) || $usuario['telefono'] === null) {
+                $usuario['telefono'] = '';
+            }
             
             echo json_encode([
                 'success' => true,
@@ -79,11 +80,14 @@ try {
             // Listar todos los usuarios
             $usuarios = $modeloUsuario->obtenerTodos();
             
-            // Agregar campo 'estado' y 'telefono' a cada usuario
+            // Agregar campo 'telefono' si es null
             foreach ($usuarios as &$user) {
-                $user['estado'] = $user['rol'] === 'administrador' ? 'activo' : 'suspendido';
-                $user['telefono'] = $user['telefono'] ?? '';
-                $user['fecha_registro'] = $user['fecha_registro'] ?? date('Y-m-d H:i:s');
+                if (!isset($user['telefono']) || $user['telefono'] === null) {
+                    $user['telefono'] = '';
+                }
+                if (!isset($user['fecha_registro'])) {
+                    $user['fecha_registro'] = date('Y-m-d H:i:s');
+                }
             }
             
             echo json_encode([
