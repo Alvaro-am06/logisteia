@@ -5,6 +5,7 @@ import { PanelRegistrado } from './panel-registrado/panel-registrado';
 import { Plantilla } from './plantilla/plantilla';
 import { Usuarios } from './usuarios/usuarios';
 import { Presupuesto } from './presupuesto/presupuesto';
+import { MisProyectos } from './mis-proyectos/mis-proyectos';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -14,4 +15,5 @@ export const routes: Routes = [
   { path: 'plantilla', component: Plantilla },
   { path: 'usuarios', component: Usuarios },
   { path: 'presupuesto', component: Presupuesto },
+  { path: 'mis-proyectos', component: MisProyectos },
 ];
