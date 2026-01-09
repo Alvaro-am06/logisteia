@@ -18,7 +18,7 @@ class Usuarios {
      * @return array
      */
     public function obtenerTodos() {
-        $stmt = $this->db->query("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios ORDER BY nombre");
+        $stmt = $this->db->query("SELECT usuarios.dni, usuarios.email, usuarios.nombre, usuarios.rol, usuarios.telefono, usuarios.fecha_registro FROM usuarios ORDER BY nombre");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -28,7 +28,7 @@ class Usuarios {
      * @return array|false
      */
     public function obtenerPorDni($dni) {
-        $stmt = $this->db->prepare("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios WHERE dni = ?");
+        $stmt = $this->db->prepare("SELECT usuarios.dni, usuarios.email, usuarios.nombre, usuarios.rol, usuarios.telefono, usuarios.fecha_registro FROM usuarios WHERE dni = ?");
         $stmt->execute(array($dni));
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

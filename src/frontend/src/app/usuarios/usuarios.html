@@ -1,1 +1,120 @@
-<p>usuarios works!</p>
+<div class="container mx-auto px-4 py-8">
+  <!-- Encabezado -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Gestión de Usuarios</h1>
+    <p class="text-gray-600">Administra los usuarios registrados en el sistema</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+    {{ error }}
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <p class="mt-4 text-gray-600">Cargando usuarios...</p>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div *ngIf="!loading && !error" class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              DNI
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Nombre
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Email
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Teléfono
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Rol
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Estado
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let usuario of usuarios" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              {{ usuario.dni }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ usuario.nombre }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ usuario.email }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ usuario.telefono || 'N/A' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getRolClass(usuario.rol)">
+                {{ usuario.rol }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getEstadoClass(usuario.estado)">
+                {{ usuario.estado }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+              <button
+                (click)="cambiarEstado(usuario.dni, 'activar')"
+                [disabled]="usuario.rol === 'administrador'"
+                class="text-green-600 hover:text-green-900 disabled:text-gray-400 disabled:cursor-not-allowed"
+                title="Activar como administrador">
+                <i class="bi bi-check-circle"></i> Activar
+              </button>
+              <button
+                (click)="cambiarEstado(usuario.dni, 'suspender')"
+                [disabled]="usuario.rol === 'registrado'"
+                class="text-yellow-600 hover:text-yellow-900 disabled:text-gray-400 disabled:cursor-not-allowed"
+                title="Suspender (cambiar a registrado)">
+                <i class="bi bi-pause-circle"></i> Suspender
+              </button>
+              <button
+                (click)="cambiarEstado(usuario.dni, 'eliminar')"
+                class="text-red-600 hover:text-red-900"
+                title="Eliminar usuario">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje si no hay usuarios -->
+    <div *ngIf="usuarios.length === 0" class="text-center py-12">
+      <p class="text-gray-500">No hay usuarios registrados</p>
+    </div>
+  </div>
+
+  <!-- Resumen de usuarios -->
+  <div *ngIf="!loading && !error && usuarios.length > 0" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-blue-50 rounded-lg p-4">
+      <div class="text-sm text-blue-600 font-medium">Total de usuarios</div>
+      <div class="text-2xl font-bold text-blue-900">{{ usuarios.length }}</div>
+    </div>
+    <div class="bg-green-50 rounded-lg p-4">
+      <div class="text-sm text-green-600 font-medium">Administradores</div>
+      <div class="text-2xl font-bold text-green-900">{{ contarPorRol('administrador') }}</div>
+    </div>
+    <div class="bg-gray-50 rounded-lg p-4">
+      <div class="text-sm text-gray-600 font-medium">Registrados</div>
+      <div class="text-2xl font-bold text-gray-900">{{ contarPorRol('registrado') }}</div>
+    </div>
+  </div>
+</div>
