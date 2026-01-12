@@ -18,7 +18,7 @@ class Usuarios {
      * @return array
      */
     public function obtenerTodos() {
-        $stmt = $this->db->query("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios ORDER BY nombre");
+        $stmt = $this->db->query("SELECT usuarios.dni, usuarios.email, usuarios.nombre, usuarios.rol, usuarios.estado, usuarios.telefono, usuarios.fecha_registro FROM usuarios ORDER BY nombre");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -28,7 +28,7 @@ class Usuarios {
      * @return array|false
      */
     public function obtenerPorDni($dni) {
-        $stmt = $this->db->prepare("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios WHERE dni = ?");
+        $stmt = $this->db->prepare("SELECT usuarios.dni, usuarios.email, usuarios.nombre, usuarios.rol, usuarios.estado, usuarios.telefono, usuarios.fecha_registro FROM usuarios WHERE dni = ?");
         $stmt->execute(array($dni));
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -45,30 +45,33 @@ class Usuarios {
     }
 
     /**
-     * Eliminación lógica (marcar como registrado).
+     * Eliminación lógica (marcar como eliminado).
      * @param string $dni
      * @return bool
      */
     public function eliminarLogico($dni) {
-        return $this->cambiarRol($dni, 'registrado');
+        $stmt = $this->db->prepare("UPDATE usuarios SET estado = 'eliminado' WHERE dni = ?");
+        return $stmt->execute(array($dni));
     }
 
     /**
-     * Activar usuario (cambiar a administrador).
+     * Activar usuario (cambiar a administrador y estado activo).
      * @param string $dni
      * @return bool
      */
     public function activar($dni) {
-        return $this->cambiarRol($dni, 'administrador');
+        $stmt = $this->db->prepare("UPDATE usuarios SET rol = 'administrador', estado = 'activo' WHERE dni = ?");
+        return $stmt->execute(array($dni));
     }
 
     /**
-     * Suspender usuario (cambiar a registrado).
+     * Suspender usuario (cambiar a registrado y estado suspendido).
      * @param string $dni
      * @return bool
      */
     public function suspender($dni) {
-        return $this->cambiarRol($dni, 'registrado');
+        $stmt = $this->db->prepare("UPDATE usuarios SET rol = 'registrado', estado = 'suspendido' WHERE dni = ?");
+        return $stmt->execute(array($dni));
     }
 
     /**

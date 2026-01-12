@@ -7,6 +7,7 @@ export interface Usuario {
   nombre: string;
   email: string;
   telefono: string;
+  rol: string;
   estado: string;
   fecha_registro: string;
 }
@@ -36,7 +37,8 @@ export interface ApiResponse<T> {
 export class UsuarioService {
   private http = inject(HttpClient);
 
-  private apiUrl = '/api/usuarios';
+  private apiUrl = 'http://localhost/logisteia/src/www/api/usuarios.php';
+  private historialUrl = 'http://localhost/logisteia/src/www/api/historial.php';
 
   // Obtener todos los usuarios
   getUsuarios(): Observable<ApiResponse<Usuario[]>> {
@@ -48,11 +50,16 @@ export class UsuarioService {
     return this.http.get<ApiResponse<UsuarioDetalle>>(`${this.apiUrl}/${dni}`);
   }
 
-  // Cambiar rol de usuario
+  // Cambiar rol de usuario (activar/suspender/eliminar)
   cambiarRol(dni: string, operacion: string, motivo?: string): Observable<ApiResponse<{message: string}>> {
     return this.http.post<ApiResponse<{message: string}>>(`${this.apiUrl}/${dni}`, {
       operacion,
       motivo
     });
+  }
+
+  // Obtener historial completo de acciones administrativas
+  getHistorial(): Observable<ApiResponse<HistorialAccion[]>> {
+    return this.http.get<ApiResponse<HistorialAccion[]>>(this.historialUrl);
   }
 }
