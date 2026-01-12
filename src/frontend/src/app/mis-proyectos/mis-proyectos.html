@@ -83,9 +83,28 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">{{ presupuesto.validez_dias }} días</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button (click)="verDetalle(presupuesto)" class="text-[#102a41] hover:text-[#1a3f5e] mr-3">
-                  <i class="bi bi-eye"></i> Ver
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                <button (click)="verDetalle(presupuesto)" 
+                        class="text-blue-600 hover:text-blue-800" 
+                        title="Ver detalle">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button (click)="exportarPDF(presupuesto.numero_presupuesto)" 
+                        class="text-green-600 hover:text-green-800" 
+                        title="Exportar PDF">
+                  <i class="bi bi-file-pdf"></i>
+                </button>
+                <button *ngIf="presupuesto.estado === 'borrador'" 
+                        (click)="cambiarEstado(presupuesto, 'enviado')" 
+                        class="text-indigo-600 hover:text-indigo-800" 
+                        title="Enviar">
+                  <i class="bi bi-send"></i>
+                </button>
+                <button *ngIf="presupuesto.estado !== 'eliminado'" 
+                        (click)="eliminarPresupuesto(presupuesto.numero_presupuesto)" 
+                        class="text-red-600 hover:text-red-800" 
+                        title="Eliminar">
+                  <i class="bi bi-trash"></i>
                 </button>
               </td>
             </tr>
@@ -205,7 +224,18 @@
       </div>
 
       <!-- Footer del modal -->
-      <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+      <div class="bg-gray-50 px-6 py-4 flex justify-between items-center gap-3 border-t">
+        <div class="flex gap-2" *ngIf="presupuestoSeleccionado">
+          <button (click)="exportarPDF(presupuestoSeleccionado.numero_presupuesto)" 
+                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+            <i class="bi bi-file-pdf mr-2"></i>Exportar PDF
+          </button>
+          <button *ngIf="presupuestoSeleccionado.estado === 'borrador'" 
+                  (click)="cambiarEstado(presupuestoSeleccionado, 'enviado'); cerrarModal()" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            <i class="bi bi-send mr-2"></i>Enviar
+          </button>
+        </div>
         <button (click)="cerrarModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
           Cerrar
         </button>
