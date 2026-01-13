@@ -1,35 +1,6 @@
 # LOGISTEIA - Sprint Backlog 3
 **Planifica con precisión. Ejecuta con control.**
 
----
-
-## Información del Sprint
-
-| Campo | Valor |
-|-------|-------|
-| **Sprint** | Sprint 3 |
-| **Duración** | 2 semanas |
-| **Fecha Inicio** | 12 de enero de 2026 |
-| **Fecha Fin** | 26 de enero de 2026 |
-| **Equipo** | Álvaro Andrades Márquez, Fernando José Leva Rosa |
-| **Objetivo del Sprint** | Completar la gestión de presupuestos (HU-05) con funcionalidades CRUD completas, exportación a PDF y gestión de estados |
-
----
-
-## Historias de Usuario del Sprint
-
-### HU-05: Gestión de Presupuestos ✅ COMPLETADA
-
-**Como** usuario registrado  
-**Quiero** gestionar presupuestos de manera completa  
-**Para** crear, modificar, eliminar y exportar mis presupuestos de proyectos
-
-**Prioridad**: Alta  
-**Puntos de Historia**: 13  
-**Estado**: ✅ COMPLETADA
-
----
-
 ## Tareas del Sprint
 
 ### 📋 HU-05: Gestión de Presupuestos
@@ -148,19 +119,19 @@
 
 ## Retrospectiva del Sprint
 
-### ✅ Qué Salió Bien
+###  Qué Salió Bien
 - Implementación completa de CRUD de presupuestos
 - APIs RESTful bien estructuradas y documentadas
 - Interfaz de usuario intuitiva y responsive
 - Trabajo en equipo eficiente
 - Documentación detallada de funcionalidades
 
-### ⚠️ Qué Mejorar
+###  Qué Mejorar
 - Falta testing automatizado
 - PDF básico (sin librería especializada)
 - No se implementó edición completa de presupuestos en estado borrador
 
-### 🎯 Acciones para el Próximo Sprint
+###  Acciones para el Próximo Sprint
 - Implementar tests unitarios y de integración
 - Investigar e integrar TCPDF o similar para PDFs profesionales
 - Añadir edición completa de presupuestos
@@ -192,8 +163,8 @@ Para considerar una historia completada, debe cumplir:
 
 | ID | Impedimento/Riesgo | Severidad | Estado | Resolución |
 |----|-------------------|-----------|--------|------------|
-| I-3.1 | Falta librería PDF profesional | Media | ⚠️ Abierto | Se implementó solución HTML básica |
-| I-3.2 | Testing manual toma tiempo | Media | ⚠️ Abierto | Pendiente automatización |
+| I-3.1 | Falta librería PDF profesional | Media |  Abierto | Se implementó solución HTML básica |
+| I-3.2 | Testing manual toma tiempo | Media |  Abierto | Pendiente automatización |
 
 ---
 
@@ -220,9 +191,9 @@ Para considerar una historia completada, debe cumplir:
 src/
 ├── www/
 │   ├── api/
-│   │   ├── actualizar-presupuesto.php ⭐ NUEVO
-│   │   ├── eliminar-presupuesto.php ⭐ NUEVO
-│   │   ├── exportar-presupuesto-pdf.php ⭐ NUEVO
+│   │   ├── actualizar-presupuesto.php  NUEVO
+│   │   ├── eliminar-presupuesto.php  NUEVO
+│   │   ├── exportar-presupuesto-pdf.php  NUEVO
 │   │   ├── presupuestos.php (existente)
 │   │   ├── mis-presupuestos.php (existente)
 │   │   └── detalle-presupuesto.php (existente)
@@ -233,33 +204,47 @@ src/
         └── app/
             ├── presupuesto/ (existente)
             └── mis-proyectos/ (actualizado)
-                ├── mis-proyectos.ts ⭐ ACTUALIZADO
-                └── mis-proyectos.html ⭐ ACTUALIZADO
+                ├── mis-proyectos.ts  ACTUALIZADO
+                └── mis-proyectos.html  ACTUALIZADO
 ```
 
-### Decisiones Técnicas
+## Finalización HU Parciales
 
-1. **Eliminación Lógica**: Se optó por eliminación lógica (cambio de estado) en lugar de eliminación física para preservar histórico y trazabilidad.
+En este sprint se priorizó la **finalización de HU parcialmente implementadas** en lugar de comenzar nuevas funcionalidades, siguiendo las mejores prácticas de desarrollo ágil. Se completaron 2 historias de usuario que estaban iniciadas pero no finalizadas:
 
-2. **PDF HTML**: Se implementó generación de PDF mediante HTML con `window.print()` como solución inicial. Pendiente integración de TCPDF para PDFs más profesionales.
+- **HU-03**: Gestionar Usuarios Registrados (de 60% → 100%)
+- **HU-04**: Login para Registrar Clientes (de 40% → 100%)
 
-3. **Estados de Presupuesto**: Se definió el workflow: borrador → enviado → aprobado/rechazado. Cualquier estado puede pasar a eliminado.
+### HU-03: Gestionar Usuarios Registrados ✅
+- Listado completo con badges de estado
+- Activar usuarios como administradores
+- Suspender usuarios activos
+- Eliminar usuarios (eliminación lógica)
+- Historial de acciones administrativas
+- Validaciones frontend y backend
+- UI moderna con TailwindCSS
+- Documentación completa
 
-4. **Validaciones**: Se implementaron validaciones tanto en frontend (UX) como en backend (seguridad).
+### HU-04: Login para Registrar Clientes ✅
+- Componente RegistrarClienteComponent completo
+- API REST de clientes (/api/clientes.php) con CRUD completo
+- Componente ClientesComponent con listado
+- Validaciones DNI, email, duplicados
+- Contraseñas hasheadas con seguridad
+- Registro en historial de acciones
+- Integración en panel de administración
+- Documentación completa
 
----
+### Tareas Técnicas Realizadas
+- Revisar estado HU parcialmente implementadas
+- Documentar HU-03 (Gestionar Usuarios)
+- Crear API REST de clientes (clientes.php)
+- Crear componente RegistrarClienteComponent
+- Actualizar ClienteService con CRUD completo
+- Actualizar ClientesComponent con eliminación
+- Integrar rutas en app.routes.ts
+- Actualizar menú en panel-admin.html
+- Documentar HU-04 completamente
+- Testing manual de flujos completos
+- Crear Sprint Backlog 4
 
-## Aprobación del Sprint
-
-| Rol | Nombre | Firma | Fecha |
-|-----|--------|-------|-------|
-| Product Owner | - | - | - |
-| Scrum Master | - | - | - |
-| Equipo Desarrollo | Álvaro Andrades | ✅ | 12/01/2026 |
-| Equipo Desarrollo | Fernando José Leva | ✅ | 12/01/2026 |
-
----
-
-**Generado**: 12 de enero de 2026  
-**IES Castelar - 2ºDAW**  
-**Proyecto**: LOGISTEIA - Sistema de Gestión de Presupuestos

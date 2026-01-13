@@ -54,6 +54,14 @@ $nombre = trim($input['nombre']);
 $email = trim($input['email']);
 $password = $input['password'];
 $telefono = isset($input['telefono']) ? trim($input['telefono']) : null;
+$rol = isset($input['rol']) ? trim($input['rol']) : 'trabajador';
+
+// Validar rol
+if (!in_array($rol, ['trabajador', 'jefe_equipo'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Rol inválido. Debe ser "trabajador" o "jefe_equipo"']);
+    exit();
+}
 
 // Validar formato de email
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -72,12 +80,16 @@ if (strlen($password) < 6) {
 // Inicializar controlador
 $authController = new ControladorDeAutenticacion();
 
-// Procesar registro
-$result = $authController->procesarRegistro($dni, $nombre, $email, $password, $telefono);
+// Procesar registro con rol
+$result = $authController->procesarRegistro($dni, $nombre, $email, $password, $telefono, $rol);
 
 if ($result['success']) {
     http_response_code(201);
-    echo json_encode(['success' => true, 'message' => 'Usuario registrado exitosamente']);
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Usuario registrado exitosamente',
+        'rol' => $rol
+    ]);
 } else {
     http_response_code(400);
     echo json_encode(['error' => $result['error']]);

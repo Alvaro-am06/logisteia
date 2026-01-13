@@ -18,6 +18,7 @@ export class Login {
   dni = '';
   nombre = '';
   telefono = '';
+  rol = 'trabajador'; // trabajador o jefe_equipo
   message = '';
   isLogin = true;
 
@@ -43,9 +44,11 @@ export class Login {
               localStorage.setItem('usuario', JSON.stringify(response.data));
             }
             // Redirigir basado en el rol del usuario
-            if (response.data.rol === 'administrador') {
+            if (response.data.rol === 'moderador') {
+              this.router.navigate(['/panel-moderador']);
+            } else if (response.data.rol === 'administrador' || response.data.rol === 'jefe_equipo') {
               this.router.navigate(['/panel-admin']);
-            } else if (response.data.rol === 'registrado') {
+            } else if (response.data.rol === 'registrado' || response.data.rol === 'trabajador') {
               this.router.navigate(['/panel-registrado']);
             } else {
               this.message = 'Rol de usuario desconocido';
@@ -81,7 +84,8 @@ export class Login {
       nombre: this.nombre,
       telefono: this.telefono,
       email: this.email,
-      password: this.password
+      password: this.password,
+      rol: this.rol
     })
       .subscribe({
         next: (response: any) => {

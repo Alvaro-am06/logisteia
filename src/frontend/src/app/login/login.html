@@ -87,6 +87,45 @@
               placeholder="600123456">
           </div>
           <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-medium mb-2">Tipo de Cuenta</label>
+            <div class="flex gap-4">
+              <label class="flex items-center cursor-pointer flex-1 p-3 border-2 rounded-lg transition-all"
+                     [class.border-primary]="rol === 'trabajador'"
+                     [class.bg-blue-50]="rol === 'trabajador'"
+                     [class.border-gray-300]="rol !== 'trabajador'">
+                <input
+                  type="radio"
+                  name="rol"
+                  value="trabajador"
+                  [(ngModel)]="rol"
+                  class="mr-2">
+                <div>
+                  <div class="font-semibold text-gray-800">Trabajador</div>
+                  <div class="text-xs text-gray-600">Formo parte de un equipo</div>
+                </div>
+              </label>
+              <label class="flex items-center cursor-pointer flex-1 p-3 border-2 rounded-lg transition-all"
+                     [class.border-primary]="rol === 'jefe_equipo'"
+                     [class.bg-blue-50]="rol === 'jefe_equipo'"
+                     [class.border-gray-300]="rol !== 'jefe_equipo'">
+                <input
+                  type="radio"
+                  name="rol"
+                  value="jefe_equipo"
+                  [(ngModel)]="rol"
+                  class="mr-2">
+                <div>
+                  <div class="font-semibold text-gray-800">Jefe de Equipo</div>
+                  <div class="text-xs text-gray-600">Gestiono proyectos</div>
+                </div>
+              </label>
+            </div>
+            <p class="mt-2 text-xs text-gray-500">
+              <i class="bi bi-info-circle"></i>
+              El rol no podrá cambiarse después del registro
+            </p>
+          </div>
+          <div class="mb-4">
             <label for="emailReg" class="block text-gray-700 text-sm font-medium mb-2">Correo Electrónico</label>
             <input
               id="emailReg"
