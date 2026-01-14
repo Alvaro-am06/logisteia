@@ -9,7 +9,7 @@ USE `Logisteia`;
 -- Agregar nuevos campos y modificar roles
 ALTER TABLE `usuarios` 
   MODIFY `rol` ENUM('jefe_equipo', 'trabajador') NOT NULL DEFAULT 'trabajador',
-  ADD `estado` ENUM('activo', 'baneado', 'eliminado') NOT NULL DEFAULT 'activo' AFTER `rol`,
+  MODIFY `estado` ENUM('activo', 'baneado', 'eliminado') NOT NULL DEFAULT 'activo' AFTER `rol`,
   ADD `fecha_baneo` TIMESTAMP NULL AFTER `fecha_registro`,
   ADD `motivo_baneo` TEXT NULL AFTER `fecha_baneo`,
   ADD `avatar` VARCHAR(255) NULL AFTER `telefono`,
