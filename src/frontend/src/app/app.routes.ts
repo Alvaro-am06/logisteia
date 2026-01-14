@@ -11,6 +11,7 @@ import { MisProyectos } from './mis-proyectos/mis-proyectos';
 import { RegistrarClienteComponent } from './components/registrar-cliente/registrar-cliente.component';
 import { UsuarioDetalleComponent } from './components/usuario-detalle/usuario-detalle.component';
 import { ClientesComponent } from './components/clientes/clientes.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -26,4 +27,5 @@ export const routes: Routes = [
   { path: 'mis-proyectos', component: MisProyectos },
   { path: 'registrar-cliente', component: RegistrarClienteComponent },
   { path: 'clientes', component: ClientesComponent },
+  { path: 'perfil', component: PerfilComponent },
 ];
