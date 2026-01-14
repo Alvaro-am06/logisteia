@@ -4,18 +4,22 @@
  * 
  * Gestiona el proceso de inicio y cierre de sesión de administradores,
  * validación de credenciales y control de acceso.
- * 
  */
 
-require_once 'modelos/ConexionBBDD.php';
-require_once 'modelos/Administrador.php';
+// Cargar dependencias con rutas absolutas usando __DIR__
+// __DIR__ contiene la ruta absoluta del directorio actual
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../modelos/Usuarios.php';
+require_once __DIR__ . '/../modelos/Administrador.php';
+require_once __DIR__ . '/../modelos/Cliente.php';
 
-class ControladordeAutenticacion {
+class ControladorDeAutenticacion {
     // Conexión a la base de datos
     private $db;
 
-    // Modelo de administrador
+    // Modelos
     private $administrador;
+    private $registrado;
 
     /**
      * Constructor del controlador.
@@ -25,6 +29,7 @@ class ControladordeAutenticacion {
         $database = new Conexion();
         $this->db = $database->obtener();
         $this->administrador = new Administrador($this->db);
+        $this->registrado = new Cliente($this->db);
         
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -100,6 +105,7 @@ class ControladordeAutenticacion {
     }
 
     /**
+<<<<<<< HEAD
      * Procesa el login desde API (devuelve JSON)
      * 
      * @param string $email Email del administrador
@@ -146,10 +152,110 @@ class ControladordeAutenticacion {
                 'success' => false,
                 'error' => 'Credenciales incorrectas'
             ];
+=======
+     * API endpoint para login.
+     * Devuelve JSON para integración con frontend SPA (Angular).
+     * 
+     * Este método valida las credenciales y devuelve una respuesta JSON
+     * con el resultado de la autenticación.
+     */
+    public function apiLogin() {
+        // Manejar preflight OPTIONS para CORS
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            return;
+        }
+
+        // Verificar que sea una petición POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['error' => 'Método no permitido']);
+            http_response_code(405);
+            return;
+        }
+
+        // Obtener los datos JSON del cuerpo de la petición
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        // Validar que se recibieron datos válidos
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode(['error' => 'JSON inválido']);
+            http_response_code(400);
+            return;
+        }
+
+        // Extraer email y password del JSON
+        $email = $input['email'] ?? '';
+        $password = $input['password'] ?? '';
+
+        // Validar que ambos campos estén presentes
+        if (empty($email) || empty($password)) {
+            echo json_encode(['error' => 'Email y contraseña requeridos']);
+            http_response_code(400);
+            return;
+        }
+
+        try {
+            // PASO 1: Intentar login como administrador
+            if ($this->administrador->login($email, $password)) {
+                // Login exitoso como administrador
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'dni' => $this->administrador->dni,
+                        'nombre' => $this->administrador->nombre,
+                        'email' => $this->administrador->email,
+                        'rol' => 'administrador' // Agregar el rol para que el frontend sepa qué tipo de usuario es
+                    ]
+                ]);
+                http_response_code(200);
+                return; // Importante: salir del método aquí
+            }
+
+            // PASO 2: Si no es admin, intentar login como cliente/registrado
+            // Primero buscamos si existe un usuario con ese email
+            if ($this->registrado->obtenerPorEmail($email)) {
+                // Usuario encontrado, ahora verificamos la contraseña
+                if (password_verify($password, $this->registrado->contrase)) {
+                    // Login exitoso como cliente
+                    $proyectosCreados = $this->registrado->contarProyectosCreados($this->registrado->dni);
+                    $proyectosCompletados = $this->registrado->contarProyectosCompletados($this->registrado->dni);
+                    echo json_encode([
+                        'success' => true,
+                        'data' => [
+                            'dni' => $this->registrado->dni,
+                            'nombre' => $this->registrado->nombre,
+                            'email' => $this->registrado->email,
+                            'rol' => 'registrado',
+                            'proyectos_creados' => $proyectosCreados,
+                            'proyectos_completados' => $proyectosCompletados
+                        ]
+                    ]);
+                    http_response_code(200);
+                    return; // Salir del método
+                } else {
+                    // Contraseña incorrecta para el cliente
+                    echo json_encode(['error' => 'Credenciales incorrectas']);
+                    http_response_code(401);
+                    return;
+                }
+            } else {
+                // No se encontró ningún usuario con ese email (ni admin ni cliente)
+                echo json_encode(['error' => 'Credenciales incorrectas']);
+                http_response_code(401);
+                return;
+            }
+
+        } catch (Exception $e) {
+            // Capturar cualquier error de base de datos o excepción
+            echo json_encode(['error' => 'Error en la base de datos: ' . $e->getMessage()]);
+            http_response_code(500);
+            return;
+>>>>>>> sprint2
         }
     }
 
     /**
+<<<<<<< HEAD
      * Cerrar sesión (API)
      */
     public function logout() {
@@ -159,3 +265,50 @@ class ControladordeAutenticacion {
         session_destroy();
     }
 }
+=======
+     * Procesa el registro de un nuevo usuario.
+     * 
+     * Valida los datos y crea un nuevo usuario registrado.
+     * 
+     * @param string $dni DNI del usuario
+     * @param string $nombre Nombre completo
+     * @param string $email Correo electrónico
+     * @param string $password Contraseña
+     * @param string|null $telefono Teléfono (opcional)
+     * @return array Resultado del registro
+     */
+    public function procesarRegistro($dni, $nombre, $email, $password, $telefono = null) {
+        try {
+            // Verificar si el email ya existe
+            $this->registrado->email = $email;
+            if ($this->registrado->obtenerPorEmail($email)) {
+                return ['success' => false, 'error' => 'El email ya está registrado'];
+            }
+
+            // Verificar si el DNI ya existe
+            $this->registrado->dni = $dni;
+            if ($this->registrado->obtenerPorDni($dni)) {
+                return ['success' => false, 'error' => 'El DNI ya está registrado'];
+            }
+
+            // Asignar datos al modelo
+            $this->registrado->dni = $dni;
+            $this->registrado->nombre = $nombre;
+            $this->registrado->email = $email;
+            $this->registrado->telefono = $telefono;
+
+            // Hash de la contraseña
+            $this->registrado->contrase = password_hash($password, PASSWORD_DEFAULT);
+
+            // Crear usuario
+            if ($this->registrado->crear()) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'error' => 'Error al crear el usuario'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'error' => 'Error interno del servidor: ' . $e->getMessage()];
+        }
+    }
+}
+>>>>>>> sprint2

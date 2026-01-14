@@ -11,7 +11,8 @@ CREATE TABLE `usuarios`(
   `contrase` VARCHAR(255) NOT NULL,
   `rol` ENUM('administrador', 'registrado') NOT NULL DEFAULT 'registrado',
   `telefono` VARCHAR(20) NULL,
-  `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(), PRIMARY KEY(`dni`));
+  `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY(`dni`));
 ALTER TABLE
   `usuarios` ADD UNIQUE `usuarios_email_unique`(`email`);
 CREATE TABLE `servicios`(
