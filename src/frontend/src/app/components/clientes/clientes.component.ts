@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { ClienteService, Cliente } from '../../services/cliente.service';
 
 @Component({
@@ -12,13 +12,26 @@ import { ClienteService, Cliente } from '../../services/cliente.service';
 })
 export class ClientesComponent implements OnInit {
   private clienteService = inject(ClienteService);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   clientes: Cliente[] = [];
   loading = true;
   error = '';
   mensaje = '';
+  usuarioNombre = 'Usuario';
 
   ngOnInit() {
+    // Solo ejecutar en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      // Cargar datos del usuario desde localStorage
+      const usuarioData = localStorage.getItem('usuario');
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        this.usuarioNombre = usuario.nombre || 'Usuario';
+      }
+    }
+    
     this.loadClientes();
   }
 
@@ -41,6 +54,36 @@ export class ClientesComponent implements OnInit {
         console.error('Error cargando clientes:', err);
       }
     });
+  }
+
+  volver() {
+    // Detectar el rol del usuario y redirigir al panel apropiado
+    if (isPlatformBrowser(this.platformId)) {
+      const usuarioData = localStorage.getItem('usuario');
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        if (usuario.rol === 'moderador') {
+          this.router.navigate(['/panel-moderador']);
+        } else if (usuario.rol === 'administrador') {
+          this.router.navigate(['/panel-admin']);
+        } else if (usuario.rol === 'jefe_equipo') {
+          this.router.navigate(['/panel-jefe-equipo']);
+        } else {
+          this.router.navigate(['/panel-registrado']);
+        }
+      } else {
+        this.router.navigate(['/login']);
+      }
+    }
+  }
+
+  registrarNuevo() {
+    this.router.navigate(['/registrar-cliente']);
+  }
+
+  verDetalle(cliente: Cliente) {
+    // Implementar vista de detalle si es necesario
+    console.log('Ver detalle de cliente:', cliente);
   }
 
   eliminarCliente(dni: string, nombre: string) {

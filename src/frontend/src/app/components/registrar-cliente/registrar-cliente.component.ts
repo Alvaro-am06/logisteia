@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -11,9 +11,10 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './registrar-cliente.component.html',
   styleUrls: ['./registrar-cliente.component.scss']
 })
-export class RegistrarClienteComponent {
+export class RegistrarClienteComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   cliente = {
     dni: '',
@@ -26,6 +27,20 @@ export class RegistrarClienteComponent {
   mensaje = '';
   error = '';
   guardando = false;
+  usuarioNombre = 'Usuario';
+  usuarioRol = '';
+
+  ngOnInit() {
+    // Solo ejecutar en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      const usuarioData = localStorage.getItem('usuario');
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        this.usuarioNombre = usuario.nombre || 'Usuario';
+        this.usuarioRol = usuario.rol || '';
+      }
+    }
+  }
 
   registrarCliente() {
     // Validar campos obligatorios
@@ -78,7 +93,7 @@ export class RegistrarClienteComponent {
           };
           // Redirigir después de 2 segundos
           setTimeout(() => {
-            this.router.navigate(['/panel-admin']);
+            this.volver();
           }, 2000);
         } else {
           this.error = response.error || 'Error al registrar el cliente';
@@ -94,8 +109,25 @@ export class RegistrarClienteComponent {
     });
   }
 
-  cancelar() {
-    this.router.navigate(['/panel-admin']);
+  volver() {
+    // Detectar el rol del usuario y redirigir al panel apropiado
+    if (isPlatformBrowser(this.platformId)) {
+      const usuarioData = localStorage.getItem('usuario');
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        if (usuario.rol === 'moderador') {
+          this.router.navigate(['/panel-moderador']);
+        } else if (usuario.rol === 'administrador') {
+          this.router.navigate(['/panel-admin']);
+        } else if (usuario.rol === 'jefe_equipo') {
+          this.router.navigate(['/panel-jefe-equipo']);
+        } else {
+          this.router.navigate(['/panel-registrado']);
+        }
+      } else {
+        this.router.navigate(['/clientes']);
+      }
+    }
   }
 
   limpiarFormulario() {

@@ -17,7 +17,7 @@ class Administrador {
     // Email del administrador
     public $email;
     // Contraseña del administrador
-    public $contrase;
+    public $password;
     // Rol del usuario (administrador)
     public $rol;
     // Teléfono del administrador
@@ -63,12 +63,12 @@ class Administrador {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // Verificar contraseña usando hash bcrypt
-                if (password_verify($password, $row['contrase'])) {
+                if (password_verify($password, $row['password'])) {
                     // Cargar datos del administrador
                     $this->dni = $row['dni'];
                     $this->nombre = $row['nombre'];
                     $this->email = $row['email'];
-                    $this->contrase = $row['contrase'];
+                    $this->password = $row['password'];
                     $this->rol = $row['rol'];
                     $this->telefono = $row['telefono'] ?? null;
                     $this->fecha_registro = $row['fecha_registro'];
@@ -107,7 +107,7 @@ class Administrador {
                 $this->dni = $row['dni'];
                 $this->nombre = $row['nombre'];
                 $this->email = $row['email'];
-                $this->contrase = $row['contrase'];
+                $this->password = $row['password'];
                 $this->rol = $row['rol'];
                 $this->telefono = $row['telefono'] ?? null;
                 $this->fecha_registro = $row['fecha_registro'];

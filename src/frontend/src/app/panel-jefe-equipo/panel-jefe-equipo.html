@@ -1,0 +1,100 @@
+<!-- Panel Jefe de Equipo -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-xl">Logisteia</a>
+      <div class="flex items-center space-x-4">
+        <span class="text-white">Jefe de equipo</span>
+        <button (click)="cerrarSesion()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-lg">
+    <nav class="p-4">
+      <ul class="space-y-2">
+        <li>
+          <a routerLink="/panel-jefe-equipo" routerLinkActive="bg-blue-50" [routerLinkActiveOptions]="{exact: true}"
+             class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-100 cursor-pointer">
+            <i class="bi bi-house-door mr-3"></i> Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="#mi-equipo" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <i class="bi bi-people mr-3"></i> Mi Equipo
+          </a>
+        </li>
+        <li>
+          <a routerLink="/clientes" routerLinkActive="bg-blue-50"
+             class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <i class="bi bi-person-badge mr-3"></i> Clientes
+          </a>
+        </li>
+        <li>
+          <a routerLink="/mis-proyectos" routerLinkActive="bg-blue-50"
+             class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <i class="bi bi-folder mr-3"></i> Mis Proyectos
+          </a>
+        </li>
+        <li>
+          <a href="#perfil" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <i class="bi bi-person mr-3"></i> Mi Perfil
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Jefe de equipo</h1>
+      </div>
+
+      <!-- Tarjetas de estadísticas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-[#102a41] text-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h6 class="text-sm uppercase text-gray-300 mb-1">Trabajadores</h6>
+              <h2 class="text-3xl font-bold">{{ trabajadoresCount }}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-green-500 text-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h6 class="text-sm uppercase text-green-100 mb-1">Clientes</h6>
+              <h2 class="text-3xl font-bold">0</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-yellow-500 text-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h6 class="text-sm uppercase text-yellow-100 mb-1">Proyectos</h6>
+              <h2 class="text-3xl font-bold">{{ proyectosTotal }}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-500 text-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h6 class="text-sm uppercase text-blue-100 mb-1">Facturado</h6>
+              <h2 class="text-3xl font-bold">0€</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

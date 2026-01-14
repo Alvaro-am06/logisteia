@@ -3,6 +3,7 @@ import { Login } from './login/login';
 import { PanelAdmin } from './panel-admin/panel-admin';
 import { PanelRegistrado } from './panel-registrado/panel-registrado';
 import { PanelModeradorComponent } from './panel-moderador/panel-moderador';
+import { PanelJefeEquipo } from './panel-jefe-equipo/panel-jefe-equipo';
 import { Plantilla } from './plantilla/plantilla';
 import { Usuarios } from './usuarios/usuarios';
 import { Presupuesto } from './presupuesto/presupuesto';
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'panel-admin', component: PanelAdmin },
   { path: 'panel-registrado', component: PanelRegistrado },
   { path: 'panel-moderador', component: PanelModeradorComponent },
+  { path: 'panel-jefe-equipo', component: PanelJefeEquipo },
   { path: 'plantilla', component: Plantilla },
   { path: 'usuarios', component: Usuarios },
   { path: 'usuarios/:dni', component: UsuarioDetalleComponent },

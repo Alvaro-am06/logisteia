@@ -148,7 +148,7 @@ class ControladorDeAutenticacion {
 
         try {
             // Buscar usuario por email directamente en la tabla usuarios
-            $query = "SELECT dni, email, nombre, contrase, rol, estado, telefono 
+            $query = "SELECT dni, email, nombre, password, rol, estado, telefono 
                       FROM usuarios 
                       WHERE email = :email 
                       LIMIT 1";
@@ -178,7 +178,7 @@ class ControladorDeAutenticacion {
             }
 
             // Verificar la contraseña
-            if (!password_verify($password, $usuario['contrase'])) {
+            if (!password_verify($password, $usuario['password'])) {
                 echo json_encode(['error' => 'Credenciales incorrectas']);
                 http_response_code(401);
                 return;
@@ -367,15 +367,15 @@ class ControladorDeAutenticacion {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
             // Insertar usuario directamente con el rol correcto
-            $query = "INSERT INTO usuarios (dni, email, nombre, contrase, rol, telefono, estado) 
-                      VALUES (:dni, :email, :nombre, :contrase, :rol, :telefono, 'activo')";
+            $query = "INSERT INTO usuarios (dni, email, nombre, password, rol, telefono, estado) 
+                      VALUES (:dni, :email, :nombre, :password, :rol, :telefono, 'activo')";
             
             $stmt = $this->db->prepare($query);
             $resultado = $stmt->execute([
                 ':dni' => $dni,
                 ':email' => $email,
                 ':nombre' => $nombre,
-                ':contrase' => $hashedPassword,
+                ':password' => $hashedPassword,
                 ':rol' => $rol,
                 ':telefono' => $telefono
             ]);

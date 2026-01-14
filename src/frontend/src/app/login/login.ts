@@ -46,8 +46,10 @@ export class Login {
             // Redirigir basado en el rol del usuario
             if (response.data.rol === 'moderador') {
               this.router.navigate(['/panel-moderador']);
-            } else if (response.data.rol === 'administrador' || response.data.rol === 'jefe_equipo') {
+            } else if (response.data.rol === 'administrador') {
               this.router.navigate(['/panel-admin']);
+            } else if (response.data.rol === 'jefe_equipo') {
+              this.router.navigate(['/panel-jefe-equipo']);
             } else if (response.data.rol === 'registrado' || response.data.rol === 'trabajador') {
               this.router.navigate(['/panel-registrado']);
             } else {
