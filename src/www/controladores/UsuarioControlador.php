@@ -69,4 +69,14 @@ class UsuarioControlador {
         $h = $this->modeloAccion->obtenerTodos();
         include 'vistas/usuarios.php';
     }
+
+    public function obtenerUsuario($dni) {
+        // Lógica para obtener usuario por DNI
+        return ['dni' => $dni, 'nombre' => 'Ejemplo'];
+    }
+
+    public function listarUsuarios() {
+        // Lógica para listar usuarios
+        return [['dni' => '123', 'nombre' => 'Usuario1']];
+    }
 }

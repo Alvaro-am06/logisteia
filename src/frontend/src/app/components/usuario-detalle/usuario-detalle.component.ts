@@ -8,7 +8,7 @@ import { UsuarioService, UsuarioDetalle } from '../../services/usuario.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './usuario-detalle.component.html',
-  styleUrls: ['./usuario-detalle.component.scss']
+  styleUrls: ['./usuario-detalle.component.css']
 })
 export class UsuarioDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);

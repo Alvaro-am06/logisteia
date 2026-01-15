@@ -6,9 +6,9 @@ import { ClienteService, Cliente } from '../../services/cliente.service';
 @Component({
   selector: 'app-clientes',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './clientes.component.html',
-  styleUrls: ['./clientes.component.scss']
+  styleUrls: ['./clientes.component.css']
 })
 export class ClientesComponent implements OnInit {
   private clienteService = inject(ClienteService);

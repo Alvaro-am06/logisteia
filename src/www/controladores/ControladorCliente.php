@@ -1,13 +1,13 @@
 <?php
-require_once '../modelos/ConexionBBDD.php';
-require_once '../modelos/Cliente.php';
-require_once 'ControladorDeAutenticacion.php';
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../modelos/Cliente.php';
+require_once __DIR__ . '/ControladorDeAutenticacion.php';
 
 /**
  * Controlador para la gestión de clientes.
  * Métodos: listar, mostrarFormulario, guardar, eliminar, buscar.
  */
-class ControladorDeCliente {
+class ControladorCliente {
     private $db;
     private $cliente;
 
@@ -19,6 +19,15 @@ class ControladorDeCliente {
         $database = new Conexion();
         $this->db = $database->obtener();
         $this->cliente = new Cliente($this->db);
+    }
+
+    public function obtenerCliente($id) {
+        return $this->cliente->obtenerPorDni($id);
+    }
+
+    public function listarClientes() {
+        $stmt = $this->cliente->obtenerTodos();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

@@ -1,22 +1,15 @@
-<div class="min-h-screen bg-gray-50">
-  <!-- Header -->
-  <header class="bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Panel de Moderador</h1>
-          <p class="text-sm text-gray-600">{{ moderador?.nombre }} - Supervisor del sistema</p>
-        </div>
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-500">{{ moderador?.email }}</span>
-          <button class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+<app-plantilla>
+  <!-- Botones del navbar -->
+  <div navbar-actions class="flex items-center space-x-4">
+    <span class="text-white">Moderador</span>
+    <button (click)="logout()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
+      Cerrar Sesión
+    </button>
+  </div>
 
+  <!-- Contenido principal -->
+  <div class="min-h-screen bg-gray-50">
+  
   <!-- Navegación de pestañas -->
   <nav class="bg-white border-b">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,7 +21,7 @@
           class="px-3 py-4 border-b-2 font-medium text-sm transition-colors"
           [class.border-transparent]="vistaActual !== 'dashboard'"
           [class.text-gray-500]="vistaActual !== 'dashboard'">
-          📊 Dashboard
+          Dashboard
         </button>
         <button 
           (click)="cambiarVista('baneos')"
@@ -37,7 +30,7 @@
           class="px-3 py-4 border-b-2 font-medium text-sm transition-colors"
           [class.border-transparent]="vistaActual !== 'baneos'"
           [class.text-gray-500]="vistaActual !== 'baneos'">
-          🚫 Historial Baneos
+          Historial Baneos
         </button>
         <button 
           (click)="cambiarVista('proyectos')"
@@ -46,7 +39,7 @@
           class="px-3 py-4 border-b-2 font-medium text-sm transition-colors"
           [class.border-transparent]="vistaActual !== 'proyectos'"
           [class.text-gray-500]="vistaActual !== 'proyectos'">
-          💼 Todos los Proyectos
+          Todos los Proyectos
         </button>
         <button 
           (click)="cambiarVista('usuarios')"
@@ -55,7 +48,7 @@
           class="px-3 py-4 border-b-2 font-medium text-sm transition-colors"
           [class.border-transparent]="vistaActual !== 'usuarios'"
           [class.text-gray-500]="vistaActual !== 'usuarios'">
-          👥 Usuarios
+          Usuarios
         </button>
       </div>
     </div>
@@ -77,7 +70,6 @@
               <p class="text-sm text-gray-600">Usuarios Totales</p>
               <p class="text-3xl font-bold text-gray-900">{{ estadisticas.usuarios_total }}</p>
             </div>
-            <div class="text-4xl">👥</div>
           </div>
           <div class="mt-4 text-xs text-gray-500">
             <p>Jefes: {{ estadisticas.usuarios_jefes }}</p>
@@ -92,7 +84,6 @@
               <p class="text-sm text-gray-600">Equipos Activos</p>
               <p class="text-3xl font-bold text-gray-900">{{ estadisticas.equipos_total }}</p>
             </div>
-            <div class="text-4xl">🏢</div>
           </div>
         </div>
 
@@ -103,7 +94,6 @@
               <p class="text-sm text-gray-600">Proyectos Totales</p>
               <p class="text-3xl font-bold text-gray-900">{{ estadisticas.proyectos_total }}</p>
             </div>
-            <div class="text-4xl">💼</div>
           </div>
           <div class="mt-4 text-xs text-gray-500">
             <p>En proceso: {{ estadisticas.proyectos_en_proceso }}</p>
@@ -118,7 +108,6 @@
               <p class="text-sm text-gray-600">Usuarios Baneados</p>
               <p class="text-3xl font-bold text-red-600">{{ estadisticas.usuarios_baneados }}</p>
             </div>
-            <div class="text-4xl">🚫</div>
           </div>
           <div class="mt-4 text-xs text-gray-500">
             <p>Baneos activos: {{ estadisticas.baneos_activos }}</p>
@@ -267,3 +256,4 @@
 
   </main>
 </div>
+</app-plantilla>

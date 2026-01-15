@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './perfil.component.html',
-  styleUrls: ['./perfil.component.scss']
+  styleUrls: ['./perfil.component.css']
 })
 export class PerfilComponent implements OnInit {
   private http = inject(HttpClient);

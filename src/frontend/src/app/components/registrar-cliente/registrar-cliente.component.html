@@ -24,11 +24,11 @@
     <div class="bg-white rounded-lg shadow-md p-6">
       <!-- Mensajes -->
       <div *ngIf="mensaje" class="mb-6 p-4 rounded-lg bg-green-100 text-green-700">
-        <i class="bi bi-check-circle-fill mr-2"></i>{{ mensaje }}
+        {{ mensaje }}
       </div>
 
       <div *ngIf="error" class="mb-6 p-4 rounded-lg bg-red-100 text-red-700">
-        <i class="bi bi-exclamation-triangle-fill mr-2"></i>{{ error }}
+        {{ error }}
       </div>
 
       <!-- Formulario -->
@@ -36,7 +36,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label for="dni" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="bi bi-person-vcard mr-1"></i> DNI *
+              DNI *
             </label>
             <input 
               type="text" 
@@ -52,7 +52,7 @@
 
           <div>
             <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="bi bi-person mr-1"></i> Nombre Completo *
+              Nombre Completo *
             </label>
             <input 
               type="text" 
@@ -66,7 +66,7 @@
 
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="bi bi-envelope mr-1"></i> Email *
+              Email *
             </label>
             <input 
               type="email" 
@@ -81,7 +81,7 @@
 
           <div>
             <label for="telefono" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="bi bi-telephone mr-1"></i> Teléfono *
+              Teléfono *
             </label>
             <input 
               type="tel" 
@@ -95,7 +95,7 @@
 
           <div class="md:col-span-2">
             <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-              <i class="bi bi-key mr-1"></i> Contraseña *
+              Contraseña *
             </label>
             <input 
               type="password" 
@@ -111,10 +111,9 @@
           </div>
         </div>
 
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
           <p class="text-sm text-blue-800">
-            <i class="bi bi-info-circle mr-2"></i>
-            Todos los campos marcados con * son obligatorios. Los datos se guardan de forma segura en la base de datos con contraseña encriptada.
+            Todos los campos marcados con * son obligatorios. Los datos se guardan de forma segura.
           </p>
         </div>
 
@@ -124,20 +123,20 @@
             (click)="limpiarFormulario()" 
             class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
             [disabled]="guardando">
-            <i class="bi bi-eraser mr-2"></i> Limpiar
+            Limpiar
           </button>
           <button 
             type="button" 
             (click)="volver()" 
             class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
             [disabled]="guardando">
-            <i class="bi bi-x-circle mr-2"></i> Cancelar
+            Cancelar
           </button>
           <button 
             type="submit" 
             class="px-6 py-2 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md"
             [disabled]="guardando">
-            <i class="bi bi-save mr-2"></i> {{ guardando ? 'Guardando...' : 'Registrar Cliente' }}
+            {{ guardando ? 'Guardando...' : 'Registrar Cliente' }}
           </button>
         </div>
       </form>
@@ -146,13 +145,13 @@
     <!-- Información adicional -->
     <div class="mt-6 bg-white rounded-lg shadow-md p-6">
       <h3 class="text-lg font-semibold text-gray-800 mb-4">
-        <i class="bi bi-shield-check mr-2"></i> Seguridad
+        Seguridad
       </h3>
       <ul class="space-y-2 text-sm text-gray-600">
-        <li><i class="bi bi-check-circle text-green-500 mr-2"></i>Las contraseñas se encriptan antes de guardarse</li>
-        <li><i class="bi bi-check-circle text-green-500 mr-2"></i>Se validan todos los campos antes de registrar</li>
-        <li><i class="bi bi-check-circle text-green-500 mr-2"></i>El DNI y email deben ser únicos en el sistema</li>
-        <li><i class="bi bi-check-circle text-green-500 mr-2"></i>Se registra la fecha y hora del registro</li>
+        <li>Las contraseñas se encriptan antes de guardarse</li>
+        <li>Se validan todos los campos antes de registrar</li>
+        <li>El DNI y email deben ser únicos en el sistema</li>
+        <li>Se registra la fecha y hora del registro</li>
       </ul>
     </div>
   </div>

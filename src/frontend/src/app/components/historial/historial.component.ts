@@ -7,7 +7,7 @@ import { HistorialService, HistorialItem } from '../../services/historial.servic
   standalone: true,
   imports: [CommonModule],
   templateUrl: './historial.component.html',
-  styleUrls: ['./historial.component.scss']
+  styleUrls: ['./historial.component.css']
 })
 export class HistorialComponent implements OnInit {
   private historialService = inject(HistorialService);

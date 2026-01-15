@@ -10,7 +10,7 @@ import { ClienteService } from '../../services/cliente.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);

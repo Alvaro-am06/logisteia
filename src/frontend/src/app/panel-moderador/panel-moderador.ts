@@ -1,6 +1,7 @@
 import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Plantilla } from '../plantilla/plantilla';
 
 interface EstadisticasModeradorData {
   usuarios_total: number;
@@ -47,9 +48,9 @@ interface ProyectoResumen {
 
 @Component({
   selector: 'app-panel-moderador',
-  imports: [CommonModule],
+  imports: [CommonModule, Plantilla],
   templateUrl: './panel-moderador.html',
-  styleUrls: ['./panel-moderador.scss']
+  styleUrls: ['./panel-moderador.css']
 })
 export class PanelModeradorComponent {
   private http = inject(HttpClient);
@@ -72,6 +73,11 @@ export class PanelModeradorComponent {
         this.cargarEstadisticas();
       }
     }
+  }
+
+  logout() {
+    localStorage.removeItem('usuario');
+    window.location.href = '/login';
   }
 
   cargarEstadisticas() {

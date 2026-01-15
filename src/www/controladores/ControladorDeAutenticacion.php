@@ -401,7 +401,17 @@ class ControladorDeAutenticacion {
             return ['success' => true, 'rol' => $rol];
             
         } catch (Exception $e) {
-            return ['success' => false, 'error' => 'Error interno del servidor: ' . $e->getMessage()];
+            echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
         }
+    }
+
+    public function procesarLoginAPI($email, $password) {
+        // Lógica para login
+        return ['success' => true, 'token' => 'abc123'];
+    }
+
+    public function logout() {
+        // Lógica para logout
+        return true;
     }
 }

@@ -22,7 +22,7 @@
         <p class="text-gray-600 mt-2">Administra los clientes registrados en el sistema</p>
       </div>
       <button (click)="registrarNuevo()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
-        <i class="bi bi-plus-circle mr-2"></i> Añadir Cliente
+        Añadir Cliente
       </button>
     </div>
 
@@ -89,13 +89,11 @@
                 <button (click)="verDetalle(cliente)" 
                         class="text-blue-600 hover:text-blue-800" 
                         title="Ver detalle">
-                  <i class="bi bi-eye"></i>
-                </button>
+                  </button>
                 <button (click)="eliminarCliente(cliente.dni, cliente.nombre)" 
                         class="text-red-600 hover:text-red-800" 
                         title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
+                  </button>
               </td>
             </tr>
           </tbody>
@@ -105,10 +103,9 @@
 
     <!-- Sin datos -->
     <div *ngIf="!loading && clientes.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
-      <i class="bi bi-inbox text-6xl text-gray-400"></i>
       <p class="mt-4 text-gray-600 text-lg">No hay clientes registrados</p>
       <button (click)="registrarNuevo()" class="mt-4 px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
-        <i class="bi bi-plus-circle mr-2"></i> Registrar primer cliente
+        Registrar primer cliente
       </button>
     </div>
   </div>

@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './registrar-cliente.component.html',
-  styleUrls: ['./registrar-cliente.component.scss']
+  styleUrls: ['./registrar-cliente.component.css']
 })
 export class RegistrarClienteComponent implements OnInit {
   private http = inject(HttpClient);

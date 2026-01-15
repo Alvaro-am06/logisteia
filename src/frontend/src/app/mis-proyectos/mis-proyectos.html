@@ -22,7 +22,7 @@
         <p class="text-gray-600 mt-2">Gestiona todos tus presupuestos creados</p>
       </div>
       <button (click)="crearNuevo()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
-        <i class="bi bi-plus-circle mr-2"></i> Crear Nuevo
+        Crear Nuevo
       </button>
     </div>
 
@@ -87,24 +87,24 @@
                 <button (click)="verDetalle(presupuesto)" 
                         class="text-blue-600 hover:text-blue-800" 
                         title="Ver detalle">
-                  <i class="bi bi-eye"></i>
+                  Ver
                 </button>
                 <button (click)="exportarPDF(presupuesto.numero_presupuesto)" 
                         class="text-green-600 hover:text-green-800" 
                         title="Exportar PDF">
-                  <i class="bi bi-file-pdf"></i>
+                  PDF
                 </button>
                 <button *ngIf="presupuesto.estado === 'borrador'" 
                         (click)="cambiarEstado(presupuesto, 'enviado')" 
                         class="text-indigo-600 hover:text-indigo-800" 
                         title="Enviar">
-                  <i class="bi bi-send"></i>
+                  Enviar
                 </button>
                 <button *ngIf="presupuesto.estado !== 'eliminado'" 
                         (click)="eliminarPresupuesto(presupuesto.numero_presupuesto)" 
                         class="text-red-600 hover:text-red-800" 
                         title="Eliminar">
-                  <i class="bi bi-trash"></i>
+                  Eliminar
                 </button>
               </td>
             </tr>
@@ -138,11 +138,10 @@
 
     <!-- Sin presupuestos -->
     <div *ngIf="!loading && presupuestos.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
-      <i class="bi bi-inbox text-6xl text-gray-300 mb-4"></i>
       <h3 class="text-xl font-semibold text-gray-900 mb-2">No tienes proyectos creados</h3>
       <p class="text-gray-600 mb-6">Crea tu primer presupuesto para comenzar</p>
       <button (click)="crearNuevo()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold">
-        <i class="bi bi-plus-circle mr-2"></i> Crear Primer Presupuesto
+        Crear Primer Presupuesto
       </button>
     </div>
   </div>
@@ -157,7 +156,7 @@
           <p class="text-sm text-gray-300" *ngIf="presupuestoSeleccionado">{{ presupuestoSeleccionado.numero_presupuesto }}</p>
         </div>
         <button (click)="cerrarModal()" class="text-white hover:text-gray-300 text-2xl">
-          <i class="bi bi-x-lg"></i>
+          X
         </button>
       </div>
 
@@ -188,7 +187,7 @@
 
         <!-- Notas -->
         <div *ngIf="presupuestoSeleccionado.notas" class="bg-blue-50 p-4 rounded-lg mb-6">
-          <p class="text-sm text-gray-600 mb-1"><i class="bi bi-sticky mr-2"></i>Notas</p>
+          <p class="text-sm text-gray-600 mb-1">Notas</p>
           <p class="text-gray-800">{{ presupuestoSeleccionado.notas }}</p>
         </div>
 
@@ -208,11 +207,11 @@
                 <span class="text-lg font-bold text-[#102a41]">{{ (detalle.preci * detalle.cantidad) | number:'1.2-2' }}€</span>
               </div>
               <div class="flex gap-4 text-sm text-gray-600">
-                <span><i class="bi bi-calculator mr-1"></i>Cantidad: {{ detalle.cantidad }}</span>
-                <span><i class="bi bi-cash mr-1"></i>Precio unitario: {{ detalle.preci | number:'1.2-2' }}€</span>
+                <span>Cantidad: {{ detalle.cantidad }}</span>
+                <span>Precio unitario: {{ detalle.preci | number:'1.2-2' }}€</span>
               </div>
               <p *ngIf="detalle.comentario" class="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                <i class="bi bi-chat-left-text mr-1"></i> {{ detalle.comentario }}
+                {{ detalle.comentario }}
               </p>
             </div>
           </div>
@@ -228,12 +227,12 @@
         <div class="flex gap-2" *ngIf="presupuestoSeleccionado">
           <button (click)="exportarPDF(presupuestoSeleccionado.numero_presupuesto)" 
                   class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
-            <i class="bi bi-file-pdf mr-2"></i>Exportar PDF
+            Exportar PDF
           </button>
           <button *ngIf="presupuestoSeleccionado.estado === 'borrador'" 
                   (click)="cambiarEstado(presupuestoSeleccionado, 'enviado'); cerrarModal()" 
                   class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-            <i class="bi bi-send mr-2"></i>Enviar
+            Enviar
           </button>
         </div>
         <button (click)="cerrarModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">

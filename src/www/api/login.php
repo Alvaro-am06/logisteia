@@ -27,5 +27,9 @@ try {
     $controller = new ControladorDeAutenticacion(); 
     $controller->apiLogin();
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Error interno del servidor: ' . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ]);
 }

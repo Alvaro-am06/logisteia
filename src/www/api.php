@@ -87,6 +87,8 @@ try {
                 ]);
             }
             break;
+
+        case 'auth':
             $controller = new ControladordeAutenticacion();
 
             if ($method === 'POST' && $path_parts[1] === 'login') {
