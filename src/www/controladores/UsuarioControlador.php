@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../modelos/Usuarios.php';
-require_once __DIR__ . '/../modelos/AccionesAdministrativas.php';
+require_once 'modelos/Usuarios.php';
+require_once 'modelos/AccionesAdministrativas.php';
 
 /**
  * Controlador para gestión de usuarios (HU-03).
@@ -16,42 +16,48 @@ class UsuarioControlador {
         if (session_status() === PHP_SESSION_NONE) session_start();
     }
 
-    /**
-     * Identificador del administrador actual (simulado en desarrollo).
-     * @return string
-     */
-    private function administradorActual() {
-        return $_SESSION['administrador_email'] ?? 'admin_simulado';
-    }
-
     /** Mostrar lista de usuarios */
     public function listar() {
-        $usuarios = $this->modeloUsuario->obtenerTodos();
-        include __DIR__ . '/../vistas/usuarios.php';
+        try {
+            $usuarios = $this->modeloUsuario->obtenerTodos();
+        } catch (Exception $e) {
+            $usuarios = [];
+            $_SESSION['error'] = 'Error al obtener usuarios: ' . $e->getMessage();
+        }
+        include 'vistas/usuarios.php';
     }
 
     /** Ver detalle y historial de un usuario por DNI */
     public function ver($dni) {
-        $usuario = $this->modeloUsuario->obtenerPorDni($dni);
+        try {
+            $usuario = $this->modeloUsuario->obtenerPorDni($dni);
+        } catch (Exception $e) {
+            $usuario = false;
+            $_SESSION['error'] = 'Error al obtener usuario: ' . $e->getMessage();
+        }
         $historial = $this->modeloAccion->obtenerPorUsuario($dni);
-        include __DIR__ . '/../vistas/usuarios.php';
+        include 'vistas/usuarios.php';
     }
 
     /**
-     * Cambiar estado del usuario y registrar la acción.
+     * Cambiar rol del usuario y registrar la acción.
      * $operacion: activar|suspender|eliminar
      */
-    public function cambiarEstado($dni, $operacion, $motivo = null) {
-        $admin = $this->administradorActual();
-        if ($operacion === 'activar') {
-            $this->modeloUsuario->cambiarEstado($dni, 'activo');
-            $this->modeloAccion->registrar($admin, 'activar', $dni, $motivo);
-        } elseif ($operacion === 'suspender') {
-            $this->modeloUsuario->cambiarEstado($dni, 'suspendido');
-            $this->modeloAccion->registrar($admin, 'suspender', $dni, $motivo);
-        } elseif ($operacion === 'eliminar') {
-            $this->modeloUsuario->eliminarLogico($dni);
-            $this->modeloAccion->registrar($admin, 'eliminar', $dni, $motivo);
+    public function cambiarRol($dni, $operacion, $motivo = null) {
+        $admin = $_SESSION['administrador_email'] ?? 'desconocido';
+        try {
+            if ($operacion === 'activar') {
+                $this->modeloUsuario->activar($dni);
+                $this->modeloAccion->registrar($admin, 'activar', $dni, $motivo);
+            } elseif ($operacion === 'suspender') {
+                $this->modeloUsuario->suspender($dni);
+                $this->modeloAccion->registrar($admin, 'suspender', $dni, $motivo);
+            } elseif ($operacion === 'eliminar') {
+                $this->modeloUsuario->eliminarLogico($dni);
+                $this->modeloAccion->registrar($admin, 'eliminar', $dni, $motivo);
+            }
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Error al cambiar rol: ' . $e->getMessage();
         }
         // Redirigir a la lista tras la operación
         header('Location: index.php?accion=listar');
@@ -61,6 +67,6 @@ class UsuarioControlador {
     /** Mostrar historial completo */
     public function historial() {
         $h = $this->modeloAccion->obtenerTodos();
-        include __DIR__ . '/../vistas/usuarios.php';
+        include 'vistas/usuarios.php';
     }
 }
