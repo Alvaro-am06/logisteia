@@ -106,7 +106,7 @@ class Presupuesto {
     /**
      * Obtener un presupuesto por su número.
      * @param string $numero
-     * @return bool
+     * @return array|bool
      */
     public function obtenerPorNumero($numero) {
         $query = "SELECT * FROM " . $this->table . " WHERE numero_presupuesto = :numero";
@@ -123,7 +123,7 @@ class Presupuesto {
                 $this->validez_dias = $row['validez_dias'];
                 $this->total = $row['total'];
                 $this->notas = $row['notas'];
-                return true;
+                return $row;
             }
         }
         return false;
@@ -166,6 +166,88 @@ class Presupuesto {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $consecutivo = str_pad($row['total'] + 1, 4, '0', STR_PAD_LEFT);
         return "PRES-{$fecha}-{$consecutivo}";
+    }
+
+    /**
+     * Actualizar un presupuesto completo.
+     * @param array $datos Datos a actualizar (estado, total, notas, validez_dias, detalles)
+     * @return bool
+     */
+    public function actualizar($datos) {
+        try {
+            $this->conn->beginTransaction();
+
+            $numero = $datos['numero_presupuesto'];
+            
+            // Actualizar tabla principal
+            $campos = [];
+            $params = [':numero' => $numero];
+            
+            if (isset($datos['estado'])) {
+                $campos[] = "estado = :estado";
+                $params[':estado'] = $datos['estado'];
+            }
+            if (isset($datos['total'])) {
+                $campos[] = "total = :total";
+                $params[':total'] = $datos['total'];
+            }
+            if (isset($datos['notas'])) {
+                $campos[] = "notas = :notas";
+                $params[':notas'] = $datos['notas'];
+            }
+            if (isset($datos['validez_dias'])) {
+                $campos[] = "validez_dias = :validez_dias";
+                $params[':validez_dias'] = $datos['validez_dias'];
+            }
+
+            if (!empty($campos)) {
+                $query = "UPDATE " . $this->table . " SET " . implode(', ', $campos) . " WHERE numero_presupuesto = :numero";
+                $stmt = $this->conn->prepare($query);
+                $stmt->execute($params);
+            }
+
+            // Si hay nuevos detalles, reemplazar los existentes
+            if (isset($datos['detalles']) && is_array($datos['detalles'])) {
+                // Eliminar detalles antiguos
+                $queryDelete = "DELETE FROM " . $this->tableDetalle . " WHERE numero_presupuesto = :numero";
+                $stmtDelete = $this->conn->prepare($queryDelete);
+                $stmtDelete->execute([':numero' => $numero]);
+
+                // Insertar nuevos detalles
+                $queryInsert = "INSERT INTO " . $this->tableDetalle . " 
+                               (numero_presupuesto, servicio_nombre, cantidad, preci, comentario) 
+                               VALUES (:numero_presupuesto, :servicio_nombre, :cantidad, :precio, :comentario)";
+                $stmtInsert = $this->conn->prepare($queryInsert);
+
+                foreach ($datos['detalles'] as $detalle) {
+                    $stmtInsert->execute([
+                        ':numero_presupuesto' => $numero,
+                        ':servicio_nombre' => $detalle['servicio_nombre'],
+                        ':cantidad' => $detalle['cantidad'],
+                        ':precio' => $detalle['precio'],
+                        ':comentario' => $detalle['comentario'] ?? null
+                    ]);
+                }
+            }
+
+            $this->conn->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return false;
+        }
+    }
+
+    /**
+     * Eliminar (lógicamente) un presupuesto cambiando su estado a 'eliminado'.
+     * @param string $numero
+     * @return bool
+     */
+    public function eliminar($numero) {
+        $query = "UPDATE " . $this->table . " SET estado = 'eliminado' WHERE numero_presupuesto = :numero";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([':numero' => $numero]);
     }
 
     /**
