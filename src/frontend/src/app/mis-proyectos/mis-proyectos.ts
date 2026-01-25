@@ -257,51 +257,36 @@ export class MisProyectos implements OnInit {
   verDetalleProyecto(proyecto: Proyecto) {
     this.proyectoSeleccionado = proyecto;
     this.mostrarModalDetalle = true;
-    this.trabajadoresProyecto = []; // Inicializar como array vacío
+    this.trabajadoresProyecto = [];
     this.mostrarAsignarTrabajadores = false;
     this.miembrosDisponiblesDetalle = [];
-
-    console.log('🔍 Detalle proyecto:', proyecto);
-    console.log('🔍 Equipo ID del proyecto:', proyecto.equipo_id);
 
     // Cargar trabajadores asignados
     this.proyectoService.getTrabajadoresProyecto(proyecto.id).subscribe({
       next: (response) => {
         if (response.success) {
           this.trabajadoresProyecto = response.trabajadores || [];
-          console.log('👥 Trabajadores asignados:', this.trabajadoresProyecto);
         }
         
-        // ✅ FIX: Cargar miembros disponibles DESPUÉS de tener los trabajadores asignados
-        // Esto evita race condition donde getMiembrosEquipo() se completa antes
+        // Cargar miembros disponibles después de tener los trabajadores asignados
         if (proyecto.equipo_id) {
-          console.log('📞 Cargando miembros del equipo...');
           this.equipoService.getMiembrosEquipo().subscribe({
             next: (response) => {
-              console.log('📦 Respuesta getMiembrosEquipo:', response);
               if (response.success && response.data) {
-                console.log('👥 Miembros del equipo (todos):', response.data.miembros);
-                // Filtrar miembros que ya están asignados
                 const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
-                console.log('🔍 DNIs de trabajadores asignados:', trabajadoresDnis);
                 this.miembrosDisponiblesDetalle = (response.data.miembros || [])
                   .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
-                console.log('✅ Miembros disponibles para agregar:', this.miembrosDisponiblesDetalle);
-              } else {
-                console.warn('⚠️ No hay datos de miembros o success=false');
               }
             },
             error: (error) => {
-              console.error('❌ Error cargando miembros del equipo:', error);
+              console.error('Error cargando miembros del equipo:', error);
             }
           });
-        } else {
-          console.warn('⚠️ El proyecto NO tiene equipo_id asignado');
         }
       },
       error: (error) => {
-        console.error('❌ Error cargando trabajadores:', error);
-        this.trabajadoresProyecto = []; // Asegurar array vacío en error
+        console.error('Error cargando trabajadores:', error);
+        this.trabajadoresProyecto = [];
       }
     });
   }
@@ -318,7 +303,7 @@ export class MisProyectos implements OnInit {
       next: (response) => {
         if (response.success) {
           this.message = `✅ ${miembro.nombre} agregado al proyecto`;
-          // Recargar trabajadores del proyecto
+          this.mostrarAsignarTrabajadores = false;
           this.verDetalleProyecto(this.proyectoSeleccionado!);
         } else {
           this.message = '❌ Error al agregar trabajador: ' + (response.message || 'Error desconocido');
@@ -326,6 +311,29 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.message = '❌ Error de conexión al agregar trabajador';
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  removerTrabajadorDetalle(trabajador: any) {
+    if (!this.proyectoSeleccionado) return;
+
+    if (!confirm(`¿Estás seguro de remover a ${trabajador.nombre} del proyecto?`)) {
+      return;
+    }
+
+    this.proyectoService.removerAsignacion(this.proyectoSeleccionado.id, trabajador.dni).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = `✅ ${trabajador.nombre} removido del proyecto`;
+          this.verDetalleProyecto(this.proyectoSeleccionado!);
+        } else {
+          this.message = '❌ Error al remover trabajador';
+        }
+      },
+      error: (error) => {
+        this.message = '❌ Error de conexión al remover trabajador';
         console.error('Error:', error);
       }
     });
