@@ -112,6 +112,7 @@ class Proyecto {
      */
     public function obtenerProyectosPorJefe($jefe_dni) {
         $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.jefe_dni,
+                       p.cliente_id, p.equipo_id,
                        p.estado, p.precio_total, p.tecnologias, p.repositorio_github, p.notas,
                        p.fecha_inicio, p.fecha_creacion,
                        u.nombre as jefe_nombre, u.email as jefe_email,
@@ -149,6 +150,7 @@ class Proyecto {
      */
     public function obtenerProyectosPorTrabajador($trabajador_dni) {
         $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.jefe_dni,
+                       p.cliente_id, p.equipo_id,
                        p.estado, p.precio_total, p.tecnologias, p.repositorio_github, p.notas,
                        p.fecha_inicio, p.fecha_creacion,
                        u.nombre as jefe_nombre, u.email as jefe_email,
