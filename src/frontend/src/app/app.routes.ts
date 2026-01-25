@@ -8,6 +8,7 @@ import { MiEquipo } from './mi-equipo/mi-equipo';
 import { Plantilla } from './plantilla/plantilla';
 import { Usuarios } from './usuarios/usuarios';
 import { PresupuestoWizard } from './presupuesto/presupuesto-wizard';
+import { PresupuestosComponent } from './presupuestos/presupuestos';
 import { MisProyectos } from './mis-proyectos/mis-proyectos';
 import { RegistrarClienteComponent } from './components/registrar-cliente/registrar-cliente.component';
 import { UsuarioDetalleComponent } from './components/usuario-detalle/usuario-detalle.component';
@@ -29,7 +30,7 @@ export const routes: Routes = [
   { path: 'usuarios', component: Usuarios, canActivate: [AuthGuard] },
   { path: 'usuarios/:dni', component: UsuarioDetalleComponent, canActivate: [AuthGuard] },
   { path: 'presupuesto', component: PresupuestoWizard, canActivate: [AuthGuard] },
-  { path: 'mis-presupuestos-wizard', component: PresupuestoWizard, canActivate: [AuthGuard] },
+  { path: 'mis-presupuestos', component: PresupuestosComponent, canActivate: [AuthGuard] },
   { path: 'mis-proyectos', component: MisProyectos, canActivate: [AuthGuard] },
   { path: 'registrar-cliente', component: RegistrarClienteComponent, canActivate: [AuthGuard] },
   { path: 'clientes', component: ClientesComponent, canActivate: [AuthGuard] },
