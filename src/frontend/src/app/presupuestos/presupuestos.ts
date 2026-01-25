@@ -109,11 +109,12 @@ export class PresupuestosComponent implements OnInit {
     }
 
     this.http.post(`${environment.apiUrl}/api/enviar-presupuesto-email.php`, {
-      numero_presupuesto: presupuesto.numero_presupuesto
+      numero_presupuesto: presupuesto.numero_presupuesto,
+      usuario_dni: this.usuarioDni
     }).subscribe({
       next: (response: any) => {
         if (response.success) {
-          alert(`✅ Presupuesto enviado correctamente a ${presupuesto.cliente_email || 'el cliente'}`);
+          alert(`✅ Presupuesto enviado correctamente`);
         } else {
           alert('❌ Error al enviar: ' + (response.error || 'Error desconocido'));
         }

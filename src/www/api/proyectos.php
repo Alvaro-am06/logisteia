@@ -224,12 +224,6 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
-                // Registrar acción administrativa
-                AccionesAdministrativas::registrar($db, 'actualizar_proyecto_estado', $jefe_dni, [
-                    'proyecto_id' => $proyectoId,
-                    'nuevo_estado' => $input['estado']
-                ]);
-                
                 echo json_encode(['success' => true, 'message' => 'Proyecto actualizado correctamente']);
             } else {
                 ob_end_clean();
@@ -273,22 +267,6 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
-                // Registrar acción administrativa
-                session_start();
-                if (isset($_SESSION['usuario_dni'])) {
-                    try {
-                        $accionAdmin = new AccionesAdministrativas();
-                        $accionAdmin->registrar(
-                            $_SESSION['usuario_dni'],
-                            'Eliminación de proyecto',
-                            $proyectoId,
-                            "Proyecto eliminado: ID $proyectoId"
-                        );
-                    } catch (Exception $e) {
-                        // No fallar si no se puede registrar la acción
-                    }
-                }
-
                 echo json_encode(['success' => true, 'message' => 'Proyecto eliminado correctamente']);
             } else {
                 ob_end_clean();
