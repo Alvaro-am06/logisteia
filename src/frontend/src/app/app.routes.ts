@@ -29,6 +29,7 @@ export const routes: Routes = [
   { path: 'usuarios', component: Usuarios, canActivate: [AuthGuard] },
   { path: 'usuarios/:dni', component: UsuarioDetalleComponent, canActivate: [AuthGuard] },
   { path: 'presupuesto', component: PresupuestoWizard, canActivate: [AuthGuard] },
+  { path: 'mis-presupuestos-wizard', component: PresupuestoWizard, canActivate: [AuthGuard] },
   { path: 'mis-proyectos', component: MisProyectos, canActivate: [AuthGuard] },
   { path: 'registrar-cliente', component: RegistrarClienteComponent, canActivate: [AuthGuard] },
   { path: 'clientes', component: ClientesComponent, canActivate: [AuthGuard] },
