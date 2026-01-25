@@ -77,6 +77,10 @@ class Usuarios {
      * @return bool
      */
     public function eliminar($dni) {
+        // Eliminar primero las acciones administrativas asociadas
+        $stmtAcciones = $this->db->prepare("DELETE FROM acciones_administrativas WHERE usuario_dni = ?");
+        $stmtAcciones->execute(array($dni));
+        // Ahora eliminar el usuario
         $stmt = $this->db->prepare("DELETE FROM usuarios WHERE dni = ?");
         return $stmt->execute(array($dni));
     }
