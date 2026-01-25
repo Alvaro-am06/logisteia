@@ -52,33 +52,6 @@ switch ($method) {
             exit();
         }
 
-        // Ruta: /api/proyectos.php/{id}/trabajadores - Asignar trabajadores
-        if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
-            $proyectoId = intval($matches[1]);
-            $input = json_decode(file_get_contents('php://input'), true);
-            
-            if (!isset($input['trabajadores']) || !is_array($input['trabajadores'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Se requiere un array de trabajadores']);
-                exit();
-            }
-            
-            try {
-                $proyecto->asignarTrabajadores($proyectoId, $input['trabajadores']);
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Trabajadores asignados correctamente'
-                ]);
-            } catch (Exception $e) {
-                http_response_code(500);
-                echo json_encode([
-                    'success' => false,
-                    'error' => 'Error al asignar trabajadores: ' . $e->getMessage()
-                ]);
-            }
-            exit();
-        }
-
         // Ruta: /api/proyectos.php/{id}/trabajadores
         if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
             $proyectoId = intval($matches[1]);
@@ -131,6 +104,32 @@ switch ($method) {
             ob_end_clean();
             http_response_code(401);
             echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
+            exit();
+        }
+
+        // Ruta: /api/proyectos.php/{id}/trabajadores - Asignar trabajadores
+        if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            
+            if (!isset($input['trabajadores']) || !is_array($input['trabajadores'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Se requiere un array de trabajadores']);
+                exit();
+            }
+            
+            try {
+                $proyecto->asignarTrabajadores($proyectoId, $input['trabajadores']);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Trabajadores asignados correctamente'
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Error al asignar trabajadores: ' . $e->getMessage()
+                ]);
+            }
             exit();
         }
 
@@ -219,7 +218,7 @@ switch ($method) {
                         ':numero_presupuesto' => $numero_presupuesto,
                         ':usuario_dni' => $jefe_dni,
                         ':total' => isset($input['precio_total']) ? floatval($input['precio_total']) : 0,
-                        ':notas' => "Presupuesto automático para proyecto: $nombre\n\n" . ($notas ?? '')
+                        ':notas' => ($notas ?? '')
                     ]);
                     
                     $presupuesto_id = $db->lastInsertId();
@@ -419,6 +418,15 @@ switch ($method) {
         $proyectoId = $input['id'];
 
         try {
+            // Obtener presupuesto_numero antes de eliminar el proyecto
+            $sqlGetPresupuesto = "SELECT presupuesto_numero FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
+            $stmtGet = $db->prepare($sqlGetPresupuesto);
+            $stmtGet->execute([
+                ':id' => $proyectoId,
+                ':jefe_dni' => $jefe_dni
+            ]);
+            $proyecto_data = $stmtGet->fetch(PDO::FETCH_ASSOC);
+            
             // Eliminar proyecto (solo si es del jefe autenticado)
             $sql = "DELETE FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
             $stmt = $db->prepare($sql);
@@ -428,6 +436,18 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
+                // Si el proyecto tenía un presupuesto asociado, eliminarlo también
+                if ($proyecto_data && !empty($proyecto_data['presupuesto_numero'])) {
+                    try {
+                        $sqlDeletePresupuesto = "DELETE FROM presupuestos WHERE numero_presupuesto = :numero";
+                        $stmtDeletePresupuesto = $db->prepare($sqlDeletePresupuesto);
+                        $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['presupuesto_numero']]);
+                        error_log("✅ Presupuesto {$proyecto_data['presupuesto_numero']} eliminado junto con proyecto {$proyectoId}");
+                    } catch (Exception $presupuestoError) {
+                        error_log("⚠️ No se pudo eliminar presupuesto: " . $presupuestoError->getMessage());
+                    }
+                }
+                
                 echo json_encode(['success' => true, 'message' => 'Proyecto eliminado correctamente']);
             } else {
                 ob_end_clean();
