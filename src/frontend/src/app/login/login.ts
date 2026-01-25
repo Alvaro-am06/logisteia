@@ -124,13 +124,20 @@ export class Login implements AfterViewInit {
     })
     .subscribe({
       next: (res: any) => {
+        console.log('Respuesta del backend:', res);
         if (res.success && res.data && res.data.exists === true) {
           // Usuario ya existe - login directo
           this.message = 'Login con Google exitoso';
+          console.log('Usuario encontrado:', res.data.usuario);
           if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
+            console.log('Usuario guardado en localStorage');
+            // Dar tiempo para que se guarde en localStorage antes de redirigir
+            setTimeout(() => {
+              console.log('Redirigiendo a rol:', res.data.usuario.rol);
+              this.redirectByRole(res.data.usuario.rol);
+            }, 100);
           }
-          this.redirectByRole(res.data.usuario.rol);
         } else if (res.success && res.data && res.data.exists === false) {
           // Usuario nuevo - redirigir a completar registro
           if (isPlatformBrowser(this.platformId)) {
