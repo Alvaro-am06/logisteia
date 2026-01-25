@@ -16,7 +16,10 @@ try {
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
     
+    error_log("Login Google - Datos recibidos: " . print_r($data, true));
+    
     if (!isset($data['email']) || !isset($data['nombre'])) {
+        error_log("Login Google - Error: Datos incompletos");
         echo json_encode([
             'success' => false,
             'error' => 'Datos incompletos de Google'
@@ -32,10 +35,14 @@ try {
     // Conectar a la base de datos
     $db = ConexionBBDD::obtenerInstancia()->obtenerBBDD();
     
+    error_log("Login Google - Buscando usuario: " . $email);
+    
     // Verificar si el usuario ya existe
     $stmt = $db->prepare("SELECT * FROM usuarios WHERE email = ?");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    error_log("Login Google - Usuario encontrado: " . ($usuario ? "SI" : "NO"));
     
     if ($usuario) {
         // Usuario existe - iniciar sesión
@@ -137,7 +144,9 @@ try {
                 'success' => false,
                 'error' => 'Usuario no encontrado. Use completar-registro-google.php'
             ]);
-        }
+     rror_log("Login Google - Error: " . $e->getMessage());
+    error_log("Login Google - Stack trace: " . $e->getTraceAsString());
+    e   }
     }
     
 } catch (Exception $e) {
