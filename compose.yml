@@ -1,5 +1,5 @@
 services:
-  # Servicio de Base de Datos
+  # Base de datos (Igual)
   db:
     image: mysql:8.0
     container_name: logisteia_db
@@ -9,10 +9,9 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
-      # Carga tu script SQL automáticamente al iniciar la primera vez
       - ./src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # Servicio Backend (PHP)
+  # Backend PHP (Igual)
   backend:
     build:
       context: .
@@ -29,7 +28,7 @@ services:
       DB_USER: root
       DB_PASS: ${DB_PASS}
 
-  # Servicio Frontend + Servidor Web (Nginx)
+  # Frontend + Proxy Caddy (CAMBIOS AQUÍ)
   web:
     build:
       context: .
@@ -37,16 +36,18 @@ services:
     container_name: logisteia_web
     restart: always
     ports:
-      - "80:80"
+      - "80:80"   # Redirección automática a HTTPS
+      - "443:443" # Tráfico seguro HTTPS
     volumes:
-      # Configuración de Nginx
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      # Montamos el backend también aquí para que Nginx vea los archivos PHP
+      # Volúmenes para guardar los certificados SSL (¡Importante!)
+      - caddy_data:/data
+      - caddy_config:/config
+      # Opcional: Montar el backend para que Caddy verifique si existen archivos PHP (recomendado)
       - ./src/www:/var/www/html
     depends_on:
       - backend
 
-  # Gestor de Base de Datos (Opcional)
+  # phpMyAdmin (Opcional)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: logisteia_pma
@@ -56,9 +57,10 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
-      UPLOAD_LIMIT: 64M
     depends_on:
       - db
 
 volumes:
   db_data:
+  caddy_data: # Aquí se guardan los certificados de Let's Encrypt
+  caddy_config:
