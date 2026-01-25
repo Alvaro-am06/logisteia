@@ -297,39 +297,33 @@ export class PresupuestoWizard implements OnInit {
       return;
     }
 
-    // Preparar datos para enviar
-    const datosPresupuesto = {
-      usuario_dni: this.usuarioDni,
-      nombreProyecto: this.formulario.nombreProyecto.trim(),
-      descripcionProyecto: this.formulario.descripcionProyecto.trim(),
-      clienteNombre: this.clienteSeleccionado.nombre,
-      clienteEmail: this.clienteSeleccionado.email,
-      clienteEmpresa: this.clienteSeleccionado.empresa || '',
-      categoriaPrincipal: this.formulario.categoriaPrincipal,
-      tiempoEstimado: this.formulario.tiempoEstimado,
-      presupuestoAproximado: this.formulario.presupuestoAproximado,
-      tecnologiasSeleccionadas: this.formulario.tecnologiasSeleccionadas,
-      fechaInicio: this.formulario.fechaInicio,
-      plazoEntrega: this.formulario.plazoEntrega,
+    // Preparar datos para crear PROYECTO (no presupuesto)
+    const datosProyecto = {
+      nombre: this.formulario.nombreProyecto.trim(),
+      descripcion: this.formulario.descripcionProyecto.trim(),
+      cliente_id: this.formulario.clienteSeleccionadoId,
+      tecnologias: this.formulario.tecnologiasSeleccionadas,
+      fecha_inicio: this.formulario.fechaInicio,
+      fecha_fin_estimada: this.formulario.plazoEntrega,
       prioridad: this.formulario.prioridad,
-      notasAdicionales: this.formulario.notasAdicionales.trim()
+      notas: this.formulario.notasAdicionales.trim()
     };
 
-    this.message = 'Guardando presupuesto...';
+    this.message = 'Guardando proyecto...';
     this.loading = true;
 
-    this.http.post(`${environment.apiUrl}/api/guardar-presupuesto-wizard.php`, datosPresupuesto)
+    this.http.post(`${environment.apiUrl}/api/proyectos.php`, datosProyecto)
       .subscribe({
         next: (response: any) => {
           this.loading = false;
           if (response.success) {
-            this.message = `✓ Presupuesto ${response.data.numero_presupuesto} guardado correctamente`;
+            this.message = `✓ Proyecto creado correctamente`;
             
             setTimeout(() => {
               this.router.navigate(['/mis-proyectos']);
             }, 2000);
           } else {
-            this.message = '✗ Error: ' + (response.error || 'No se pudo guardar el presupuesto');
+            this.message = '✗ Error: ' + (response.error || 'No se pudo crear el proyecto');
           }
         },
         error: (error) => {
