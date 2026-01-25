@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 export class Login {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
   email = '';
   password = '';
   dni = '';
@@ -38,7 +39,9 @@ export class Login {
           if (response.success) {
             this.message = 'Login exitoso';
             // Guardar datos del usuario en localStorage
-            localStorage.setItem('usuario', JSON.stringify(response.data));
+            if (isPlatformBrowser(this.platformId)) {
+              localStorage.setItem('usuario', JSON.stringify(response.data));
+            }
             // Redirigir basado en el rol del usuario
             if (response.data.rol === 'administrador') {
               this.router.navigate(['/panel-admin']);
