@@ -314,17 +314,18 @@ export class MisProyectos implements OnInit {
   finalizarProyecto(proyecto: Proyecto | null) {
     if (!proyecto) return;
     
-    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"? El proyecto se marcará como completado.`)) {
+    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"? El dinero del presupuesto asociado se sumará al dashboard.`)) {
       return;
     }
 
     this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto finalizado correctamente';
+          this.message = '✅ Proyecto finalizado correctamente. El dinero del presupuesto ha sido registrado en el dashboard.';
           if (this.proyectoSeleccionado) {
             this.proyectoSeleccionado.estado = 'finalizado';
           }
+          this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
           this.message = '❌ Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
@@ -335,6 +336,15 @@ export class MisProyectos implements OnInit {
         console.error('Error:', error);
       }
     });
+  }
+
+  // Editar proyecto
+  editarProyecto(proyecto: Proyecto | null) {
+    if (!proyecto) return;
+    this.cerrarModalDetalle();
+    // Cargar datos del proyecto en el formulario de edición
+    this.nuevoProyecto = { ...proyecto };
+    this.mostrarModalCrear = true;
   }
 
   crearNuevo() {
