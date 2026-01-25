@@ -92,6 +92,20 @@ try {
     
     $stmt->execute([$dni, $nombre, $email, $telefono, $passwordHash, $rol]);
     
+    // Si es jefe de equipo, crear su equipo automáticamente
+    if ($rol === 'jefe_equipo') {
+        $nombreEquipo = "Equipo de $nombre";
+        $stmtEquipo = $db->prepare("
+            INSERT INTO equipos (nombre, descripcion, jefe_dni, activo) 
+            VALUES (?, ?, ?, 1)
+        ");
+        $stmtEquipo->execute([
+            $nombreEquipo,
+            "Equipo gestionado por $nombre",
+            $dni
+        ]);
+    }
+    
     // Registrar acción administrativa
     try {
         $stmtAccion = $db->prepare("
@@ -108,8 +122,19 @@ try {
     $datosAdicionales = [];
     
     if ($rol === 'jefe_equipo') {
-        $datosAdicionales['equipo_nombre'] = 'Sin equipo';
-        $datosAdicionales['miembros_count'] = 0;
+        // Obtener el equipo recién creado
+        $stmtEquipo = $db->prepare("SELECT id, nombre FROM equipos WHERE jefe_dni = ? LIMIT 1");
+        $stmtEquipo->execute([$dni]);
+        $equipo = $stmtEquipo->fetch(PDO::FETCH_ASSOC);
+        
+        if ($equipo) {
+            $datosAdicionales['equipo_id'] = $equipo['id'];
+            $datosAdicionales['equipo_nombre'] = $equipo['nombre'];
+            $datosAdicionales['miembros_count'] = 0;
+        } else {
+            $datosAdicionales['equipo_nombre'] = 'Sin equipo';
+            $datosAdicionales['miembros_count'] = 0;
+        }
     }
     
     // Retornar datos del nuevo usuario
