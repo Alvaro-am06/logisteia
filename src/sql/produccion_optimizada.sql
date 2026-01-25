@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `contrase` VARCHAR(255) NOT NULL,
   `rol` ENUM('jefe_equipo', 'trabajador', 'moderador') NOT NULL DEFAULT 'trabajador',
   `telefono` VARCHAR(20) NULL,
+  `estado` ENUM('activo', 'baneado', 'eliminado') NOT NULL DEFAULT 'activo',
+  `fecha_baneo` TIMESTAMP NULL,
+  `motivo_baneo` TEXT NULL,
   `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY(`dni`),
   UNIQUE KEY `usuarios_email_unique`(`email`)
