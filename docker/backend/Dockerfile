@@ -12,8 +12,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar archivos de composer primero (para aprovechar caché de Docker)
+# Copiar archivos de composer y código fuente
 COPY composer.json composer.lock ./
+COPY src/www ./
 
 # Instalar dependencias de PHP (Optimizado para producción)
 RUN composer install --no-dev --optimize-autoloader --no-scripts
