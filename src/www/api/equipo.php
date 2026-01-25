@@ -96,10 +96,15 @@ switch ($method) {
                     u.telefono,
                     em.rol_proyecto,
                     em.fecha_ingreso,
-                    u.estado as estado_usuario
+                    u.estado as estado_usuario,
+                    em.activo,
+                    em.estado_invitacion
                 FROM miembros_equipo em
                 INNER JOIN usuarios u ON em.trabajador_dni = u.dni
                 WHERE em.equipo_id = ?
+                AND em.activo = 1
+                AND u.estado = 'activo'
+                AND em.estado_invitacion = 'aceptada'
                 ORDER BY em.fecha_ingreso DESC
             ");
             $stmt->execute([$equipo['id']]);
