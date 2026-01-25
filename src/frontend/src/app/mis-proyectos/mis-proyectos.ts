@@ -295,7 +295,12 @@ export class MisProyectos implements OnInit {
   agregarTrabajadorDetalle(miembro: any) {
     if (!this.proyectoSeleccionado) return;
 
-    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni]).subscribe({
+    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [{
+      dni: miembro.dni,
+      nombre: miembro.nombre,
+      email: miembro.email,
+      rol: miembro.rol || 'trabajador'
+    }]).subscribe({
       next: (response) => {
         if (response.success) {
           this.message = `✅ ${miembro.nombre} agregado al proyecto`;
