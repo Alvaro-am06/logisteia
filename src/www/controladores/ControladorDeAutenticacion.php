@@ -7,10 +7,12 @@
  * 
  */
 
-require_once 'modelos/ConexionBBDD.php';
-require_once 'modelos/Administrador.php';
+// Cargar dependencias con rutas absolutas
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../modelos/Usuarios.php';
+require_once __DIR__ . '/../modelos/Administrador.php';
 
-class ControladordeAutenticacion {
+class ControladorDeAutenticacion {
     // Conexión a la base de datos
     private $db;
 
