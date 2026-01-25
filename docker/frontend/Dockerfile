@@ -17,8 +17,13 @@ FROM caddy:alpine
 # Copiamos la configuración de Caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 
-# Copiamos la aplicación compilada (Ruta confirmada por tu angular.json)
+# Copiamos la aplicación compilada
 COPY --from=build-step /app/dist/frontend/browser /srv
+
+# --- ARREGLO CRÍTICO ---
+# Angular 17+ SSR genera 'index.csr.html' en lugar de 'index.html'.
+# Lo renombramos para que Caddy lo reconozca como la página principal.
+RUN cp /srv/index.csr.html /srv/index.html
 
 # Exponemos puertos
 EXPOSE 80
