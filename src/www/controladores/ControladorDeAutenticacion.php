@@ -98,4 +98,64 @@ class ControladordeAutenticacion {
             exit();
         }
     }
+
+    /**
+     * Procesa el login desde API (devuelve JSON)
+     * 
+     * @param string $email Email del administrador
+     * @param string $password Contraseña
+     * @return array Resultado del login en formato JSON
+     */
+    public function procesarLoginAPI($email, $password) {
+        // Validar formato de email
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return [
+                'success' => false,
+                'error' => 'Por favor ingrese un email válido'
+            ];
+        }
+        
+        // Validar que la contraseña no esté vacía
+        if (empty($password)) {
+            return [
+                'success' => false,
+                'error' => 'Por favor complete todos los campos'
+            ];
+        }
+        
+        // Intentar autenticar al usuario
+        if ($this->administrador->login($email, $password)) {
+            // Regenerar ID de sesión para prevenir session fixation
+            session_regenerate_id(true);
+            
+            // Almacenar datos del administrador en la sesión
+            $_SESSION['admin_id'] = $this->administrador->dni;
+            $_SESSION['admin_nombre'] = $this->administrador->nombre;
+            $_SESSION['admin_email'] = $this->administrador->email;
+            
+            return [
+                'success' => true,
+                'data' => [
+                    'id' => $this->administrador->dni,
+                    'nombre' => $this->administrador->nombre,
+                    'email' => $this->administrador->email
+                ]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Credenciales incorrectas'
+            ];
+        }
+    }
+
+    /**
+     * Cerrar sesión (API)
+     */
+    public function logout() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        session_destroy();
+    }
 }
