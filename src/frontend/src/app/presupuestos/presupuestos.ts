@@ -32,6 +32,8 @@ export class PresupuestosComponent implements OnInit {
   usuarioDni = '';
   usuarioRol = '';
   nombreUsuario = '';
+  mostrarModalDetalle = false;
+  presupuestoSeleccionado: Presupuesto | null = null;
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -74,21 +76,45 @@ export class PresupuestosComponent implements OnInit {
       });
   }
 
-  verPresupuesto(presupuesto: Presupuesto) {
+  formatearRol(rol: string): string {
+    const roles: { [key: string]: string } = {
+      'jefe_equipo': 'Jefe de Equipo',
+      'trabajador': 'Trabajador',
+      'moderador': 'Moderador'
+    };
+    return roles[rol] || rol;
+  }
+
+  verDetallePresupuesto(presupuesto: Presupuesto) {
+    this.presupuestoSeleccionado = presupuesto;
+    this.mostrarModalDetalle = true;
+  }
+
+  cerrarModalDetalle() {
+    this.mostrarModalDetalle = false;
+    this.presupuestoSeleccionado = null;
+  }
+
+  imprimirPDFPresupuesto(presupuesto: Presupuesto | null) {
+    if (!presupuesto) return;
     window.open(`${environment.apiUrl}/api/exportar-presupuesto-pdf.php?numero=${presupuesto.numero_presupuesto}`, '_blank');
   }
 
-  descargarPresupuesto(presupuesto: Presupuesto) {
-    const url = `${environment.apiUrl}/api/exportar-presupuesto-pdf.php?numero=${presupuesto.numero_presupuesto}&download=1`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `presupuesto_${presupuesto.numero_presupuesto}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  enviarPDFPresupuesto(presupuesto: Presupuesto | null) {
+    if (!presupuesto) return;
+    alert('Funcionalidad de enviar PDF por correo en desarrollo');
   }
 
-  eliminarPresupuesto(presupuesto: Presupuesto) {
+  finalizarPresupuesto(presupuesto: Presupuesto | null) {
+    if (!presupuesto) return;
+    if (!confirm(`¿Estás seguro de marcar el presupuesto ${presupuesto.numero_presupuesto} como finalizado?`)) {
+      return;
+    }
+    alert('Funcionalidad de finalizar presupuesto en desarrollo');
+  }
+
+  eliminarPresupuesto(presupuesto: Presupuesto | null) {
+    if (!presupuesto) return;
     if (!confirm(`¿Estás seguro de eliminar el presupuesto ${presupuesto.numero_presupuesto}?`)) {
       return;
     }
@@ -99,6 +125,7 @@ export class PresupuestosComponent implements OnInit {
       next: (response: any) => {
         if (response.success) {
           alert('Presupuesto eliminado correctamente');
+          this.cerrarModalDetalle();
           this.cargarPresupuestos();
         } else {
           alert('Error al eliminar: ' + (response.error || 'Error desconocido'));
