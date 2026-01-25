@@ -55,6 +55,21 @@ export class MisProyectos implements OnInit {
   mostrarModalDetalle: boolean = false;
   proyectoSeleccionado: Proyecto | null = null;
   trabajadoresProyecto: Trabajador[] = [];
+  
+  // Helper para tecnologías
+  getTecnologiasArray(proyecto: Proyecto): string[] {
+    if (!proyecto.tecnologias) return [];
+    if (Array.isArray(proyecto.tecnologias)) return proyecto.tecnologias;
+    if (typeof proyecto.tecnologias === 'string') {
+      try {
+        const parsed = JSON.parse(proyecto.tecnologias);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return proyecto.tecnologias.split(',').map(t => t.trim());
+      }
+    }
+    return [];
+  }
 
   // Exponer utilidades para el template
   formatearRol = formatearRol;
@@ -240,16 +255,18 @@ export class MisProyectos implements OnInit {
   verDetalleProyecto(proyecto: Proyecto) {
     this.proyectoSeleccionado = proyecto;
     this.mostrarModalDetalle = true;
+    this.trabajadoresProyecto = []; // Inicializar como array vacío
 
     // Cargar trabajadores asignados
     this.proyectoService.getTrabajadoresProyecto(proyecto.id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.trabajadoresProyecto = response.trabajadores;
+          this.trabajadoresProyecto = response.trabajadores || [];
         }
       },
       error: (error) => {
         console.error('Error cargando trabajadores:', error);
+        this.trabajadoresProyecto = []; // Asegurar array vacío en error
       }
     });
   }
@@ -258,6 +275,66 @@ export class MisProyectos implements OnInit {
     this.mostrarModalDetalle = false;
     this.proyectoSeleccionado = null;
     this.trabajadoresProyecto = [];
+  }
+
+  // Eliminar proyecto
+  eliminarProyecto(proyecto: Proyecto | null) {
+    if (!proyecto) return;
+    
+    if (!confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    this.proyectoService.eliminarProyecto(proyecto.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = '✅ Proyecto eliminado correctamente';
+          this.cerrarModalDetalle();
+          this.cargarProyectos();
+        } else {
+          this.message = '❌ Error al eliminar proyecto: ' + (response.error || 'Error desconocido');
+        }
+      },
+      error: (error) => {
+        this.message = '❌ Error de conexión al eliminar proyecto';
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  // Enviar PDF del proyecto
+  enviarPDFProyecto(proyecto: Proyecto | null) {
+    if (!proyecto) return;
+    
+    // Abrir PDF en nueva pestaña
+    window.open(`${environment.apiUrl}/api/exportar-proyecto-pdf.php?proyecto_id=${proyecto.id}`, '_blank');
+  }
+
+  // Finalizar proyecto
+  finalizarProyecto(proyecto: Proyecto | null) {
+    if (!proyecto) return;
+    
+    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"? El proyecto se marcará como completado.`)) {
+      return;
+    }
+
+    this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = '✅ Proyecto finalizado correctamente';
+          if (this.proyectoSeleccionado) {
+            this.proyectoSeleccionado.estado = 'finalizado';
+          }
+          this.cargarProyectos();
+        } else {
+          this.message = '❌ Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
+        }
+      },
+      error: (error) => {
+        this.message = '❌ Error de conexión al finalizar proyecto';
+        console.error('Error:', error);
+      }
+    });
   }
 
   crearNuevo() {
