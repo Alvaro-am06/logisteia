@@ -2,6 +2,22 @@
     email admin@logisteia.com
 }
 
+# --- API Backend (para el frontend) ---
+api.logisteia.com {
+    # Proxy inverso al backend PHP
+    reverse_proxy backend:80
+    
+    # Headers CORS
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email"
+    }
+    
+    # Compresión
+    encode gzip
+}
+
 # --- Tu web principal (Angular + PHP) ---
 logisteia.com, www.logisteia.com {
     root * /srv
@@ -15,7 +31,7 @@ logisteia.com, www.logisteia.com {
     try_files {path} {path}/ /index.html
 }
 
-# --- NUEVO: phpMyAdmin ---
+# --- phpMyAdmin ---
 pma.logisteia.com {
     # Redirige el tráfico al contenedor de phpmyadmin en su puerto interno (80)
     reverse_proxy phpmyadmin:80
