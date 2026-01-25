@@ -160,7 +160,7 @@
             <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombre }}</option>
           </select>
           <div *ngIf="!cargandoClientes && clientes.length === 0" class="mt-1 text-sm text-yellow-600">
-            <p>⚠️ No hay clientes disponibles. <a href="/registrar-cliente" class="font-semibold underline">Crear uno</a></p>
+            <p>No hay clientes disponibles. <a href="/registrar-cliente" class="font-semibold underline">Crear uno</a></p>
           </div>
           <div *ngIf="!formulario.clienteSeleccionadoId && !cargandoClientes" class="mt-1 text-sm text-red-600">
             <p>Debe seleccionar un cliente</p>

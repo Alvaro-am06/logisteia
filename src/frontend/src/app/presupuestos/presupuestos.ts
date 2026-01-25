@@ -114,13 +114,13 @@ export class PresupuestosComponent implements OnInit {
     }).subscribe({
       next: (response: any) => {
         if (response.success) {
-          alert(`✅ Presupuesto enviado correctamente`);
+          alert(`Presupuesto enviado correctamente`);
         } else {
-          alert('❌ Error al enviar: ' + (response.error || 'Error desconocido'));
+          alert('Error al enviar: ' + (response.error || 'Error desconocido'));
         }
       },
       error: (err) => {
-        alert('❌ Error de conexión al enviar presupuesto');
+        alert('Error de conexión al enviar presupuesto');
         console.error('Error:', err);
       }
     });
