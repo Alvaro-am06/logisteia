@@ -72,21 +72,22 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
               <button
                 (click)="cambiarEstado(usuario.dni, 'activar')"
-                [disabled]="usuario.rol === 'administrador'"
+                [disabled]="usuario.estado === 'activo' || usuario.estado === 'eliminado'"
                 class="text-green-600 hover:text-green-900 disabled:text-gray-400 disabled:cursor-not-allowed"
                 title="Activar como administrador">
                 <i class="bi bi-check-circle"></i> Activar
               </button>
               <button
                 (click)="cambiarEstado(usuario.dni, 'suspender')"
-                [disabled]="usuario.rol === 'registrado'"
+                [disabled]="usuario.estado === 'suspendido' || usuario.estado === 'eliminado'"
                 class="text-yellow-600 hover:text-yellow-900 disabled:text-gray-400 disabled:cursor-not-allowed"
                 title="Suspender (cambiar a registrado)">
                 <i class="bi bi-pause-circle"></i> Suspender
               </button>
               <button
                 (click)="cambiarEstado(usuario.dni, 'eliminar')"
-                class="text-red-600 hover:text-red-900"
+                [disabled]="usuario.estado === 'eliminado'"
+                class="text-red-600 hover:text-red-900 disabled:text-gray-400 disabled:cursor-not-allowed"
                 title="Eliminar usuario">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
