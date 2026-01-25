@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -7,10 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
   private apiUrl = '/api/login.php'; // Usará el proxy
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) { }
-
-  login(email: string, password: string): Observable<any> {
+  login(email: string, password: string): Observable<unknown> {
     return this.http.post(this.apiUrl, { email, password });
   }
 }
