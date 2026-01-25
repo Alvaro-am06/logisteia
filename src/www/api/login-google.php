@@ -1,13 +1,24 @@
 <?php
+// Headers CORS PRIMERO (antes de cualquier output)
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email');
+header('Access-Control-Allow-Credentials: false');
+header('Content-Type: application/json; charset=UTF-8');
+
+// Manejar OPTIONS (preflight)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit();
+}
+
 // Cargar configuración centralizada
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/jwt.php';
 
-// Configurar CORS y manejar preflight
+// Configurar CORS y manejar preflight (ya se hizo arriba, pero por compatibilidad)
 setupCors();
 handlePreflight();
-
-header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/../modelos/ConexionBBDD.php';
 
