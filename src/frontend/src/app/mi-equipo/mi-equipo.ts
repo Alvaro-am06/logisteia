@@ -167,6 +167,36 @@ export class MiEquipo implements OnInit {
     }
   }
 
+  mostrarColumnaInvitacion(): boolean {
+    // Mostrar columna solo si hay al menos un miembro con invitación pendiente
+    return this.miembros.some(m => m.estado_invitacion === 'pendiente');
+  }
+
+  eliminarMiembro(miembro: any) {
+    if (!confirm(`¿Estás seguro de eliminar a ${miembro.nombre} del equipo?`)) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    this.equipoService.eliminarMiembroEquipo(miembro.dni).subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response.success) {
+          alert(`${miembro.nombre} ha sido eliminado del equipo correctamente.`);
+          this.cargarMiembrosEquipo();
+        } else {
+          this.error = response.error || 'Error al eliminar el miembro';
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        this.error = error.error?.error || 'Error de conexión al eliminar el miembro';
+      }
+    });
+  }
+
   cerrarSesion() {
     // Limpiar datos de sesión
     if (typeof window !== 'undefined' && window.localStorage) {
