@@ -1,7 +1,7 @@
 <?php
-require_once 'modelos/ConexionBBDD.php';
-require_once 'modelos/Cliente.php';
-require_once 'ControladorDeAutenticacion.php';
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../modelos/Cliente.php';
+require_once __DIR__ . '/ControladorDeAutenticacion.php';
 
 /**
  * Controlador para la gestión de clientes.
@@ -19,6 +19,15 @@ class ControladorCliente {
         $database = new Conexion();
         $this->db = $database->obtener();
         $this->cliente = new Cliente($this->db);
+    }
+
+    public function obtenerCliente($id) {
+        return $this->cliente->obtenerPorDni($id);
+    }
+
+    public function listarClientes() {
+        $stmt = $this->cliente->obtenerTodos();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -108,52 +117,5 @@ class ControladorCliente {
         $stmt = $this->cliente->buscar($termino);
         $clientes = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
         include '../vistas/clientes/listado.php';
-    }
-
-    // ========== MÉTODOS PARA API (devuelven JSON) ==========
-
-    /** Obtener lista de clientes en formato JSON */
-    public function listarClientes() {
-        try {
-            $stmt = $this->cliente->obtenerTodos();
-            $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return [
-                'success' => true,
-                'data' => $clientes
-            ];
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'Error al obtener clientes: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    /** Obtener cliente específico por DNI en formato JSON */
-    public function obtenerCliente($dni) {
-        try {
-            if ($this->cliente->obtenerPorDni($dni)) {
-                $clienteData = [
-                    'dni' => $this->cliente->dni,
-                    'nombre' => $this->cliente->nombre,
-                    'email' => $this->cliente->email,
-                    'telefono' => $this->cliente->telefono
-                ];
-                return [
-                    'success' => true,
-                    'data' => $clienteData
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'error' => 'Cliente no encontrado'
-                ];
-            }
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => 'Error al obtener cliente: ' . $e->getMessage()
-            ];
-        }
     }
 }

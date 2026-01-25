@@ -5,9 +5,9 @@
       <div class="flex justify-between items-center h-16">
         <a href="#" class="text-white font-bold text-xl">Logisteia</a>
         <div class="flex items-center space-x-4">
-          <span class="text-white">{{ usuarioNombre }}</span>
-          <button (click)="cancelar()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
-            Volver al Panel
+          <span class="text-white">{{ usuarioRol }} | {{ usuarioNombre }}</span>
+          <button (click)="cerrarSesion()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
+            Cerrar Sesión
           </button>
         </div>
       </div>
@@ -26,7 +26,65 @@
       {{ message }}
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Selección de Cliente -->
+    <div class="mb-6 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">1. Selecciona un Cliente</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="cliente" class="block text-sm font-medium text-gray-700 mb-2">Cliente *</label>
+          <select 
+            id="cliente"
+            [(ngModel)]="clienteSeleccionadoId" 
+            (ngModelChange)="seleccionarCliente($event)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">-- Selecciona un cliente --</option>
+            <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nombre }}</option>
+          </select>
+        </div>
+        <div *ngIf="!clienteSeleccionado" class="text-sm text-gray-500 italic py-2">
+          Selecciona un cliente para continuar
+        </div>
+      </div>
+
+      <!-- Datos del cliente seleccionado -->
+      <div *ngIf="clienteSeleccionado" class="mt-6 border-t pt-6">
+        <h3 class="font-semibold text-gray-800 mb-4">Datos del Cliente</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <input type="text" [value]="clienteSeleccionado.nombre" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" [value]="clienteSeleccionado.email" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input type="tel" [value]="clienteSeleccionado.telefono || 'N/A'" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Empresa</label>
+            <input type="text" [value]="clienteSeleccionado.empresa || 'N/A'" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">CIF/NIF</label>
+            <input type="text" [value]="clienteSeleccionado.cif_nif || 'N/A'" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input type="text" [value]="clienteSeleccionado.direccion || 'N/A'" disabled class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selección de Servicios -->
+    <div *ngIf="clienteSeleccionado" class="mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">2. Selecciona Servicios</h2>
+    </div>
+
+    <!-- Grid de Servicios y Resumen -->
+    <div *ngIf="clienteSeleccionado" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Columna izquierda: Servicios disponibles -->
       <div class="lg:col-span-2">
         <div class="bg-white rounded-lg shadow-md p-6">
@@ -76,7 +134,7 @@
                 <button 
                   (click)="agregarServicio(servicio)"
                   class="ml-4 px-4 py-2 bg-[#102a41] text-white rounded hover:bg-[#1a3f5e] transition">
-                  <i class="bi bi-plus-circle mr-1"></i> Agregar
+                  Agregar
                 </button>
               </div>
             </div>
@@ -96,7 +154,6 @@
           <!-- Servicios seleccionados -->
           <div class="space-y-3 mb-4 max-h-[400px] overflow-y-auto">
             <div *ngIf="serviciosSeleccionados.length === 0" class="text-center py-6 text-gray-500">
-              <i class="bi bi-inbox text-4xl block mb-2"></i>
               <p>No hay servicios seleccionados</p>
             </div>
 
@@ -107,7 +164,7 @@
                 <button 
                   (click)="eliminarServicio(i)"
                   class="text-red-600 hover:text-red-800 ml-2">
-                  <i class="bi bi-trash"></i>
+                  Eliminar
                 </button>
               </div>
 
@@ -173,17 +230,17 @@
               (click)="guardarPresupuesto()"
               [disabled]="guardando || serviciosSeleccionados.length === 0"
               class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
-              <i class="bi bi-save mr-2"></i>
               {{ guardando ? 'Guardando...' : 'Guardar Presupuesto' }}
             </button>
             <button 
               (click)="cancelar()"
               class="w-full px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-              <i class="bi bi-x-circle mr-2"></i> Cancelar
+              Cancelar
             </button>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>

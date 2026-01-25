@@ -1,1 +1,11 @@
-<p>plantilla works!</p>
+<!-- Navbar superior -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-xl">Logisteia</a>
+      <ng-content select="[navbar-actions]"></ng-content>
+    </div>
+  </div>
+</nav>
+
+<ng-content></ng-content>

@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 interface Servicio {
   nombre: string;
@@ -17,6 +18,16 @@ interface ServicioSeleccionado {
   cantidad: number;
   comentario: string;
   subtotal: number;
+}
+
+interface Cliente {
+  id: number;
+  nombre: string;
+  email: string;
+  empresa: string;
+  telefono: string;
+  direccion: string;
+  cif_nif: string;
 }
 
 @Component({
@@ -40,6 +51,10 @@ export class Presupuesto implements OnInit {
   categoriaSeleccionada: string = 'Todas';
   busqueda: string = '';
   
+  clientes: Cliente[] = [];
+  clienteSeleccionadoId: number | null = null;
+  clienteSeleccionado: Cliente | null = null;
+  
   serviciosSeleccionados: ServicioSeleccionado[] = [];
   
   total: number = 0;
@@ -51,6 +66,7 @@ export class Presupuesto implements OnInit {
 
   usuarioDni: string = '';
   usuarioNombre: string = '';
+  usuarioRol: string = '';
 
   ngOnInit() {
     // Solo ejecutar en el navegador
@@ -68,14 +84,43 @@ export class Presupuesto implements OnInit {
     const usuario = JSON.parse(usuarioData);
     this.usuarioDni = usuario.dni;
     this.usuarioNombre = usuario.nombre || 'Usuario';
+    this.usuarioRol = usuario.rol || 'Usuario';
 
-    // Cargar servicios
+    // Cargar servicios y clientes
     this.cargarServicios();
+    this.cargarClientes();
+  }
+
+  cargarClientes() {
+    // Cargar lista de clientes del usuario
+    const headers = {
+      'X-User-DNI': this.usuarioDni
+    };
+    
+    this.http.get<any>(`${environment.apiUrl}/api/clientes.php`, { headers })
+      .subscribe({
+        next: (response) => {
+          if (response.clientes && Array.isArray(response.clientes)) {
+            this.clientes = response.clientes;
+          }
+        },
+        error: (err) => {
+          this.clientes = [];
+        }
+      });
+  }
+
+  seleccionarCliente(clienteId: number) {
+    const cliente = this.clientes.find(c => c.id === clienteId);
+    if (cliente) {
+      this.clienteSeleccionado = cliente;
+      this.clienteSeleccionadoId = clienteId;
+    }
   }
 
   cargarServicios() {
     this.loading = true;
-    this.http.get('http://localhost/logisteia/src/www/api/servicios.php')
+    this.http.get('/api/servicios.php')
       .subscribe({
         next: (response: any) => {
           this.loading = false;
@@ -185,12 +230,9 @@ export class Presupuesto implements OnInit {
       detalles: detalles
     };
 
-    console.log('Enviando presupuesto:', datosPresupuesto);
-
-    this.http.post('http://localhost/logisteia/src/www/api/presupuestos.php', datosPresupuesto)
+    this.http.post('/api/presupuestos.php', datosPresupuesto)
       .subscribe({
         next: (response: any) => {
-          console.log('Respuesta del servidor:', response);
           this.guardando = false;
           if (response.success) {
             this.message = 'Presupuesto guardado exitosamente: ' + response.data.numero_presupuesto;
@@ -204,7 +246,6 @@ export class Presupuesto implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error al guardar:', error);
           this.guardando = false;
           this.message = 'Error de conexión: ' + (error.error?.error || error.message);
         }
@@ -213,5 +254,13 @@ export class Presupuesto implements OnInit {
 
   cancelar() {
     this.router.navigate(['/panel-registrado']);
+  }
+
+  cerrarSesion() {
+    // Limpiar datos de sesión
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('usuario');
+    }
+    this.router.navigate(['/']);
   }
 }

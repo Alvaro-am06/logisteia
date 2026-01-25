@@ -2,11 +2,12 @@
 <nav class="bg-[#102a41] shadow-lg">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center h-16">
-      <a href="#" class="text-white font-bold text-xl">Logisteia</a>
-      <div class="flex items-center space-x-4">
-        <span class="text-white">Usuario Registrado</span>
-        <button (click)="cerrarSesion()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
-          Cerrar Sesión
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base">{{ nombreUsuario }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          <span class="hidden sm:inline">Cerrar Sesión</span>
+          <span class="sm:hidden">Salir</span>
         </button>
       </div>
     </div>
@@ -15,66 +16,48 @@
 
 <div class="flex min-h-screen bg-gray-100">
   <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-lg">
-    <nav class="p-4">
-      <ul class="space-y-2">
-        <li>
-          <a routerLink="/panel-registrado" 
-             routerLinkActive="bg-blue-50" 
-             [routerLinkActiveOptions]="{exact: true}"
-             class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-100 cursor-pointer">
-            <i class="bi bi-house-door mr-3"></i> Dashboard
-          </a>
-        </li>
-        <li>
-          <a routerLink="/mis-proyectos" 
-             routerLinkActive="bg-blue-50"
-             class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
-            <i class="bi bi-folder mr-3"></i> Mis Proyectos
-          </a>
-        </li>
-        <li>
-          <a href="#perfil" class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 cursor-pointer">
-            <i class="bi bi-person mr-3"></i> Mi Perfil
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </aside>
+  <app-sidebar [rol]="usuarioRol"></app-sidebar>
 
   <!-- Contenido principal -->
-  <main class="flex-1 p-8">
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
     <div class="max-w-7xl mx-auto">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Bienvenido, {{ nombreUsuario }}</h1>
-        <button (click)="crearPresupuesto()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
-          <i class="bi bi-plus-circle mr-2"></i> Crear Presupuesto
-        </button>
+      <div class="flex justify-between items-center mb-6 md:mb-8">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Bienvenido, {{ nombreUsuario }}</h1>
+          <p *ngIf="equipoNombre" class="text-sm md:text-base text-gray-600 mt-2">Equipo: <span class="font-semibold">{{ equipoNombre }}</span></p>
+          <p *ngIf="!equipoNombre" class="text-sm md:text-base text-gray-500 mt-2 italic">No estás asignado a ningún equipo aún</p>
+        </div>
       </div>
 
       <!-- Cards de resumen -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-lg shadow-md">
-          <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-full">
-              <i class="bi bi-folder text-blue-600 text-2xl"></i>
-            </div>
-            <div class="ml-4">
-              <p class="text-gray-600">Proyectos Creados</p>
-              <p class="text-2xl font-bold text-gray-900">{{ proyectosCreados }}</p>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+          <p class="text-sm md:text-base text-gray-600">Proyectos Creados</p>
+          <p class="text-xl md:text-2xl font-bold text-gray-900">{{ proyectosCreados }}</p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md">
-          <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-full">
-              <i class="bi bi-check-circle text-green-600 text-2xl"></i>
-            </div>
-            <div class="ml-4">
-              <p class="text-gray-600">Proyectos Completados</p>
-              <p class="text-2xl font-bold text-gray-900">{{ proyectosCompletados }}</p>
-            </div>
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+          <p class="text-sm md:text-base text-gray-600">Proyectos Completados</p>
+          <p class="text-xl md:text-2xl font-bold text-gray-900">{{ proyectosCompletados }}</p>
+        </div>
+        
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+          <p class="text-sm md:text-base text-gray-600">Jefe de Equipo</p>
+          <p class="text-base md:text-lg font-semibold text-gray-900">{{ jefeNombre || 'No asignado' }}</p>
+        </div>
+      </div>
+
+      <!-- Información del equipo -->
+      <div *ngIf="equipoNombre" class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6 md:mb-8">
+        <h2 class="text-xl font-semibold mb-4">Mi Equipo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-600">Equipo</p>
+            <p class="text-lg font-semibold text-gray-900">{{ equipoNombre }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-600">Rol en el Proyecto</p>
+            <p class="text-lg font-semibold text-gray-900">{{ rolProyecto || 'Miembro del Equipo' }}</p>
           </div>
         </div>
       </div>

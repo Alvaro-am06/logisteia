@@ -5,3 +5,13 @@ RewriteBase /api/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^login$ login.php [L]
+
+# Redirigir /api/usuarios/DNI a /api/usuarios.php/DNI
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^usuarios/(.+)$ usuarios.php/$1 [L,QSA]
+
+# Regla general: cualquier archivo.php/parametro
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-zA-Z0-9_-]+)/(.+)$ $1.php/$2 [L,QSA]

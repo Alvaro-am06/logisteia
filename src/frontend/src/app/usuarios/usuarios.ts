@@ -2,6 +2,7 @@ import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { UsuarioService, Usuario } from '../services/usuario.service';
+import { getEstadoClass } from '../utils/estado-utils';
 
 @Component({
   selector: 'app-usuarios',
@@ -16,6 +17,9 @@ export class Usuarios implements OnInit {
   usuarios: Usuario[] = [];
   loading = true;
   error = '';
+
+  // Exponer utilidad para el template
+  getEstadoClass = getEstadoClass;
 
   ngOnInit() {
     // Solo ejecutar en el navegador
@@ -53,7 +57,6 @@ export class Usuarios implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error al cargar usuarios:', err);
         this.error = 'Error de conexión con el servidor';
         this.loading = false;
       }
@@ -93,23 +96,9 @@ export class Usuarios implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Error al cambiar estado:', err);
         alert('Error de conexión con el servidor');
       }
     });
-  }
-
-  getEstadoClass(estado: string): string {
-    switch (estado.toLowerCase()) {
-      case 'activo':
-        return 'bg-green-100 text-green-800';
-      case 'suspendido':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'eliminado':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   }
 
   getRolClass(rol: string): string {

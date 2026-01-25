@@ -1,47 +1,65 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-
-interface Presupuesto {
-  id_presupuesto: number;
-  numero_presupuesto: string;
-  fecha_creacion: string;
-  estado: string;
-  total: number;
-  validez_dias: number;
-  notas: string;
-}
-
-interface DetallePresupuesto {
-  id_linea: number;
-  servicio_nombre: string;
-  cantidad: number;
-  preci: number;
-  comentario: string;
+import { formatearRol } from '../utils/formatear-rol';
+import { getEstadoClass, getEstadoTexto } from '../utils/estado-utils';
+import { environment } from '../../environments/environment';
+import { ProyectoService, Proyecto, Trabajador, MiembroEquipo } from '../services/proyecto.service';
+import { EquipoService } from '../services/equipo.service';
+import { FormsModule } from '@angular/forms';
+import { SidebarComponent } from '../components/sidebar/sidebar.component';
+interface Cliente {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono?: string;
 }
 
 @Component({
   selector: 'app-mis-proyectos',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, SidebarComponent],
   templateUrl: './mis-proyectos.html',
 })
 export class MisProyectos implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
+  private proyectoService = inject(ProyectoService);
+  private equipoService = inject(EquipoService);
 
-  presupuestos: Presupuesto[] = [];
+  proyectos: Proyecto[] = [];
   loading: boolean = false;
   message: string = '';
   usuarioDni: string = '';
   usuarioNombre: string = '';
+  usuarioRol: string = '';
 
-  // Modal
-  mostrarModal: boolean = false;
-  presupuestoSeleccionado: Presupuesto | null = null;
-  detallesPresupuesto: DetallePresupuesto[] = [];
-  cargandoDetalles: boolean = false;
+  // Modal de crear proyecto
+  mostrarModalCrear: boolean = false;
+  nuevoProyecto: Partial<Proyecto> = {
+    nombre: '',
+    descripcion: '',
+    tecnologias: '',
+    notas: ''
+  };
+  clientes: Cliente[] = [];
+  equipos: any[] = [];
+  trabajadoresSeleccionados: Trabajador[] = [];
+  miembrosDisponibles: MiembroEquipo[] = [];
+  cargandoMiembros: boolean = false;
+
+  // Modal de detalle proyecto
+  mostrarModalDetalle: boolean = false;
+  proyectoSeleccionado: Proyecto | null = null;
+  trabajadoresProyecto: Trabajador[] = [];
+
+  // Exponer utilidades para el template
+  formatearRol = formatearRol;
+  getEstadoClass = getEstadoClass;
+  getEstadoTexto = getEstadoTexto;
 
   ngOnInit() {
     // Solo ejecutar en el navegador
@@ -51,173 +69,233 @@ export class MisProyectos implements OnInit {
 
     // Obtener datos del usuario
     const usuarioData = localStorage.getItem('usuario');
+    // DEBUG: Si no hay usuario, usar datos de prueba
+    let usuario;
     if (!usuarioData) {
-      this.router.navigate(['/login']);
-      return;
+      usuario = {
+        dni: '99999999Z',
+        nombre: 'Usuario Prueba',
+        rol: 'jefe_equipo',
+        email: 'prueba@example.com'
+      };
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+    } else {
+      usuario = JSON.parse(usuarioData);
     }
-
-    const usuario = JSON.parse(usuarioData);
+    
     this.usuarioDni = usuario.dni;
     this.usuarioNombre = usuario.nombre || 'Usuario';
+    this.usuarioRol = usuario.rol || '';
 
-    // Cargar presupuestos
-    this.cargarPresupuestos();
+    // Cargar proyectos
+    this.cargarProyectos();
+
+    // Si es jefe de equipo, cargar datos adicionales para crear proyectos
+    if (this.usuarioRol === 'jefe_equipo') {
+      this.cargarDatosCreacion();
+    }
   }
 
-  cargarPresupuestos() {
+  cargarProyectos() {
     this.loading = true;
-    this.http.get(`http://localhost/logisteia/src/www/api/mis-presupuestos.php?dni=${this.usuarioDni}`)
-      .subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          if (response.success) {
-            // Convertir total a número
-            this.presupuestos = response.data.map((p: any) => ({
-              ...p,
-              total: parseFloat(p.total)
-            }));
-          } else {
-            this.message = 'Error al cargar presupuestos';
-          }
-        },
-        error: (error) => {
-          this.loading = false;
-          this.message = 'Error de conexión: ' + error.message;
-        }
-      });
-  }
-
-  verDetalle(presupuesto: Presupuesto) {
-    this.presupuestoSeleccionado = presupuesto;
-    this.mostrarModal = true;
-    this.cargarDetallesPresupuesto(presupuesto.numero_presupuesto);
-  }
-
-  cargarDetallesPresupuesto(numeroPresupuesto: string) {
-    this.cargandoDetalles = true;
-    this.http.get(`http://localhost/logisteia/src/www/api/detalle-presupuesto.php?numero=${numeroPresupuesto}`)
-      .subscribe({
-        next: (response: any) => {
-          this.cargandoDetalles = false;
-          if (response.success) {
-            this.detallesPresupuesto = response.data.map((d: any) => ({
-              ...d,
-              preci: parseFloat(d.preci),
-              cantidad: parseInt(d.cantidad)
-            }));
-          }
-        },
-        error: (error) => {
-          this.cargandoDetalles = false;
-          console.error('Error al cargar detalles:', error);
-        }
-      });
-  }
-
-  cerrarModal() {
-    this.mostrarModal = false;
-    this.presupuestoSeleccionado = null;
-    this.detallesPresupuesto = [];
-  }
-
-  crearNuevo() {
-    this.router.navigate(['/presupuesto']);
-  }
-
-  volver() {
-    this.router.navigate(['/panel-registrado']);
-  }
-
-  cambiarEstado(presupuesto: Presupuesto, nuevoEstado: string) {
-    if (!confirm(`¿Desea cambiar el estado del presupuesto a "${nuevoEstado}"?`)) {
-      return;
-    }
-
-    const datos = {
-      numero_presupuesto: presupuesto.numero_presupuesto,
-      estado: nuevoEstado
-    };
-
-    this.http.post('http://localhost/logisteia/src/www/api/actualizar-presupuesto.php', datos)
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.message = 'Estado actualizado correctamente';
-            this.cargarPresupuestos();
-          } else {
-            this.message = 'Error: ' + (response.error || 'No se pudo actualizar el estado');
-          }
-        },
-        error: (error) => {
-          console.error('Error al cambiar estado:', error);
-          this.message = 'Error de conexión al cambiar estado';
-        }
-      });
-  }
-
-  eliminarPresupuesto(numeroPresupuesto: string) {
-    if (!confirm('¿Está seguro de que desea eliminar este presupuesto? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
-    this.http.post('http://localhost/logisteia/src/www/api/eliminar-presupuesto.php', {
-      numero_presupuesto: numeroPresupuesto
-    }).subscribe({
-      next: (response: any) => {
-        if (response.success) {
-          this.message = 'Presupuesto eliminado correctamente';
-          this.cargarPresupuestos();
+    this.proyectoService.getProyectos().subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response && response.success) {
+          this.proyectos = response.proyectos || [];
+          // Actualizar localStorage para el panel
+          localStorage.setItem('proyectosTotal', this.proyectos.length.toString());
         } else {
-          this.message = 'Error: ' + (response.error || 'No se pudo eliminar el presupuesto');
+          this.message = 'Error al cargar proyectos';
+          this.proyectos = [];
         }
       },
       error: (error) => {
-        console.error('Error al eliminar:', error);
-        this.message = 'Error de conexión al eliminar presupuesto';
+        this.loading = false;
+        console.error('Error cargando proyectos:', error);
+        this.message = 'Error de conexión al cargar proyectos';
+        this.proyectos = [];
       }
     });
   }
 
-  exportarPDF(numeroPresupuesto: string) {
-    const url = `http://localhost/logisteia/src/www/api/exportar-presupuesto-pdf.php?numero=${numeroPresupuesto}`;
-    window.open(url, '_blank');
+  cargarDatosCreacion() {
+    // Cargar clientes
+    this.http.get(`${environment.apiUrl}/api/clientes.php`).subscribe({
+      next: (response: any) => {
+        if (response && response.success) {
+          this.clientes = response.clientes || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando clientes:', error);
+        this.clientes = [];
+      }
+    });
+
+    // Cargar equipos del jefe
+    this.equipoService.getEquiposJefe(this.usuarioDni).subscribe({
+      next: (response: any) => {
+        if (response && response.success) {
+          this.equipos = response.equipos || [];
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando equipos:', error);
+        this.equipos = [];
+      }
+    });
   }
 
-  getEstadoClass(estado: string): string {
-    switch (estado) {
-      case 'borrador':
-        return 'bg-gray-100 text-gray-700';
-      case 'enviado':
-        return 'bg-blue-100 text-blue-700';
-      case 'aprobado':
-        return 'bg-green-100 text-green-700';
-      case 'rechazado':
-        return 'bg-red-100 text-red-700';
-      case 'eliminado':
-        return 'bg-gray-300 text-gray-600';
-      default:
-        return 'bg-gray-100 text-gray-700';
+  // Crear proyecto
+  abrirModalCrear() {
+    this.mostrarModalCrear = true;
+    this.nuevoProyecto = {
+      nombre: '',
+      descripcion: '',
+      tecnologias: '',
+      notas: ''
+    };
+    this.trabajadoresSeleccionados = [];
+    this.miembrosDisponibles = [];
+  }
+
+  cerrarModalCrear() {
+    this.mostrarModalCrear = false;
+    this.nuevoProyecto = {};
+    this.trabajadoresSeleccionados = [];
+    this.miembrosDisponibles = [];
+  }
+
+  onEquipoChange() {
+    if (this.nuevoProyecto.equipo_id) {
+      this.cargarMiembrosDisponibles();
+    } else {
+      this.miembrosDisponibles = [];
     }
   }
 
-  getEstadoTexto(estado: string): string {
-    switch (estado) {
-      case 'borrador':
-        return 'Borrador';
-      case 'enviado':
-        return 'Enviado';
-      case 'aprobado':
-        return 'Aprobado';
-      case 'rechazado':
-        return 'Rechazado';
-      case 'eliminado':
-        return 'Eliminado';
-      default:
-        return estado;
+  cargarMiembrosDisponibles() {
+    if (!this.nuevoProyecto.equipo_id) return;
+
+    this.cargandoMiembros = true;
+    this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id).subscribe({
+      next: (response) => {
+        this.cargandoMiembros = false;
+        if (response.success) {
+          this.miembrosDisponibles = response.miembros;
+        }
+      },
+      error: (error: any) => {
+        this.cargandoMiembros = false;
+        console.error('Error cargando miembros:', error);
+      }
+    });
+  }
+
+  agregarTrabajador(trabajador: MiembroEquipo) {
+    if (!this.trabajadoresSeleccionados.find(t => t.dni === trabajador.dni)) {
+      this.trabajadoresSeleccionados.push({
+        dni: trabajador.dni,
+        nombre: trabajador.nombre,
+        email: trabajador.email,
+        rol: trabajador.rol,
+        rol_asignado: 'trabajador' // Por defecto
+      });
     }
   }
 
-  contarPorEstado(estado: string): number {
-    return this.presupuestos.filter(p => p.estado === estado).length;
+  removerTrabajador(dni: string) {
+    this.trabajadoresSeleccionados = this.trabajadoresSeleccionados.filter(t => t.dni !== dni);
+  }
+
+  crearProyecto() {
+    if (!this.nuevoProyecto.nombre?.trim()) {
+      this.message = 'El nombre del proyecto es obligatorio';
+      return;
+    }
+
+    const proyectoData = {
+      ...this.nuevoProyecto,
+      trabajadores: this.trabajadoresSeleccionados
+    };
+
+    this.proyectoService.crearProyecto(proyectoData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = '✅ Proyecto creado exitosamente';
+          this.cerrarModalCrear();
+          this.cargarProyectos();
+        } else {
+          this.message = '❌ Error al crear proyecto';
+        }
+      },
+      error: (error) => {
+        this.message = '❌ Error de conexión al crear proyecto';
+      }
+    });
+  }
+
+  // Ver detalle de proyecto
+  verDetalleProyecto(proyecto: Proyecto) {
+    this.proyectoSeleccionado = proyecto;
+    this.mostrarModalDetalle = true;
+
+    // Cargar trabajadores asignados
+    this.proyectoService.getTrabajadoresProyecto(proyecto.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.trabajadoresProyecto = response.trabajadores;
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando trabajadores:', error);
+      }
+    });
+  }
+
+  cerrarModalDetalle() {
+    this.mostrarModalDetalle = false;
+    this.proyectoSeleccionado = null;
+    this.trabajadoresProyecto = [];
+  }
+
+  crearNuevo() {
+    if (this.usuarioRol === 'jefe_equipo') {
+      // Redirigir al wizard de presupuesto para crear un nuevo proyecto
+      this.router.navigate(['/presupuesto']);
+    } else {
+      // Para trabajadores, podría redirigir a otra funcionalidad
+      this.message = 'Los trabajadores no pueden crear proyectos directamente';
+    }
+  }
+
+  volver() {
+    // Detectar el rol del usuario y redirigir al panel apropiado
+    if (isPlatformBrowser(this.platformId)) {
+      const usuarioData = localStorage.getItem('usuario');
+      if (usuarioData) {
+        const usuario = JSON.parse(usuarioData);
+        if (usuario.rol === 'moderador') {
+          this.router.navigate(['/panel-moderador']);
+        } else if (usuario.rol === 'administrador') {
+          this.router.navigate(['/panel-admin']);
+        } else if (usuario.rol === 'jefe_equipo') {
+          this.router.navigate(['/panel-jefe-equipo']);
+        } else {
+          this.router.navigate(['/panel-registrado']);
+        }
+      } else {
+        this.router.navigate(['/login']);
+      }
+    }
+  }
+
+  cerrarSesion() {
+    // Limpiar datos de sesión
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('usuario');
+    }
+    this.router.navigate(['/']);
   }
 }

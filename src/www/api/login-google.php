@@ -1,0 +1,139 @@
+<?php
+// Cargar configuración centralizada
+require_once __DIR__ . '/../config/config.php';
+
+// Configurar CORS y manejar preflight
+setupCors();
+handlePreflight();
+
+header('Content-Type: application/json; charset=UTF-8');
+
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+
+try {
+    // Obtener datos JSON
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+    
+    if (!isset($data['email']) || !isset($data['nombre'])) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Datos incompletos de Google'
+        ]);
+        exit;
+    }
+    
+    $email = trim($data['email']);
+    $nombre = trim($data['nombre']);
+    $picture = isset($data['picture']) ? trim($data['picture']) : '';
+    $checkOnly = isset($data['checkOnly']) && $data['checkOnly'] === true;
+    
+    // Conectar a la base de datos
+    $db = ConexionBBDD::obtenerInstancia()->obtenerBBDD();
+    
+    // Verificar si el usuario ya existe
+    $stmt = $db->prepare("SELECT * FROM usuarios WHERE email = ?");
+    $stmt->execute([$email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($usuario) {
+        // Usuario existe - iniciar sesión
+        
+        // Verificar si el usuario está activo
+        if ($usuario['estado'] === 'eliminado') {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Este usuario ha sido eliminado'
+            ]);
+            exit;
+        }
+        
+        if ($usuario['estado'] === 'baneado') {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Este usuario ha sido baneado'
+            ]);
+            exit;
+        }
+        
+        // Obtener datos adicionales según el rol
+        $datosAdicionales = [];
+        
+        if ($usuario['rol'] === 'moderador') {
+            // Estadísticas de moderador
+            $stmt = $db->query("SELECT COUNT(*) as total FROM usuarios WHERE estado != 'eliminado'");
+            $datosAdicionales['usuarios_total'] = $stmt->fetchColumn();
+            
+            $stmt = $db->query("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'jefe_equipo' AND estado = 'activo'");
+            $datosAdicionales['usuarios_jefes'] = $stmt->fetchColumn();
+            
+            $stmt = $db->query("SELECT COUNT(*) as total FROM usuarios WHERE rol = 'trabajador' AND estado = 'activo'");
+            $datosAdicionales['usuarios_trabajadores'] = $stmt->fetchColumn();
+            
+            $stmt = $db->query("SELECT COUNT(*) as total FROM usuarios WHERE estado = 'baneado'");
+            $datosAdicionales['usuarios_baneados'] = $stmt->fetchColumn();
+            
+        } else if ($usuario['rol'] === 'jefe_equipo') {
+            // Datos de jefe de equipo
+            $stmt = $db->prepare("SELECT id, nombre FROM equipos WHERE jefe_dni = ?");
+            $stmt->execute([$usuario['dni']]);
+            $equipo = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($equipo) {
+                $datosAdicionales['equipo_nombre'] = $equipo['nombre'];
+                
+                // Contar miembros del equipo usando equipo_id
+                $stmt = $db->prepare("SELECT COUNT(*) as total FROM miembros_equipo WHERE equipo_id = ?");
+                $stmt->execute([$equipo['id']]);
+                $datosAdicionales['miembros_count'] = $stmt->fetchColumn();
+            } else {
+                $datosAdicionales['equipo_nombre'] = 'Sin equipo';
+                $datosAdicionales['miembros_count'] = 0;
+            }
+        }
+        
+        // Preparar respuesta
+        $responseData = array_merge([
+            'dni' => $usuario['dni'],
+            'nombre' => $usuario['nombre'],
+            'email' => $usuario['email'],
+            'telefono' => $usuario['telefono'],
+            'rol' => $usuario['rol'],
+            'estado' => $usuario['estado'],
+            'fecha_registro' => $usuario['fecha_registro']
+        ], $datosAdicionales);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'exists' => true,
+                'usuario' => $responseData
+            ]
+        ]);
+        
+    } else {
+        // Usuario no existe
+        if ($checkOnly) {
+            // Solo estamos verificando, no crear el usuario aún
+            echo json_encode([
+                'success' => true,
+                'data' => [
+                    'exists' => false
+                ]
+            ]);
+        } else {
+            // Modo antiguo: crear usuario automáticamente (por compatibilidad)
+            echo json_encode([
+                'success' => false,
+                'error' => 'Usuario no encontrado. Use completar-registro-google.php'
+            ]);
+        }
+    }
+    
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'error' => 'Error del servidor: ' . $e->getMessage()
+    ]);
+}
+?>
