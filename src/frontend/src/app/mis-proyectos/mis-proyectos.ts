@@ -55,6 +55,8 @@ export class MisProyectos implements OnInit {
   mostrarModalDetalle: boolean = false;
   proyectoSeleccionado: Proyecto | null = null;
   trabajadoresProyecto: Trabajador[] = [];
+  mostrarAsignarTrabajadores: boolean = false;
+  miembrosDisponiblesDetalle: MiembroEquipo[] = [];
   
   // Helper para tecnologías
   getTecnologiasArray(proyecto: Proyecto): string[] {
@@ -256,6 +258,8 @@ export class MisProyectos implements OnInit {
     this.proyectoSeleccionado = proyecto;
     this.mostrarModalDetalle = true;
     this.trabajadoresProyecto = []; // Inicializar como array vacío
+    this.mostrarAsignarTrabajadores = false;
+    this.miembrosDisponiblesDetalle = [];
 
     // Cargar trabajadores asignados
     this.proyectoService.getTrabajadoresProyecto(proyecto.id).subscribe({
@@ -269,12 +273,51 @@ export class MisProyectos implements OnInit {
         this.trabajadoresProyecto = []; // Asegurar array vacío en error
       }
     });
+
+    // Cargar miembros del equipo disponibles
+    if (proyecto.equipo_id) {
+      this.equipoService.getMiembrosEquipo(proyecto.equipo_id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Filtrar miembros que ya están asignados
+            const trabajadoresDnis = this.trabajadoresProyecto.map(t => t.dni);
+            this.miembrosDisponiblesDetalle = (response.miembros || [])
+              .filter(m => !trabajadoresDnis.includes(m.dni));
+          }
+        },
+        error: (error) => {
+          console.error('Error cargando miembros del equipo:', error);
+        }
+      });
+    }
+  }
+
+  agregarTrabajadorDetalle(miembro: MiembroEquipo) {
+    if (!this.proyectoSeleccionado) return;
+
+    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni]).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = `✅ ${miembro.nombre} agregado al proyecto`;
+          // Recargar trabajadores del proyecto
+          this.verDetalleProyecto(this.proyectoSeleccionado!);
+        } else {
+          this.message = '❌ Error al agregar trabajador: ' + (response.error || 'Error desconocido');
+        }
+      },
+      error: (error) => {
+        this.message = '❌ Error de conexión al agregar trabajador';
+        console.error('Error:', error);
+      }
+    });
   }
 
   cerrarModalDetalle() {
     this.mostrarModalDetalle = false;
     this.proyectoSeleccionado = null;
     this.trabajadoresProyecto = [];
+    this.mostrarAsignarTrabajadores = false;
+    this.miembrosDisponiblesDetalle = [];
   }
 
   // Eliminar proyecto
@@ -314,14 +357,14 @@ export class MisProyectos implements OnInit {
   finalizarProyecto(proyecto: Proyecto | null) {
     if (!proyecto) return;
     
-    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"? El dinero del presupuesto asociado se sumará al dashboard.`)) {
+    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"?`)) {
       return;
     }
 
     this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto finalizado correctamente. El dinero del presupuesto ha sido registrado en el dashboard.';
+          this.message = '✅ Proyecto finalizado correctamente.';
           if (this.proyectoSeleccionado) {
             this.proyectoSeleccionado.estado = 'finalizado';
           }
