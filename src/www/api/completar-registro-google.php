@@ -95,7 +95,11 @@ try {
     
     // Si es jefe de equipo, crear su equipo automáticamente
     if ($rol === 'jefe_equipo') {
-        $nombreEquipo = "Equipo de $nombre";
+        // Permitir que el usuario elija el nombre del equipo (si se proporciona)
+        $nombreEquipo = isset($data['nombre_equipo']) && !empty(trim($data['nombre_equipo'])) 
+            ? trim($data['nombre_equipo']) 
+            : "Equipo de $nombre";
+        
         $stmtEquipo = $db->prepare("
             INSERT INTO equipos (nombre, descripcion, jefe_dni, activo) 
             VALUES (?, ?, ?, 1)
