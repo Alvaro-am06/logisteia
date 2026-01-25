@@ -62,9 +62,8 @@ class Administrador {
             if ($stmt->rowCount() > 0) {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 
-                // Verificar contraseña (comparación directa temporal)
-                // TODO: Cambiar a password_verify($password, $row['contrase']) en producción
-                if ($password === $row['contrase']) {
+                // Verificar contraseña usando hash bcrypt
+                if (password_verify($password, $row['contrase'])) {
                     // Cargar datos del administrador
                     $this->dni = $row['dni'];
                     $this->nombre = $row['nombre'];
