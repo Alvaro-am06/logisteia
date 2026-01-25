@@ -56,7 +56,7 @@ export class MisProyectos implements OnInit {
   proyectoSeleccionado: Proyecto | null = null;
   trabajadoresProyecto: Trabajador[] = [];
   mostrarAsignarTrabajadores: boolean = false;
-  miembrosDisponiblesDetalle: MiembroEquipo[] = [];
+  miembrosDisponiblesDetalle: any[] = [];
   
   // Helper para tecnologías
   getTecnologiasArray(proyecto: Proyecto): string[] {
@@ -282,7 +282,7 @@ export class MisProyectos implements OnInit {
             // Filtrar miembros que ya están asignados
             const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
             this.miembrosDisponiblesDetalle = (response.data.miembros || [])
-              .filter((m: MiembroEquipo) => !trabajadoresDnis.includes(m.dni));
+              .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
           }
         },
         error: (error) => {
@@ -292,10 +292,10 @@ export class MisProyectos implements OnInit {
     }
   }
 
-  agregarTrabajadorDetalle(miembro: MiembroEquipo) {
+  agregarTrabajadorDetalle(miembro: any) {
     if (!this.proyectoSeleccionado) return;
 
-    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni as any]).subscribe({
+    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni]).subscribe({
       next: (response) => {
         if (response.success) {
           this.message = `✅ ${miembro.nombre} agregado al proyecto`;
