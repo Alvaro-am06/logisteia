@@ -199,7 +199,21 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
-                echo json_encode(['success' => true, 'message' => 'Proyecto actualizado correctamente']);
+                // Si se finalizó el proyecto, obtener presupuesto_total para el dashboard
+                $presupuesto_total = 0;
+                if ($input['estado'] === 'finalizado') {
+                    $sqlPresupuesto = "SELECT presupuesto_total FROM proyectos WHERE id = :id";
+                    $stmtPresupuesto = $db->prepare($sqlPresupuesto);
+                    $stmtPresupuesto->execute([':id' => $proyectoId]);
+                    $proyecto = $stmtPresupuesto->fetch(PDO::FETCH_ASSOC);
+                    $presupuesto_total = $proyecto['presupuesto_total'] ?? 0;
+                }
+                
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Proyecto actualizado correctamente',
+                    'presupuesto_total' => $presupuesto_total
+                ]);
             } else {
                 ob_end_clean();
                 http_response_code(404);

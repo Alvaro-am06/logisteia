@@ -31,6 +31,7 @@ try {
     require_once __DIR__ . '/../modelos/Presupuesto.php';
     require_once __DIR__ . '/../modelos/Usuarios.php';
     require_once __DIR__ . '/../config/email.php';
+    require_once __DIR__ . '/../config/helpers.php';
     
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         ob_end_clean();
