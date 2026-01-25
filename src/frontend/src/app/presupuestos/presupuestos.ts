@@ -78,6 +78,16 @@ export class PresupuestosComponent implements OnInit {
     window.open(`${environment.apiUrl}/api/exportar-presupuesto-pdf.php?numero=${presupuesto.numero_presupuesto}`, '_blank');
   }
 
+  descargarPresupuesto(presupuesto: Presupuesto) {
+    const url = `${environment.apiUrl}/api/exportar-presupuesto-pdf.php?numero=${presupuesto.numero_presupuesto}&download=1`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `presupuesto_${presupuesto.numero_presupuesto}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   eliminarPresupuesto(presupuesto: Presupuesto) {
     if (!confirm(`¿Estás seguro de eliminar el presupuesto ${presupuesto.numero_presupuesto}?`)) {
       return;
