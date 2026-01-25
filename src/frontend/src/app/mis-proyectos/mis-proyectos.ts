@@ -261,33 +261,46 @@ export class MisProyectos implements OnInit {
     this.mostrarAsignarTrabajadores = false;
     this.miembrosDisponiblesDetalle = [];
 
+    console.log('🔍 Detalle proyecto:', proyecto);
+    console.log('🔍 Equipo ID del proyecto:', proyecto.equipo_id);
+
     // Cargar trabajadores asignados
     this.proyectoService.getTrabajadoresProyecto(proyecto.id).subscribe({
       next: (response) => {
         if (response.success) {
           this.trabajadoresProyecto = response.trabajadores || [];
+          console.log('👥 Trabajadores asignados:', this.trabajadoresProyecto);
         }
         
         // ✅ FIX: Cargar miembros disponibles DESPUÉS de tener los trabajadores asignados
         // Esto evita race condition donde getMiembrosEquipo() se completa antes
         if (proyecto.equipo_id) {
+          console.log('📞 Cargando miembros del equipo...');
           this.equipoService.getMiembrosEquipo().subscribe({
             next: (response) => {
+              console.log('📦 Respuesta getMiembrosEquipo:', response);
               if (response.success && response.data) {
+                console.log('👥 Miembros del equipo (todos):', response.data.miembros);
                 // Filtrar miembros que ya están asignados
                 const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
+                console.log('🔍 DNIs de trabajadores asignados:', trabajadoresDnis);
                 this.miembrosDisponiblesDetalle = (response.data.miembros || [])
                   .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
+                console.log('✅ Miembros disponibles para agregar:', this.miembrosDisponiblesDetalle);
+              } else {
+                console.warn('⚠️ No hay datos de miembros o success=false');
               }
             },
             error: (error) => {
-              console.error('Error cargando miembros del equipo:', error);
+              console.error('❌ Error cargando miembros del equipo:', error);
             }
           });
+        } else {
+          console.warn('⚠️ El proyecto NO tiene equipo_id asignado');
         }
       },
       error: (error) => {
-        console.error('Error cargando trabajadores:', error);
+        console.error('❌ Error cargando trabajadores:', error);
         this.trabajadoresProyecto = []; // Asegurar array vacío en error
       }
     });
