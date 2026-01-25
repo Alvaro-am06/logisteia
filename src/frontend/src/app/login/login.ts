@@ -43,9 +43,9 @@ export class Login {
               localStorage.setItem('usuario', JSON.stringify(response.data));
             }
             // Redirigir basado en el rol del usuario
-            if (response.data.rol === 'administrador') {
+            if (response.data.rol === 'jefe_equipo' || response.data.rol === 'moderador') {
               this.router.navigate(['/panel-admin']);
-            } else if (response.data.rol === 'registrado') {
+            } else if (response.data.rol === 'trabajador') {
               this.router.navigate(['/panel-registrado']);
             } else {
               this.message = 'Rol de usuario desconocido';

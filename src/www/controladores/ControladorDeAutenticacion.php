@@ -105,54 +105,6 @@ class ControladorDeAutenticacion {
     }
 
     /**
-<<<<<<< HEAD
-     * Procesa el login desde API (devuelve JSON)
-     * 
-     * @param string $email Email del administrador
-     * @param string $password Contraseña
-     * @return array Resultado del login en formato JSON
-     */
-    public function procesarLoginAPI($email, $password) {
-        // Validar formato de email
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return [
-                'success' => false,
-                'error' => 'Por favor ingrese un email válido'
-            ];
-        }
-        
-        // Validar que la contraseña no esté vacía
-        if (empty($password)) {
-            return [
-                'success' => false,
-                'error' => 'Por favor complete todos los campos'
-            ];
-        }
-        
-        // Intentar autenticar al usuario
-        if ($this->administrador->login($email, $password)) {
-            // Regenerar ID de sesión para prevenir session fixation
-            session_regenerate_id(true);
-            
-            // Almacenar datos del administrador en la sesión
-            $_SESSION['admin_id'] = $this->administrador->dni;
-            $_SESSION['admin_nombre'] = $this->administrador->nombre;
-            $_SESSION['admin_email'] = $this->administrador->email;
-            
-            return [
-                'success' => true,
-                'data' => [
-                    'id' => $this->administrador->dni,
-                    'nombre' => $this->administrador->nombre,
-                    'email' => $this->administrador->email
-                ]
-            ];
-        } else {
-            return [
-                'success' => false,
-                'error' => 'Credenciales incorrectas'
-            ];
-=======
      * API endpoint para login.
      * Devuelve JSON para integración con frontend SPA (Angular).
      * 
@@ -204,7 +156,7 @@ class ControladorDeAutenticacion {
                         'dni' => $this->administrador->dni,
                         'nombre' => $this->administrador->nombre,
                         'email' => $this->administrador->email,
-                        'rol' => 'administrador' // Agregar el rol para que el frontend sepa qué tipo de usuario es
+                        'rol' => $this->administrador->rol // Usar el rol real de la BD
                     ]
                 ]);
                 http_response_code(200);
@@ -215,7 +167,7 @@ class ControladorDeAutenticacion {
             // Primero buscamos si existe un usuario con ese email
             if ($this->registrado->obtenerPorEmail($email)) {
                 // Usuario encontrado, ahora verificamos la contraseña
-                if (password_verify($password, $this->registrado->contrase)) {
+                if (password_verify($password, $this->registrado->password)) {
                     // Login exitoso como cliente
                     $proyectosCreados = $this->registrado->contarProyectosCreados($this->registrado->dni);
                     $proyectosCompletados = $this->registrado->contarProyectosCompletados($this->registrado->dni);
@@ -225,7 +177,7 @@ class ControladorDeAutenticacion {
                             'dni' => $this->registrado->dni,
                             'nombre' => $this->registrado->nombre,
                             'email' => $this->registrado->email,
-                            'rol' => 'registrado',
+                            'rol' => 'trabajador',
                             'proyectos_creados' => $proyectosCreados,
                             'proyectos_completados' => $proyectosCompletados
                         ]
@@ -250,22 +202,10 @@ class ControladorDeAutenticacion {
             echo json_encode(['error' => 'Error en la base de datos: ' . $e->getMessage()]);
             http_response_code(500);
             return;
->>>>>>> sprint2
         }
     }
 
     /**
-<<<<<<< HEAD
-     * Cerrar sesión (API)
-     */
-    public function logout() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        session_destroy();
-    }
-}
-=======
      * Procesa el registro de un nuevo usuario.
      * 
      * Valida los datos y crea un nuevo usuario registrado.
@@ -298,7 +238,7 @@ class ControladorDeAutenticacion {
             $this->registrado->telefono = $telefono;
 
             // Hash de la contraseña
-            $this->registrado->contrase = password_hash($password, PASSWORD_DEFAULT);
+            $this->registrado->password = password_hash($password, PASSWORD_DEFAULT);
 
             // Crear usuario
             if ($this->registrado->crear()) {
@@ -311,4 +251,3 @@ class ControladorDeAutenticacion {
         }
     }
 }
->>>>>>> sprint2
