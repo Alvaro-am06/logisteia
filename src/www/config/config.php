@@ -6,18 +6,6 @@
  * Para producción, ajustar los valores según el entorno.
  */
 
-// Headers CORS completamente abiertos para desarrollo
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email, X-Auth-Token, Origin, Accept, X-Requested-With');
-header('Access-Control-Allow-Credentials: false');
-
-// Manejar OPTIONS inmediatamente
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(204);
-    exit();
-}
-
 // Cargar autoloader de Composer
 // En Docker, el vendor está en /app/vendor
 // En desarrollo local, está en la raíz del proyecto
