@@ -225,12 +225,19 @@ switch ($method) {
                     $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
                     
                     // Preparar notas del presupuesto con datos del wizard
-                    $notasPresupuesto = "Presupuesto automático para proyecto: " . $nombre . "\n\n";
+                    $notasPresupuesto = "PRESUPUESTO GENERADO DESDE CONFIGURADOR\n";
+                    $notasPresupuesto .= "Proyecto: " . $nombre . "\n";
                     $notasPresupuesto .= "Cliente: " . ($cliente['nombre'] ?? 'Sin especificar') . "\n";
                     if ($cliente && !empty($cliente['email'])) {
                         $notasPresupuesto .= "Email: " . $cliente['email'] . "\n";
                     }
                     $notasPresupuesto .= "Descripción: " . $descripcion . "\n";
+                    if (!empty($fecha_inicio)) {
+                        $notasPresupuesto .= "Fecha inicio: " . $fecha_inicio . "\n";
+                    }
+                    if (!empty($tecnologias) && is_array($tecnologias)) {
+                        $notasPresupuesto .= "Tecnologías: " . json_encode($tecnologias, JSON_UNESCAPED_UNICODE) . "\n";
+                    }
                     
                     // Agregar información del wizard si está disponible
                     if (isset($input['categoriaPrincipal'])) {
@@ -238,6 +245,9 @@ switch ($method) {
                     }
                     if (isset($input['tiempoEstimado'])) {
                         $notasPresupuesto .= "Tiempo estimado: " . $input['tiempoEstimado'] . "\n";
+                    }
+                    if (isset($input['presupuestoAproximado'])) {
+                        $notasPresupuesto .= "Presupuesto: " . $input['presupuestoAproximado'] . "\n";
                     }
                     if (isset($input['plazoEntrega'])) {
                         $notasPresupuesto .= "Plazo de entrega: " . $input['plazoEntrega'] . "\n";
@@ -249,7 +259,7 @@ switch ($method) {
                         $notasPresupuesto .= "Metodología: " . $input['metodologia'] . "\n";
                     }
                     if (!empty($notas)) {
-                        $notasPresupuesto .= "\nNotas: " . $notas;
+                        $notasPresupuesto .= "Notas adicionales: " . $notas;
                     }
                     
                     // Calcular total estimado basado en presupuestoAproximado

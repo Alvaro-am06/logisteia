@@ -149,13 +149,19 @@ function generarDatosPresupuesto($presupuesto) {
     $validezDias = isset($presupuesto['validez_dias']) ? intval($presupuesto['validez_dias']) : 30;
     $notas = isset($presupuesto['notas']) ? $presupuesto['notas'] : '';
     
+    $esWizard = strpos($notas, 'PRESUPUESTO GENERADO DESDE CONFIGURADOR') !== false
+        || strpos($notas, 'Presupuesto automático para proyecto:') !== false
+        || strpos($notas, 'Proyecto:') !== false
+        || strpos($notas, 'Categoría:') !== false
+        || strpos($notas, 'Tiempo estimado:') !== false;
+
     return [
         'total' => number_format($total, 2, ',', '.'),
         'iva' => number_format($iva, 2, ',', '.'),
         'totalIVA' => number_format($totalIVA, 2, ',', '.'),
         'fecha' => date('d/m/Y', strtotime($presupuesto['fecha_creacion'])),
         'fechaValidez' => date('d/m/Y', strtotime($presupuesto['fecha_creacion'] . ' + ' . $validezDias . ' days')),
-        'esWizard' => strpos($notas, 'PRESUPUESTO GENERADO DESDE CONFIGURADOR') !== false
+        'esWizard' => $esWizard
     ];
 }
 
