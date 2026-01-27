@@ -27,6 +27,7 @@ if (!defined('APP_ENV')) {
 
 // Buscar autoload en diferentes ubicaciones posibles
 $autoloadPaths = [
+    '/app/vendor/autoload.php',                // En contenedor Docker (composer install en /app)
     __DIR__ . '/../../../vendor/autoload.php', // Raíz del proyecto
     __DIR__ . '/../vendor/autoload.php',       // Si está en src/www
     __DIR__ . '/../../vendor/autoload.php',    // Si está en src
