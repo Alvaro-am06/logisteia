@@ -38,7 +38,7 @@ $path = $parsedUrl['path'];
 
 switch ($method) {
     case 'GET':
-        // Obtener jefe_dni de los headers
+        // Obtener jefe_dni de los headers para todas las rutas POST
         $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
         
         if (!$jefe_dni && isset($_SERVER['HTTP_X_USER_DII'])) {
@@ -49,6 +49,33 @@ switch ($method) {
             ob_end_clean();
             http_response_code(401);
             echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
+            exit();
+        }
+
+        // Ruta: /api/proyectos.php/{id}/trabajadores - Asignar trabajadores
+        if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!isset($input['trabajadores']) || !is_array($input['trabajadores'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Se requiere un array de trabajadores']);
+                exit();
+            }
+            
+            try {
+                $proyecto->asignarTrabajadores($proyectoId, $input['trabajadores']);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Trabajadores asignados correctamente'
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Error al asignar trabajadores: ' . $e->getMessage()
+                ]);
+            }
             exit();
         }
 
@@ -63,25 +90,12 @@ switch ($method) {
             exit();
         }
 
-        // Ruta: /api/proyectos.php/{id}/miembros-disponibles
-        if (preg_match('#/api/proyectos\.php/(\d+)/miembros-disponibles#', $path, $matches)) {
-            $proyectoId = intval($matches[1]);
+        // Ruta: /api/proyectos.php/miembros-disponibles/{equipoId}?proyecto_id={proyectoId}
+        if (preg_match('#/api/proyectos\.php/miembros-disponibles/(\d+)#', $path, $matches)) {
+            $equipoId = intval($matches[1]);
+            $proyectoId = isset($_GET['proyecto_id']) ? intval($_GET['proyecto_id']) : null;
             
-            // Obtener el equipo_id del proyecto
-            $sqlEquipo = "SELECT equipo_id FROM proyectos WHERE id = :id";
-            $stmtEquipo = $db->prepare($sqlEquipo);
-            $stmtEquipo->execute([':id' => $proyectoId]);
-            $proyectoData = $stmtEquipo->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$proyectoData || !$proyectoData['equipo_id']) {
-                echo json_encode([
-                    'success' => true,
-                    'miembros' => []
-                ]);
-                exit();
-            }
-            
-            $miembros = $proyecto->obtenerMiembrosEquipoDisponibles($proyectoData['equipo_id'], $proyectoId);
+            $miembros = $proyecto->obtenerMiembrosEquipoDisponibles($equipoId, $proyectoId);
             echo json_encode([
                 'success' => true,
                 'miembros' => $miembros
@@ -348,6 +362,29 @@ switch ($method) {
             ob_end_clean();
             http_response_code(401);
             echo json_encode(['error' => 'Usuario no autenticado']);
+            exit();
+        }
+
+        // Ruta: /api/proyectos.php/{id}/trabajadores/{dni} - Remover trabajador
+        if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores/([A-Z0-9]+)#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            $trabajadorDni = $matches[2];
+            
+            try {
+                $resultado = $proyecto->removerAsignacion($proyectoId, $trabajadorDni);
+                if ($resultado) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Trabajador removido correctamente'
+                    ]);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['error' => 'Error al remover trabajador']);
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error: ' . $e->getMessage()]);
+            }
             exit();
         }
 

@@ -59,7 +59,7 @@ export class PresupuestosComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.http.get<any>(`${environment.apiUrl}/api/mis-presupuestos-wizard.php?dni=${this.usuarioDni}`)
+    this.http.get<any>(`${environment.apiUrl}/api/mis-presupuestos.php?dni=${this.usuarioDni}`)
       .subscribe({
         next: (response) => {
           this.loading = false;
