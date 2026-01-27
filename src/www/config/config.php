@@ -19,11 +19,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Cargar autoloader de Composer
-require_once __DIR__ . '/../../../vendor/autoload.php';
+// En Docker, el vendor está en /app/vendor
+// En desarrollo local, está en la raíz del proyecto
+$vendorPath = '/app/vendor/autoload.php';
+if (!file_exists($vendorPath)) {
+    $vendorPath = __DIR__ . '/../../../vendor/autoload.php';
+}
+require_once $vendorPath;
 
 // Cargar variables de entorno (desde la raíz del proyecto)
 try {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../..');
+    // En Docker, el .env está en /app
+    $envPath = '/app';
+    if (!file_exists($envPath . '/.env')) {
+        $envPath = __DIR__ . '/../../..';
+    }
+    $dotenv = Dotenv\Dotenv::createImmutable($envPath);
     $dotenv->load();
 } catch (Exception $e) {
     // Si falla, usar valores por defecto

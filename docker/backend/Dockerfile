@@ -10,9 +10,9 @@ RUN apt-get update && apt-get install -y \
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar composer.json y composer.lock a la raíz del proyecto
+# Copiar composer.json y composer.lock a /app
 WORKDIR /app
-COPY composer.json composer.lock ./
+COPY composer.json composer.lock .env* ./
 
 # Instalar dependencias de PHP (genera /app/vendor)
 RUN composer install --no-dev --optimize-autoloader --no-scripts
@@ -20,10 +20,7 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copiar código fuente
 COPY src/www /var/www/html
 
-# Crear symlink de vendor para que config.php lo encuentre
-RUN ln -s /app/vendor /vendor
-
 # Ajustar permisos
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html /app
 
 WORKDIR /var/www/html
