@@ -18,11 +18,30 @@ class Administrador {
     public function login($email, $password) {
         $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'administrador'";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (password_verify($password, $row['contrase'])) {
+        if ($stmt->execute([':email' => $email])) {
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (password_verify($password, $row['contrase'])) {
+                    $this->dni = $row['dni'];
+                    $this->nombre = $row['nombre'];
+                    $this->email = $row['email'];
+                    $this->contrase = $row['contrase'];
+                    $this->rol = $row['rol'];
+                    $this->telefono = $row['telefono'];
+                    $this->fecha_registro = $row['fecha_registro'];
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function obtenerPorDni($dni) {
+        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'administrador'";
+        $stmt = $this->conn->prepare($query);
+        if ($stmt->execute([':dni' => $dni])) {
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 $this->dni = $row['dni'];
                 $this->nombre = $row['nombre'];
                 $this->email = $row['email'];
@@ -32,25 +51,6 @@ class Administrador {
                 $this->fecha_registro = $row['fecha_registro'];
                 return true;
             }
-        }
-        return false;
-    }
-
-    public function obtenerPorDni($dni) {
-        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'administrador'";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':dni', $dni);
-        $stmt->execute();
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $this->dni = $row['dni'];
-            $this->nombre = $row['nombre'];
-            $this->email = $row['email'];
-            $this->contrase = $row['contrase'];
-            $this->rol = $row['rol'];
-            $this->telefono = $row['telefono'];
-            $this->fecha_registro = $row['fecha_registro'];
-            return true;
         }
         return false;
     }
