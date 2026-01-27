@@ -20,7 +20,7 @@ class ControladordeAutenticacion {
             header('Location: clientes.php');
             exit();
         }
-        include '../vistas/auth/login.php';
+        include '../vistas/autenticacion/login.php';
     }
 
     public function procesarLogin() {
