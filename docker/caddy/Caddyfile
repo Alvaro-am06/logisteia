@@ -4,17 +4,16 @@
 
 # --- API Backend (para el frontend) ---
 api.logisteia.com {
-    # Proxy inverso al backend PHP
-    reverse_proxy backend:80 {
-        # Pasar todos los headers originales
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-    }
+    root * /var/www/html
+    
+    # PHP-FPM
+    php_fastcgi backend:9000
     
     # Compresión
     encode gzip
+    
+    # Servir archivos estáticos directamente
+    file_server
 }
 
 # --- Tu web principal (Angular + PHP) ---
