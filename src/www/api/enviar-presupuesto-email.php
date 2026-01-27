@@ -440,7 +440,9 @@ function generarHTMLPresupuestoEmail($presupuesto, $detalles) {
             } else {
                 // Presupuesto clásico
                 $html .= "<h2>Servicios Contratados</h2>";
-                $html .= "<table>
+                
+                if (!empty($detalles)) {
+                    $html .= "<table>
                     <thead>
                         <tr>
                             <th>Servicio</th>
@@ -451,17 +453,20 @@ function generarHTMLPresupuestoEmail($presupuesto, $detalles) {
                     </thead>
                     <tbody>";
                 
-                foreach ($detalles as $detalle) {
-                    $subtotal = $detalle['cantidad'] * $detalle['preci'];
-                    $html .= "<tr>
-                        <td>" . htmlspecialchars($detalle['servicio_nombre']) . "</td>
-                        <td>{$detalle['cantidad']}</td>
-                        <td>" . number_format($detalle['preci'], 2, ',', '.') . " €</td>
-                        <td>" . number_format($subtotal, 2, ',', '.') . " €</td>
-                    </tr>";
-                }
+                    foreach ($detalles as $detalle) {
+                        $subtotal = $detalle['cantidad'] * $detalle['preci'];
+                        $html .= "<tr>
+                            <td>" . htmlspecialchars($detalle['servicio_nombre']) . "</td>
+                            <td>{$detalle['cantidad']}</td>
+                            <td>" . number_format($detalle['preci'], 2, ',', '.') . " €</td>
+                            <td>" . number_format($subtotal, 2, ',', '.') . " €</td>
+                        </tr>";
+                    }
                 
-                $html .= "</tbody></table>";
+                    $html .= "</tbody></table>";
+                } else {
+                    $html .= "<p style='text-align: center; padding: 20px; color: #666;'><em>Este presupuesto no tiene servicios detallados. El importe total se muestra a continuación.</em></p>";
+                }
             }
 
             // Totales
