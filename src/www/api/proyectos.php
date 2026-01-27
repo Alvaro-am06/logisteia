@@ -427,7 +427,18 @@ switch ($method) {
             ]);
             $proyecto_data = $stmtGet->fetch(PDO::FETCH_ASSOC);
             
-            // Eliminar proyecto (solo si es del jefe autenticado)
+            if (!$proyecto_data) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Proyecto no encontrado o no tienes permisos']);
+                exit();
+            }
+            
+            // Primero eliminar asignaciones de trabajadores (FK constraint)
+            $sqlDeleteAsignaciones = "DELETE FROM asignaciones_proyecto WHERE proyecto_id = :proyecto_id";
+            $stmtDeleteAsig = $db->prepare($sqlDeleteAsignaciones);
+            $stmtDeleteAsig->execute([':proyecto_id' => $proyectoId]);
+            
+            // Eliminar proyecto
             $sql = "DELETE FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
             $stmt = $db->prepare($sql);
             $stmt->execute([

@@ -142,11 +142,12 @@ function logInfo($message) {
  * Genera datos calculados para un presupuesto
  */
 function generarDatosPresupuesto($presupuesto) {
-    $total = isset($presupuesto['total']) ? $presupuesto['total'] : 0;
+    $total = isset($presupuesto['total']) ? floatval($presupuesto['total']) : 0;
     $iva = $total * 0.21;
     $totalIVA = $total * 1.21;
     
-    $validezDias = isset($presupuesto['validez_dias']) ? $presupuesto['validez_dias'] : 30;
+    $validezDias = isset($presupuesto['validez_dias']) ? intval($presupuesto['validez_dias']) : 30;
+    $notas = isset($presupuesto['notas']) ? $presupuesto['notas'] : '';
     
     return [
         'total' => number_format($total, 2, ',', '.'),
@@ -154,7 +155,7 @@ function generarDatosPresupuesto($presupuesto) {
         'totalIVA' => number_format($totalIVA, 2, ',', '.'),
         'fecha' => date('d/m/Y', strtotime($presupuesto['fecha_creacion'])),
         'fechaValidez' => date('d/m/Y', strtotime($presupuesto['fecha_creacion'] . ' + ' . $validezDias . ' days')),
-        'esWizard' => strpos($presupuesto['notas'], 'PRESUPUESTO GENERADO DESDE CONFIGURADOR') !== false
+        'esWizard' => strpos($notas, 'PRESUPUESTO GENERADO DESDE CONFIGURADOR') !== false
     ];
 }
 

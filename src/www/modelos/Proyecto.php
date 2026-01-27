@@ -92,10 +92,16 @@ class Proyecto {
         $stmt = $this->conn->prepare($sql);
 
         foreach ($trabajadores as $trabajador) {
+            // Aceptar dni como string o como objeto con dni
+            $dni = is_string($trabajador) ? $trabajador : ($trabajador['dni'] ?? null);
+            $rol = is_array($trabajador) ? ($trabajador['rol'] ?? $trabajador['rol_asignado'] ?? 'trabajador') : 'trabajador';
+            
+            if (!$dni) continue;
+            
             $stmt->execute([
                 ':proyecto_id' => $proyecto_id,
-                ':trabajador_dni' => $trabajador['dni'],
-                ':rol_asignado' => $trabajador['rol'] ?? null
+                ':trabajador_dni' => $dni,
+                ':rol_asignado' => $rol
             ]);
         }
     }
@@ -194,11 +200,12 @@ class Proyecto {
      * Obtener miembros disponibles de un equipo para asignar
      */
     public function obtenerMiembrosEquipoDisponibles($equipo_id, $proyecto_id = null) {
+        // Obtener todos los miembros del equipo que estén activos (sin filtrar por estado_invitacion)
         $sql = "SELECT u.dni, u.nombre, u.email, u.rol
                 FROM usuarios u
                 INNER JOIN miembros_equipo me ON u.dni = me.trabajador_dni
                 WHERE me.equipo_id = :equipo_id
-                AND me.estado_invitacion = 'aceptada'
+                AND me.activo = 1
                 AND u.estado = 'activo'";
 
         $params = [':equipo_id' => $equipo_id];
