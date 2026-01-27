@@ -18,8 +18,9 @@ services:
       dockerfile: docker/backend/Dockerfile
     container_name: logisteia_backend
     restart: always
-    volumes:
-      - ./src/www:/var/www/html
+    # Comentado para producción - el código se copia en el build
+    # volumes:
+    #   - ./src/www:/var/www/html
     depends_on:
       - db
     environment:
