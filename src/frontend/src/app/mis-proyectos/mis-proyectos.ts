@@ -372,7 +372,7 @@ export class MisProyectos implements OnInit {
           // Actualizar dashboard facturado
           if (response.presupuesto_total && response.presupuesto_total > 0) {
             const totalActual = parseFloat(localStorage.getItem('totalFacturado') || '0');
-            const nuevoTotal = totalActual + parseFloat(response.presupuesto_total);
+            const nuevoTotal = totalActual + response.presupuesto_total;
             localStorage.setItem('totalFacturado', nuevoTotal.toString());
           }
           
