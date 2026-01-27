@@ -27,25 +27,26 @@ function getConexion() {
 
 // Función para enviar email de bienvenida a equipo
 function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreEquipo, $jefeNombre, $jefeEmail) {
-    require_once __DIR__ . '/../config/email.php';
-    
-    $asunto = "Bienvenido al equipo $nombreEquipo - Logisteia";
+    try {
+        require_once __DIR__ . '/../config/email.php';
+        
+        $asunto = "Bienvenido al equipo $nombreEquipo - Logisteia";
 
-    $mensaje = "<html><body>
-        <h2>¡Bienvenido $nombreDestinatario!</h2>
-        <p>Te damos la bienvenida al equipo <strong>$nombreEquipo</strong> en la plataforma Logisteia.</p>
-        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
-        <p><strong>Agregado por:</strong> $jefeNombre ($jefeEmail)</p>
-        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
-        <br>
-        <p>Saludos,<br>Equipo Logisteia</p>
-    </body></html>";
+        $mensaje = "<html><body>
+            <h2>¡Bienvenido $nombreDestinatario!</h2>
+            <p>Te damos la bienvenida al equipo <strong>$nombreEquipo</strong> en la plataforma Logisteia.</p>
+            <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+            <p><strong>Agregado por:</strong> $jefeNombre ($jefeEmail)</p>
+            <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+            <br>
+            <p>Saludos,<br>Equipo Logisteia</p>
+        </body></html>";
 
-    // Usar modo desarrollo (solo log) o envío real según configuración
-    return enviarEmail($emailDestinatario, $nombreDestinatario, $asunto, $mensaje, 'logisteiaa@gmail.com', 'Equipo Logisteia');
-    
-    // Para enviar emails reales, descomentar y configurar email.php:
-    // return enviarEmail($emailDestinatario, $nombreDestinatario, $asunto, $mensaje, 'logisteiaa@gmail.com', 'Equipo Logisteia');
+        return enviarEmail($emailDestinatario, $nombreDestinatario, $asunto, $mensaje, 'logisteiaa@gmail.com', 'Equipo Logisteia');
+    } catch (Exception $e) {
+        error_log("❌ ERROR en enviarEmailBienvenida: " . $e->getMessage());
+        return false;
+    }
 }
 
 $method = $_SERVER['REQUEST_METHOD'];

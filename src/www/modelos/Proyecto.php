@@ -11,37 +11,45 @@ class Proyecto {
 
     /**
      * Crear un nuevo proyecto con asignaciones de trabajadores
-     * NOTA: Inserta en tabla presupuestos
+     * Inserta en tabla proyectos (NO presupuestos)
      */
     public function crearProyecto($datos) {
         try {
             $this->conn->beginTransaction();
 
-            // Generar número de presupuesto
-            $numeroPresupuesto = $datos['codigo'] ?? $this->generarNumeroPresupuesto();
+            // Generar código de proyecto
+            $codigo = $datos['codigo'] ?? $this->generarCodigoProyecto();
 
-            // Insertar en presupuestos
-            $sql = "INSERT INTO presupuestos (
-                usuario_dni, numero_presupuesto, cliente_id, estado, validez_dias,
-                total, notas, fecha_creacion
+            // Convertir tecnologías a JSON si es array
+            $tecnologias_json = null;
+            if (isset($datos['tecnologias'])) {
+                $tecnologias_json = is_array($datos['tecnologias']) 
+                    ? json_encode($datos['tecnologias'], JSON_UNESCAPED_UNICODE)
+                    : $datos['tecnologias'];
+            }
+
+            // Insertar en tabla proyectos
+            $sql = "INSERT INTO proyectos (
+                codigo, nombre, descripcion, jefe_dni, cliente_id, equipo_id, estado,
+                fecha_inicio, precio_total, tecnologias, repositorio_github, notas
             ) VALUES (
-                :usuario_dni, :numero_presupuesto, :cliente_id, 'borrador', 30,
-                :total, :notas, NOW()
+                :codigo, :nombre, :descripcion, :jefe_dni, :cliente_id, :equipo_id, 'creado',
+                :fecha_inicio, :precio_total, :tecnologias, :repositorio_github, :notas
             )";
-
-            $notas = "PROYECTO: " . ($datos['nombre'] ?? '') . "\n" .
-                     "Descripción: " . ($datos['descripcion'] ?? '') . "\n" .
-                     "Tecnologías: " . ($datos['tecnologias'] ?? '') . "\n" .
-                     "Repositorio: " . ($datos['repositorio_github'] ?? '') . "\n" .
-                     ($datos['notas'] ?? '');
 
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
-                ':usuario_dni' => $datos['jefe_dni'],
-                ':numero_presupuesto' => $numeroPresupuesto,
+                ':codigo' => $codigo,
+                ':nombre' => $datos['nombre'] ?? 'Proyecto sin nombre',
+                ':descripcion' => $datos['descripcion'] ?? null,
+                ':jefe_dni' => $datos['jefe_dni'],
                 ':cliente_id' => $datos['cliente_id'] ?? null,
-                ':total' => $datos['precio_total'] ?? 0,
-                ':notas' => $notas
+                ':equipo_id' => $datos['equipo_id'] ?? null,
+                ':fecha_inicio' => $datos['fecha_inicio'] ?? date('Y-m-d'),
+                ':precio_total' => $datos['precio_total'] ?? 0,
+                ':tecnologias' => $tecnologias_json,
+                ':repositorio_github' => $datos['repositorio_github'] ?? null,
+                ':notas' => $datos['notas'] ?? null
             ]);
 
             $proyecto_id = $this->conn->lastInsertId();
@@ -61,13 +69,13 @@ class Proyecto {
     }
 
     /**
-     * Generar número de presupuesto único
+     * Generar código de proyecto único
      */
-    public function generarNumeroPresupuesto() {
+    public function generarCodigoProyecto() {
         $fecha = date('Ymd');
-        $stmt = $this->conn->query("SELECT COUNT(*) + 1 as num FROM presupuestos WHERE DATE(fecha_creacion) = CURDATE()");
+        $stmt = $this->conn->query("SELECT COUNT(*) + 1 as num FROM proyectos WHERE DATE(fecha_creacion) = CURDATE()");
         $num = $stmt->fetchColumn();
-        return "PRW-{$fecha}-" . str_pad($num, 4, '0', STR_PAD_LEFT);
+        return "PRY-{$fecha}-" . str_pad($num, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -92,18 +100,20 @@ class Proyecto {
 
     /**
      * Obtener proyectos de un jefe de equipo
-     * NOTA: Usa tabla presupuestos como fuente de datos
+     * Usa tabla proyectos
      */
     public function obtenerProyectosPorJefe($jefe_dni) {
-        $sql = "SELECT p.id_presupuesto as id, p.numero_presupuesto as codigo, p.usuario_dni as jefe_dni,
-                       p.estado, p.total as precio_total, p.notas,
-                       p.fecha_creacion,
+        $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.jefe_dni,
+                       p.estado, p.precio_total, p.tecnologias, p.repositorio_github, p.notas,
+                       p.fecha_inicio, p.fecha_creacion,
                        u.nombre as jefe_nombre, u.email as jefe_email,
-                       c.nombre as cliente_nombre
-                FROM presupuestos p
-                LEFT JOIN usuarios u ON p.usuario_dni = u.dni
+                       c.nombre as cliente_nombre, c.empresa as cliente_empresa,
+                       e.nombre as equipo_nombre
+                FROM proyectos p
+                LEFT JOIN usuarios u ON p.jefe_dni = u.dni
                 LEFT JOIN clientes c ON p.cliente_id = c.id
-                WHERE p.usuario_dni = :jefe_dni
+                LEFT JOIN equipos e ON p.equipo_id = e.id
+                WHERE p.jefe_dni = :jefe_dni
                 ORDER BY p.fecha_creacion DESC";
 
         try {
@@ -111,10 +121,11 @@ class Proyecto {
             $stmt->execute([':jefe_dni' => $jefe_dni]);
             $proyectos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Procesar notas para extraer nombre y descripción
+            // Decodificar tecnologías JSON
             foreach ($proyectos as &$p) {
-                $p['nombre'] = $this->extraerNombreDeNotas($p['notas']);
-                $p['descripcion'] = $this->extraerDescripcionDeNotas($p['notas']);
+                if ($p['tecnologias']) {
+                    $p['tecnologias'] = json_decode($p['tecnologias'], true);
+                }
             }
             
             return $proyectos;
@@ -126,18 +137,18 @@ class Proyecto {
 
     /**
      * Obtener proyectos asignados a un trabajador
-     * NOTA: Usa tabla presupuestos como fuente de datos
+     * Usa tabla proyectos
      */
     public function obtenerProyectosPorTrabajador($trabajador_dni) {
-        $sql = "SELECT p.id_presupuesto as id, p.numero_presupuesto as codigo, p.usuario_dni as jefe_dni,
-                       p.estado, p.total as precio_total, p.notas,
-                       p.fecha_creacion,
+        $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.jefe_dni,
+                       p.estado, p.precio_total, p.tecnologias, p.repositorio_github, p.notas,
+                       p.fecha_inicio, p.fecha_creacion,
                        u.nombre as jefe_nombre, u.email as jefe_email,
-                       c.nombre as cliente_nombre,
+                       c.nombre as cliente_nombre, c.empresa as cliente_empresa,
                        ap.rol_asignado
-                FROM presupuestos p
-                INNER JOIN asignaciones_proyecto ap ON p.id_presupuesto = ap.proyecto_id
-                LEFT JOIN usuarios u ON p.usuario_dni = u.dni
+                FROM proyectos p
+                INNER JOIN asignaciones_proyecto ap ON p.id = ap.proyecto_id
+                LEFT JOIN usuarios u ON p.jefe_dni = u.dni
                 LEFT JOIN clientes c ON p.cliente_id = c.id
                 WHERE ap.trabajador_dni = :trabajador_dni
                 ORDER BY p.fecha_creacion DESC";
@@ -147,10 +158,11 @@ class Proyecto {
             $stmt->execute([':trabajador_dni' => $trabajador_dni]);
             $proyectos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Procesar notas para extraer nombre y descripción
+            // Decodificar tecnologías JSON
             foreach ($proyectos as &$p) {
-                $p['nombre'] = $this->extraerNombreDeNotas($p['notas']);
-                $p['descripcion'] = $this->extraerDescripcionDeNotas($p['notas']);
+                if ($p['tecnologias']) {
+                    $p['tecnologias'] = json_decode($p['tecnologias'], true);
+                }
             }
             
             return $proyectos;
