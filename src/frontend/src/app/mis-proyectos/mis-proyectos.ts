@@ -274,15 +274,15 @@ export class MisProyectos implements OnInit {
       }
     });
 
-    // Cargar miembros del equipo disponibles
+    // Cargar miembros del equipo disponibles si el proyecto tiene equipo_id
     if (proyecto.equipo_id) {
-      this.equipoService.getMiembrosEquipo(proyecto.equipo_id).subscribe({
+      this.equipoService.getMiembrosEquipo().subscribe({
         next: (response) => {
-          if (response.success) {
+          if (response.success && response.data) {
             // Filtrar miembros que ya están asignados
-            const trabajadoresDnis = this.trabajadoresProyecto.map(t => t.dni);
-            this.miembrosDisponiblesDetalle = (response.miembros || [])
-              .filter(m => !trabajadoresDnis.includes(m.dni));
+            const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
+            this.miembrosDisponiblesDetalle = (response.data.miembros || [])
+              .filter((m: MiembroEquipo) => !trabajadoresDnis.includes(m.dni));
           }
         },
         error: (error) => {
@@ -295,14 +295,14 @@ export class MisProyectos implements OnInit {
   agregarTrabajadorDetalle(miembro: MiembroEquipo) {
     if (!this.proyectoSeleccionado) return;
 
-    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni]).subscribe({
+    this.proyectoService.asignarTrabajadores(this.proyectoSeleccionado.id, [miembro.dni as any]).subscribe({
       next: (response) => {
         if (response.success) {
           this.message = `✅ ${miembro.nombre} agregado al proyecto`;
           // Recargar trabajadores del proyecto
           this.verDetalleProyecto(this.proyectoSeleccionado!);
         } else {
-          this.message = '❌ Error al agregar trabajador: ' + (response.error || 'Error desconocido');
+          this.message = '❌ Error al agregar trabajador: ' + (response.message || 'Error desconocido');
         }
       },
       error: (error) => {
