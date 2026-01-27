@@ -128,6 +128,61 @@ export class MisProyectos implements OnInit {
     this.router.navigate(['/panel-registrado']);
   }
 
+  cambiarEstado(presupuesto: Presupuesto, nuevoEstado: string) {
+    if (!confirm(`¿Desea cambiar el estado del presupuesto a "${nuevoEstado}"?`)) {
+      return;
+    }
+
+    const datos = {
+      numero_presupuesto: presupuesto.numero_presupuesto,
+      estado: nuevoEstado
+    };
+
+    this.http.post('http://localhost/logisteia/src/www/api/actualizar-presupuesto.php', datos)
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.message = 'Estado actualizado correctamente';
+            this.cargarPresupuestos();
+          } else {
+            this.message = 'Error: ' + (response.error || 'No se pudo actualizar el estado');
+          }
+        },
+        error: (error) => {
+          console.error('Error al cambiar estado:', error);
+          this.message = 'Error de conexión al cambiar estado';
+        }
+      });
+  }
+
+  eliminarPresupuesto(numeroPresupuesto: string) {
+    if (!confirm('¿Está seguro de que desea eliminar este presupuesto? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    this.http.post('http://localhost/logisteia/src/www/api/eliminar-presupuesto.php', {
+      numero_presupuesto: numeroPresupuesto
+    }).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.message = 'Presupuesto eliminado correctamente';
+          this.cargarPresupuestos();
+        } else {
+          this.message = 'Error: ' + (response.error || 'No se pudo eliminar el presupuesto');
+        }
+      },
+      error: (error) => {
+        console.error('Error al eliminar:', error);
+        this.message = 'Error de conexión al eliminar presupuesto';
+      }
+    });
+  }
+
+  exportarPDF(numeroPresupuesto: string) {
+    const url = `http://localhost/logisteia/src/www/api/exportar-presupuesto-pdf.php?numero=${numeroPresupuesto}`;
+    window.open(url, '_blank');
+  }
+
   getEstadoClass(estado: string): string {
     switch (estado) {
       case 'borrador':
@@ -138,6 +193,8 @@ export class MisProyectos implements OnInit {
         return 'bg-green-100 text-green-700';
       case 'rechazado':
         return 'bg-red-100 text-red-700';
+      case 'eliminado':
+        return 'bg-gray-300 text-gray-600';
       default:
         return 'bg-gray-100 text-gray-700';
     }
@@ -153,6 +210,8 @@ export class MisProyectos implements OnInit {
         return 'Aprobado';
       case 'rechazado':
         return 'Rechazado';
+      case 'eliminado':
+        return 'Eliminado';
       default:
         return estado;
     }

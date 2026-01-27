@@ -1,0 +1,61 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>Panel de Administración - Logisteia</h1>
+      <div class="user-info">
+        <span>Bienvenido, Administrador</span>
+        <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="dashboard-nav">
+    <ul>
+      <li><a routerLink="/dashboard" routerLinkActive="active">Inicio</a></li>
+      <li><a routerLink="/usuarios" routerLinkActive="active">Usuarios</a></li>
+      <li><a routerLink="/clientes" routerLinkActive="active">Clientes</a></li>
+      <li><a routerLink="/historial" routerLinkActive="active">Historial</a></li>
+    </ul>
+  </nav>
+
+  <main class="dashboard-main">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Usuarios</h3>
+        <div class="stat-number" *ngIf="!loading; else loadingStat">
+          {{ stats.usuarios }}
+        </div>
+        <ng-template #loadingStat>
+          <div class="stat-loading">Cargando...</div>
+        </ng-template>
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Clientes</h3>
+        <div class="stat-number" *ngIf="!loading; else loadingStat">
+          {{ stats.clientes }}
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <h2>Acciones Rápidas</h2>
+      <div class="actions-grid">
+        <a routerLink="/usuarios" class="action-card">
+          <h3>👥 Gestionar Usuarios</h3>
+          <p>Ver, activar, suspender o eliminar usuarios</p>
+        </a>
+
+        <a routerLink="/clientes" class="action-card">
+          <h3>🏢 Gestionar Clientes</h3>
+          <p>Ver información de clientes registrados</p>
+        </a>
+
+        <a routerLink="/historial" class="action-card">
+          <h3>📋 Ver Historial</h3>
+          <p>Revisar acciones administrativas realizadas</p>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
