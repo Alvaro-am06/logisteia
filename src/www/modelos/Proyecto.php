@@ -194,8 +194,9 @@ class Proyecto {
     public function obtenerMiembrosEquipoDisponibles($equipo_id, $proyecto_id = null) {
         $sql = "SELECT u.dni, u.nombre, u.email, u.rol
                 FROM usuarios u
-                INNER JOIN miembros_equipo me ON u.dni = me.usuario_dni
+                INNER JOIN miembros_equipo me ON u.dni = me.trabajador_dni
                 WHERE me.equipo_id = :equipo_id
+                AND me.estado_invitacion = 'aceptada'
                 AND u.estado = 'activo'";
 
         $params = [':equipo_id' => $equipo_id];
@@ -236,40 +237,6 @@ class Proyecto {
         $fecha = date('Ymd');
         $numero = rand(100, 999);
         return "PROJ-{$fecha}-{$numero}";
-    }
-
-    /**
-     * Extraer nombre del proyecto de las notas
-     */
-    private function extraerNombreDeNotas($notas) {
-        if (empty($notas)) {
-            return 'Sin nombre';
-        }
-        
-        // Buscar "PROYECTO: nombre"
-        if (preg_match('/PROYECTO:\s*(.+?)(?:\n|$)/i', $notas, $matches)) {
-            return trim($matches[1]);
-        }
-        
-        // Si no hay formato, usar las primeras palabras
-        $lineas = explode("\n", $notas);
-        return substr(trim($lineas[0]), 0, 50) ?: 'Sin nombre';
-    }
-
-    /**
-     * Extraer descripción del proyecto de las notas
-     */
-    private function extraerDescripcionDeNotas($notas) {
-        if (empty($notas)) {
-            return '';
-        }
-        
-        // Buscar "Descripción: texto"
-        if (preg_match('/Descripción:\s*(.+?)(?:\n|$)/i', $notas, $matches)) {
-            return trim($matches[1]);
-        }
-        
-        return '';
     }
 }
 ?>
