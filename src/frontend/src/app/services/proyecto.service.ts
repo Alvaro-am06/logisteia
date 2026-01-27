@@ -92,8 +92,8 @@ export class ProyectoService {
   }
 
   // Cambiar estado del proyecto
-  cambiarEstadoProyecto(proyectoId: number, nuevoEstado: string): Observable<{success: boolean, error?: string}> {
-    return this.http.request<{success: boolean, error?: string}>('PUT', `${environment.apiUrl}/api/proyectos.php`, {
+  cambiarEstadoProyecto(proyectoId: number, nuevoEstado: string): Observable<{success: boolean, error?: string, presupuesto_total?: number}> {
+    return this.http.request<{success: boolean, error?: string, presupuesto_total?: number}>('PUT', `${environment.apiUrl}/api/proyectos.php`, {
       body: { id: proyectoId, estado: nuevoEstado }
     });
   }
