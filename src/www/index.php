@@ -1,7 +1,4 @@
 <?php
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 /**
  * Página de inicio de sesión del sistema.
  * 
@@ -75,6 +72,3 @@ if (isset($_SESSION['admin_id'])) {
     <p><small>Usuario de ejemplo: admin@example.com | Contraseña: 1234</small></p>
 </body>
 </html>
-<?php
-echo json_encode(['success' => false, 'error' => 'Mensaje de error']);
-?>

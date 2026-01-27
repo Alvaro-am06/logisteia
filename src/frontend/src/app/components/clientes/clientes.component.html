@@ -1,43 +1,247 @@
-<div class="clientes-container">
-  <div class="header">
-    <h1>Gestión de Clientes</h1>
-    <button (click)="loadClientes()" class="btn-refresh" [disabled]="loading">
-      {{ loading ? 'Cargando...' : 'Actualizar' }}
-    </button>
-  </div>
-
-  <div class="error-message" *ngIf="error">
-    {{ error }}
-  </div>
-
-  <div class="table-container" *ngIf="!loading && !error">
-    <table class="clientes-table">
-      <thead>
-        <tr>
-          <th>DNI</th>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Teléfono</th>
-          <th>Fecha Registro</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let cliente of clientes">
-          <td>{{ cliente.dni }}</td>
-          <td>{{ cliente.nombre }}</td>
-          <td>{{ cliente.email }}</td>
-          <td>{{ cliente.telefono }}</td>
-          <td>{{ cliente.fecha_registro | date:'dd/MM/yyyy' }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="no-data" *ngIf="clientes.length === 0">
-      <p>No hay clientes registrados.</p>
+<!-- Navbar -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base hidden sm:inline">{{ usuarioRol }} | </span>
+        <span class="text-white text-xs md:text-base">{{ usuarioNombre }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
+        </button>
+      </div>
     </div>
   </div>
+</nav>
 
-  <div class="loading" *ngIf="loading">
-    <p>Cargando clientes...</p>
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-sidebar [rol]="usuarioRol === 'Jefe de Equipo' ? 'jefe_equipo' : usuarioRol === 'Trabajador' ? 'trabajador' : 'admin'"></app-sidebar>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Encabezado -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Gestión de Clientes</h1>
+          <p class="text-sm md:text-base text-gray-600 mt-2">Administra los clientes registrados en el sistema</p>
+        </div>
+        <button (click)="registrarNuevo()" class="w-full sm:w-auto px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+          + Añadir Cliente
+        </button>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="mb-6 p-4 rounded-lg text-sm bg-red-100 text-red-700">
+        {{ error }}
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div *ngIf="mensaje" class="mb-6 p-4 rounded-lg text-sm bg-green-100 text-green-700">
+        {{ mensaje }}
+      </div>
+
+      <!-- Cargando -->
+      <div *ngIf="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#102a41]"></div>
+        <p class="text-gray-600 mt-4">Cargando clientes...</p>
+      </div>
+
+      <!-- Lista de clientes -->
+      <div *ngIf="!loading && clientes.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Vista de tabla para desktop -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-[#102a41] text-white">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                  DNI
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                  Nombre
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                  Email
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                  Teléfono
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                  Fecha Registro
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let cliente of clientes" class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ cliente.dni }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">{{ cliente.nombre }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-600">{{ cliente.email }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-600">{{ cliente.telefono || 'N/A' }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">{{ cliente.fecha_registro | date:'dd/MM/yyyy' }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <button (click)="verDetalle(cliente)" 
+                          class="text-blue-600 hover:text-blue-800" 
+                          title="Ver detalle">
+                    Ver
+                  </button>
+                  <button (click)="eliminarCliente(cliente.cif_nif, cliente.nombre)" 
+                          class="text-red-600 hover:text-red-800" 
+                          title="Eliminar">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Vista de tarjetas para móvil -->
+        <div class="md:hidden space-y-4 p-4">
+          <div *ngFor="let cliente of clientes" 
+               class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">{{ cliente.nombre }}</h3>
+                <p class="text-xs text-gray-500 mt-1">{{ cliente.dni }}</p>
+              </div>
+            </div>
+            
+            <div class="space-y-2 text-sm mb-3 pb-3 border-b border-gray-200">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Email:</span>
+                <span class="font-medium text-gray-900 text-right break-all ml-2">{{ cliente.email }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Teléfono:</span>
+                <span class="font-medium text-gray-900">{{ cliente.telefono || 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Registro:</span>
+                <span class="font-medium text-gray-900">{{ cliente.fecha_registro | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button (click)="verDetalle(cliente)" 
+                      class="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition">
+                Ver Detalle
+              </button>
+              <button (click)="eliminarCliente(cliente.cif_nif, cliente.nombre)" 
+                      class="px-3 py-2 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen inferior -->
+        <div class="bg-gray-50 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200">
+          <span class="text-xs md:text-sm text-gray-600">
+            Total: {{ clientes.length }} cliente{{ clientes.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Sin datos -->
+      <div *ngIf="!loading && clientes.length === 0" class="bg-white rounded-lg shadow-md p-8 md:p-12 text-center">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+        <h3 class="text-lg md:text-xl font-semibold text-gray-900 mb-2">No hay clientes registrados</h3>
+        <p class="text-sm md:text-base text-gray-600 mb-6">Registra tu primer cliente para comenzar</p>
+        <button (click)="registrarNuevo()" class="w-full sm:w-auto px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+          Registrar Primer Cliente
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de detalles del cliente -->
+<div *ngIf="mostrarModal && clienteSeleccionado" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
+    <!-- Encabezado del modal -->
+    <div class="sticky top-0 bg-[#102a41] text-white px-6 py-4 flex justify-between items-center">
+      <h2 class="text-lg md:text-xl font-bold">Detalles del Cliente</h2>
+      <button (click)="cerrarModal()" class="text-2xl hover:text-gray-200 transition">&times;</button>
+    </div>
+
+    <!-- Contenido del modal -->
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Información personal -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Información Personal</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">DNI</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.dni }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Nombre</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.nombre }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Email</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.email }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Teléfono</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.telefono || 'No disponible' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Información Empresarial</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Empresa</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.empresa || 'No disponible' }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Dirección</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.direccion || 'No disponible' }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">CIF/NIF</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.cif_nif || 'No disponible' }}</p>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 uppercase tracking-wide">Fecha Registro</label>
+              <p class="text-gray-900 font-medium mt-1">{{ clienteSeleccionado.fecha_registro | date:'dd/MM/yyyy HH:mm' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notas -->
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Notas</h3>
+        <p class="text-gray-900 bg-gray-50 p-4 rounded-lg">{{ clienteSeleccionado.notas || 'Sin notas registradas' }}</p>
+      </div>
+    </div>
+
+    <!-- Pie del modal -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+      <button (click)="cerrarModal()" class="px-4 py-2 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400 transition font-semibold">
+        Cerrar
+      </button>
+    </div>
   </div>
 </div>

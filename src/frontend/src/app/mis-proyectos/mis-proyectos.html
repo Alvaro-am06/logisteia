@@ -1,245 +1,405 @@
-<div class="min-h-screen bg-gray-100">
-  <!-- Navbar -->
-  <nav class="bg-[#102a41] shadow-lg">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="flex justify-between items-center h-16">
-        <a href="#" class="text-white font-bold text-xl">Logisteia</a>
-        <div class="flex items-center space-x-4">
-          <span class="text-white">{{ usuarioNombre }}</span>
-          <button (click)="volver()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
-            Volver al Panel
+<!-- Navbar -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base hidden sm:inline">{{ formatearRol(usuarioRol) }} | </span>
+        <span class="text-white text-xs md:text-base">{{ usuarioNombre }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-sidebar [rol]="usuarioRol === 'jefe_equipo' ? 'jefe_equipo' : 'trabajador'"></app-sidebar>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Encabezado -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Mis Proyectos</h1>
+          <p class="text-sm md:text-base text-gray-600 mt-2">
+            {{ usuarioRol === 'jefe_equipo' ? 'Gestiona los proyectos que has creado y asigna trabajadores' : 'Visualiza los proyectos en los que estás asignado' }}
+          </p>
+        </div>
+        <button (click)="crearNuevo()" class="w-full sm:w-auto px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+          + Crear Nuevo
+        </button>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="message" class="mb-6 p-4 rounded-lg text-sm" [ngClass]="message.includes('Error') || message.includes('✗') || message.includes('❌') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+        {{ message }}
+      </div>
+
+      <!-- Cargando -->
+      <div *ngIf="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#102a41]"></div>
+        <p class="text-gray-600 mt-4">Cargando proyectos...</p>
+      </div>
+
+      <!-- Lista de proyectos -->
+      <div *ngIf="!loading">
+        <div *ngIf="proyectos.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+          <!-- Vista de tabla para desktop -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-[#102a41] text-white">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Código
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Proyecto
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Cliente
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Equipo
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Fecha Creación
+                  </th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let proyecto of proyectos" class="hover:bg-gray-50 transition">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{{ proyecto.codigo }}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">{{ proyecto.nombre }}</div>
+                    <div class="text-xs text-gray-500" *ngIf="proyecto.descripcion">{{ proyecto.descripcion }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ proyecto.cliente_nombre || 'Sin cliente' }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ proyecto.equipo_nombre || 'Sin equipo' }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span [ngClass]="getEstadoClass(proyecto.estado)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                      {{ getEstadoTexto(proyecto.estado) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ proyecto.fecha_creacion | date:'dd/MM/yyyy' }}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <button (click)="verDetalleProyecto(proyecto)"
+                            class="text-blue-600 hover:text-blue-800">
+                      Ver detalle
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Vista de tarjetas para móvil -->
+          <div class="md:hidden space-y-4 p-4">
+            <div *ngFor="let proyecto of proyectos"
+                 class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+              <div class="flex justify-between items-start mb-3">
+                <div class="flex-1">
+                  <p class="text-xs text-gray-500 mb-1">{{ proyecto.codigo }}</p>
+                  <h3 class="font-semibold text-gray-900">{{ proyecto.nombre }}</h3>
+                  <p class="text-xs text-gray-600 mt-1" *ngIf="proyecto.descripcion">{{ proyecto.descripcion }}</p>
+                </div>
+                <span [ngClass]="getEstadoClass(proyecto.estado)"
+                      class="px-2 py-1 text-xs font-semibold rounded-full ml-2 whitespace-nowrap">
+                  {{ getEstadoTexto(proyecto.estado) }}
+                </span>
+              </div>
+
+              <div class="space-y-2 text-sm mb-3">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Cliente:</span>
+                  <span class="font-medium text-gray-900">{{ proyecto.cliente_nombre || 'Sin cliente' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Equipo:</span>
+                  <span class="font-medium text-gray-900">{{ proyecto.equipo_nombre || 'Sin equipo' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Fecha:</span>
+                  <span class="font-medium text-gray-900">{{ proyecto.fecha_creacion | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+
+              <div class="flex justify-center">
+                <button (click)="verDetalleProyecto(proyecto)"
+                        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                  Ver detalle
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen inferior -->
+          <div class="bg-gray-50 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200">
+            <span class="text-xs md:text-sm text-gray-600">
+              Total: {{ proyectos.length }} proyecto{{ proyectos.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sin proyectos -->
+        <div *ngIf="proyectos.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
+          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay proyectos</h3>
+          <p class="text-gray-600 mb-6">
+            {{ usuarioRol === 'jefe_equipo' ? 'Aún no has creado ningún proyecto. Crea tu primer proyecto para comenzar.' : 'No estás asignado a ningún proyecto aún.' }}
+          </p>
+          <button *ngIf="usuarioRol === 'jefe_equipo'" (click)="crearNuevo()"
+                  class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+            Crear primer proyecto
           </button>
         </div>
       </div>
     </div>
-  </nav>
+  </main>
 
-  <div class="max-w-7xl mx-auto px-4 py-8">
-    <!-- Encabezado -->
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Mis Proyectos</h1>
-        <p class="text-gray-600 mt-2">Gestiona todos tus presupuestos creados</p>
-      </div>
-      <button (click)="crearNuevo()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
-        <i class="bi bi-plus-circle mr-2"></i> Crear Nuevo
-      </button>
+<!-- Modal Crear Proyecto -->
+<div *ngIf="mostrarModalCrear" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="cerrarModalCrear()">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="bg-[#102a41] text-white px-6 py-4">
+      <h2 class="text-xl font-bold">Crear Nuevo Proyecto</h2>
     </div>
 
-    <!-- Mensaje de error -->
-    <div *ngIf="message" class="mb-6 p-4 rounded-lg bg-red-100 text-red-700">
-      {{ message }}
-    </div>
-
-    <!-- Cargando -->
-    <div *ngIf="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#102a41]"></div>
-      <p class="text-gray-600 mt-4">Cargando proyectos...</p>
-    </div>
-
-    <!-- Lista de presupuestos -->
-    <div *ngIf="!loading && presupuestos.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Número
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Fecha Creación
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Validez
-              </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let presupuesto of presupuestos" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">{{ presupuesto.numero_presupuesto }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ presupuesto.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span [ngClass]="getEstadoClass(presupuesto.estado)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-                  {{ getEstadoTexto(presupuesto.estado) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-semibold text-gray-900">{{ presupuesto.total | number:'1.2-2' }}€</div>
-                <div class="text-xs text-gray-500">IVA inc: {{ (presupuesto.total * 1.21) | number:'1.2-2' }}€</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ presupuesto.validez_dias }} días</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                <button (click)="verDetalle(presupuesto)" 
-                        class="text-blue-600 hover:text-blue-800" 
-                        title="Ver detalle">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button (click)="exportarPDF(presupuesto.numero_presupuesto)" 
-                        class="text-green-600 hover:text-green-800" 
-                        title="Exportar PDF">
-                  <i class="bi bi-file-pdf"></i>
-                </button>
-                <button *ngIf="presupuesto.estado === 'borrador'" 
-                        (click)="cambiarEstado(presupuesto, 'enviado')" 
-                        class="text-indigo-600 hover:text-indigo-800" 
-                        title="Enviar">
-                  <i class="bi bi-send"></i>
-                </button>
-                <button *ngIf="presupuesto.estado !== 'eliminado'" 
-                        (click)="eliminarPresupuesto(presupuesto.numero_presupuesto)" 
-                        class="text-red-600 hover:text-red-800" 
-                        title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Resumen inferior -->
-      <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600">
-            Total: {{ presupuestos.length }} presupuesto{{ presupuestos.length !== 1 ? 's' : '' }}
-          </span>
-          <div class="flex gap-4">
-            <div class="text-sm">
-              <span class="text-gray-600">Borradores: </span>
-              <span class="font-semibold">{{ contarPorEstado('borrador') }}</span>
+    <!-- Formulario -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+      <form class="space-y-6">
+        <!-- Información básica -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Información del Proyecto</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto *</label>
+              <input type="text" [(ngModel)]="nuevoProyecto.nombre" name="nombre"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent"
+                     placeholder="Ej: Sistema de gestión web">
             </div>
-            <div class="text-sm">
-              <span class="text-gray-600">Enviados: </span>
-              <span class="font-semibold">{{ contarPorEstado('enviado') }}</span>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+              <select [(ngModel)]="nuevoProyecto.cliente_id" name="cliente_id"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent">
+                <option value="">Seleccionar cliente</option>
+                <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nombre }}</option>
+              </select>
             </div>
-            <div class="text-sm">
-              <span class="text-gray-600">Aprobados: </span>
-              <span class="font-semibold text-green-600">{{ contarPorEstado('aprobado') }}</span>
+          </div>
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea [(ngModel)]="nuevoProyecto.descripcion" name="descripcion" rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent"
+                      placeholder="Describe brevemente el proyecto..."></textarea>
+          </div>
+        </div>
+
+        <!-- Equipo y tecnologías -->
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Equipo y Tecnologías</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Equipo Asignado</label>
+              <select [(ngModel)]="nuevoProyecto.equipo_id" name="equipo_id" (change)="onEquipoChange()"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent">
+                <option value="">Seleccionar equipo</option>
+                <option *ngFor="let equipo of equipos" [value]="equipo.id">{{ equipo.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tecnologías</label>
+              <input type="text" [(ngModel)]="nuevoProyecto.tecnologias" name="tecnologias"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent"
+                     placeholder="Ej: PHP, MySQL, Angular">
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- Asignación de trabajadores -->
+        <div *ngIf="nuevoProyecto.equipo_id">
+          <h3 class="text-lg font-semibold mb-4">Asignar Trabajadores</h3>
+
+          <!-- Miembros disponibles -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Miembros del Equipo Disponibles</label>
+            <div *ngIf="cargandoMiembros" class="text-center py-4">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#102a41]"></div>
+              <span class="ml-2 text-gray-600">Cargando miembros...</span>
+            </div>
+            <div *ngIf="!cargandoMiembros" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
+              <button *ngFor="let miembro of miembrosDisponibles"
+                      (click)="agregarTrabajador(miembro)"
+                      class="text-left p-2 bg-gray-50 hover:bg-gray-100 rounded border text-sm">
+                {{ miembro.nombre }} ({{ formatearRol(miembro.rol) }})
+              </button>
+              <div *ngIf="miembrosDisponibles.length === 0" class="col-span-2 text-center py-4 text-gray-500">
+                No hay miembros disponibles en este equipo
+              </div>
+            </div>
+          </div>
+
+          <!-- Trabajadores seleccionados -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Trabajadores Asignados</label>
+            <div class="space-y-2 max-h-40 overflow-y-auto">
+              <div *ngFor="let trabajador of trabajadoresSeleccionados"
+                   class="flex justify-between items-center p-2 bg-blue-50 border border-blue-200 rounded">
+                <div>
+                  <span class="font-medium">{{ trabajador.nombre }}</span>
+                  <span class="text-sm text-gray-600 ml-2">({{ formatearRol(trabajador.rol) }})</span>
+                </div>
+                <button (click)="removerTrabajador(trabajador.dni)"
+                        class="text-red-600 hover:text-red-800">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              <div *ngIf="trabajadoresSeleccionados.length === 0" class="text-center py-4 text-gray-500 border-2 border-dashed border-gray-300 rounded">
+                No hay trabajadores asignados
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas adicionales -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Notas Adicionales</label>
+          <textarea [(ngModel)]="nuevoProyecto.notas" name="notas" rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent"
+                    placeholder="Notas adicionales sobre el proyecto..."></textarea>
+        </div>
+      </form>
     </div>
 
-    <!-- Sin presupuestos -->
-    <div *ngIf="!loading && presupuestos.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
-      <i class="bi bi-inbox text-6xl text-gray-300 mb-4"></i>
-      <h3 class="text-xl font-semibold text-gray-900 mb-2">No tienes proyectos creados</h3>
-      <p class="text-gray-600 mb-6">Crea tu primer presupuesto para comenzar</p>
-      <button (click)="crearNuevo()" class="px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold">
-        <i class="bi bi-plus-circle mr-2"></i> Crear Primer Presupuesto
+    <!-- Footer -->
+    <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t">
+      <button (click)="cerrarModalCrear()"
+              class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+        Cancelar
+      </button>
+      <button (click)="crearProyecto()"
+              class="px-4 py-2 bg-[#102a41] text-white rounded hover:bg-[#1a3f5e] transition">
+        Crear Proyecto
       </button>
     </div>
   </div>
+</div>
 
-  <!-- Modal de detalle -->
-  <div *ngIf="mostrarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="cerrarModal()">
-    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
-      <!-- Header del modal -->
-      <div class="bg-[#102a41] text-white px-6 py-4 flex justify-between items-center">
-        <div>
-          <h2 class="text-xl font-bold">Detalle del Presupuesto</h2>
-          <p class="text-sm text-gray-300" *ngIf="presupuestoSeleccionado">{{ presupuestoSeleccionado.numero_presupuesto }}</p>
+<!-- Modal Ver Detalle Proyecto -->
+<div *ngIf="mostrarModalDetalle" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="cerrarModalDetalle()">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="bg-[#102a41] text-white px-6 py-4 flex justify-between items-center">
+      <div *ngIf="proyectoSeleccionado">
+        <h2 class="text-xl font-bold">{{ proyectoSeleccionado.nombre }}</h2>
+        <p class="text-sm text-gray-300">{{ proyectoSeleccionado.codigo }}</p>
+      </div>
+      <button (click)="cerrarModalDetalle()" class="text-white hover:text-gray-300 text-2xl">
+        ×
+      </button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]" *ngIf="proyectoSeleccionado">
+      <!-- Información general -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Estado</p>
+          <span [ngClass]="getEstadoClass(proyectoSeleccionado.estado)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+            {{ getEstadoTexto(proyectoSeleccionado.estado) }}
+          </span>
         </div>
-        <button (click)="cerrarModal()" class="text-white hover:text-gray-300 text-2xl">
-          <i class="bi bi-x-lg"></i>
-        </button>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Cliente</p>
+          <p class="font-semibold">{{ proyectoSeleccionado.cliente_nombre || 'Sin cliente' }}</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Equipo</p>
+          <p class="font-semibold">{{ proyectoSeleccionado.equipo_nombre || 'Sin equipo' }}</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Fecha Creación</p>
+          <p class="font-semibold">{{ proyectoSeleccionado.fecha_creacion | date:'dd/MM/yyyy' }}</p>
+        </div>
       </div>
 
-      <!-- Contenido del modal -->
-      <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]" *ngIf="presupuestoSeleccionado">
-        <!-- Información general -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600 mb-1">Fecha de Creación</p>
-            <p class="font-semibold">{{ presupuestoSeleccionado.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</p>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600 mb-1">Estado</p>
-            <span [ngClass]="getEstadoClass(presupuestoSeleccionado.estado)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-              {{ getEstadoTexto(presupuestoSeleccionado.estado) }}
-            </span>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600 mb-1">Validez</p>
-            <p class="font-semibold">{{ presupuestoSeleccionado.validez_dias }} días</p>
-          </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600 mb-1">Total</p>
-            <p class="text-xl font-bold text-[#102a41]">{{ presupuestoSeleccionado.total | number:'1.2-2' }}€</p>
-            <p class="text-xs text-gray-500">IVA incluido: {{ (presupuestoSeleccionado.total * 1.21) | number:'1.2-2' }}€</p>
-          </div>
+      <!-- Descripción -->
+      <div *ngIf="proyectoSeleccionado.descripcion" class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">Descripción</h3>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-gray-700">{{ proyectoSeleccionado.descripcion }}</p>
         </div>
+      </div>
 
-        <!-- Notas -->
-        <div *ngIf="presupuestoSeleccionado.notas" class="bg-blue-50 p-4 rounded-lg mb-6">
-          <p class="text-sm text-gray-600 mb-1"><i class="bi bi-sticky mr-2"></i>Notas</p>
-          <p class="text-gray-800">{{ presupuestoSeleccionado.notas }}</p>
+      <!-- Tecnologías -->
+      <div *ngIf="proyectoSeleccionado.tecnologias" class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">Tecnologías</h3>
+        <div class="flex flex-wrap gap-2">
+          <span *ngFor="let tech of proyectoSeleccionado.tecnologias.split(',')"
+                class="px-3 py-1 bg-[#102a41] text-white rounded-full text-sm">
+            {{ tech.trim() }}
+          </span>
         </div>
+      </div>
 
-        <!-- Servicios -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3 text-gray-800">Servicios Contratados</h3>
-          
-          <div *ngIf="cargandoDetalles" class="text-center py-8">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#102a41]"></div>
-            <p class="text-gray-600 mt-2">Cargando detalles...</p>
-          </div>
-
-          <div *ngIf="!cargandoDetalles && detallesPresupuesto.length > 0" class="space-y-3">
-            <div *ngFor="let detalle of detallesPresupuesto" class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-start mb-2">
-                <h4 class="font-semibold text-gray-900">{{ detalle.servicio_nombre }}</h4>
-                <span class="text-lg font-bold text-[#102a41]">{{ (detalle.preci * detalle.cantidad) | number:'1.2-2' }}€</span>
-              </div>
-              <div class="flex gap-4 text-sm text-gray-600">
-                <span><i class="bi bi-calculator mr-1"></i>Cantidad: {{ detalle.cantidad }}</span>
-                <span><i class="bi bi-cash mr-1"></i>Precio unitario: {{ detalle.preci | number:'1.2-2' }}€</span>
-              </div>
-              <p *ngIf="detalle.comentario" class="mt-2 text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                <i class="bi bi-chat-left-text mr-1"></i> {{ detalle.comentario }}
-              </p>
+      <!-- Trabajadores asignados -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">Trabajadores Asignados</h3>
+        <div *ngIf="trabajadoresProyecto.length > 0" class="space-y-3">
+          <div *ngFor="let trabajador of trabajadoresProyecto"
+               class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
+            <div>
+              <p class="font-semibold text-gray-900">{{ trabajador.nombre }}</p>
+              <p class="text-sm text-gray-600">{{ trabajador.email }}</p>
+              <p class="text-xs text-gray-500">{{ formatearRol(trabajador.rol) }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-gray-600">Asignado</p>
+              <p class="text-xs text-gray-500">{{ trabajador.fecha_asignacion | date:'dd/MM/yyyy' }}</p>
             </div>
           </div>
-
-          <div *ngIf="!cargandoDetalles && detallesPresupuesto.length === 0" class="text-center py-8 text-gray-500">
-            No hay detalles disponibles
-          </div>
+        </div>
+        <div *ngIf="trabajadoresProyecto.length === 0" class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded">
+          No hay trabajadores asignados
         </div>
       </div>
 
-      <!-- Footer del modal -->
-      <div class="bg-gray-50 px-6 py-4 flex justify-between items-center gap-3 border-t">
-        <div class="flex gap-2" *ngIf="presupuestoSeleccionado">
-          <button (click)="exportarPDF(presupuestoSeleccionado.numero_presupuesto)" 
-                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
-            <i class="bi bi-file-pdf mr-2"></i>Exportar PDF
-          </button>
-          <button *ngIf="presupuestoSeleccionado.estado === 'borrador'" 
-                  (click)="cambiarEstado(presupuestoSeleccionado, 'enviado'); cerrarModal()" 
-                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-            <i class="bi bi-send mr-2"></i>Enviar
-          </button>
+      <!-- Notas -->
+      <div *ngIf="proyectoSeleccionado.notas" class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">Notas</h3>
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <p class="text-gray-700">{{ proyectoSeleccionado.notas }}</p>
         </div>
-        <button (click)="cerrarModal()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-          Cerrar
-        </button>
       </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 px-6 py-4 flex justify-end border-t">
+      <button (click)="cerrarModalDetalle()"
+              class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+        Cerrar
+      </button>
     </div>
   </div>
 </div>

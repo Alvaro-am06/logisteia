@@ -1,15 +1,20 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
+
+declare const google: any;
 
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule],
   templateUrl: './login.html',
 })
-export class Login {
+export class Login implements AfterViewInit {
+  @ViewChild('googleButtonDiv', { read: ElementRef }) googleButtonDiv?: ElementRef;
+  
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
@@ -18,8 +23,161 @@ export class Login {
   dni = '';
   nombre = '';
   telefono = '';
+  rol = 'trabajador'; // trabajador o jefe_equipo
   message = '';
   isLogin = true;
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // Pequeño delay para asegurar que el DOM esté listo
+      setTimeout(() => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('show');
+            }
+          });
+        }, {
+          threshold: 0.2
+        });
+
+        // Observar todos los elementos con clase scroll-animate
+        const elements = document.querySelectorAll('.scroll-animate');
+        elements.forEach(el => {
+          observer.observe(el);
+        });
+      }, 100);
+      
+      // Esperar a que el DOM esté completamente renderizado después de la hidratación
+      this.waitForElement();
+    }
+  }
+
+  private waitForElement() {
+    // Usar MutationObserver para detectar cuando el elemento esté disponible
+    const checkElement = () => {
+      const element = document.getElementById('googleSignInButton');
+      if (element) {
+        this.initializeGoogleSignIn();
+      } else {
+        // Verificar cada 100ms
+        setTimeout(checkElement, 100);
+      }
+    };
+    
+    checkElement();
+  }
+
+  private attemptCount = 0;
+  private maxAttempts = 10;
+
+  initializeGoogleSignIn() {
+    if (this.attemptCount >= this.maxAttempts) {
+      return;
+    }
+    
+    this.attemptCount++;
+    
+    if (typeof google !== 'undefined' && google.accounts?.id) {
+      const buttonContainer = document.getElementById('googleSignInButton');
+      
+      if (!buttonContainer) {
+        return;
+      }
+      
+      try {
+        google.accounts.id.initialize({
+          client_id: environment.googleClientId,
+          callback: this.handleGoogleSignIn.bind(this),
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
+        
+        google.accounts.id.renderButton(
+          buttonContainer,
+          { 
+            theme: 'outline', 
+            size: 'large',
+            width: 400,
+            text: 'signin_with',
+            locale: 'es'
+          }
+        );
+      } catch (error) {
+      }
+    } else {
+      setTimeout(() => this.initializeGoogleSignIn(), 500);
+    }
+  }
+
+  handleGoogleSignIn(response: any) {
+    // Decodificar el JWT token de Google
+    const payload = this.decodeJWT(response.credential);
+    
+    // Enviar datos de Google al backend para verificar si existe el usuario
+    this.http.post(`${environment.apiUrl}/api/login-google.php`, {
+      googleToken: response.credential,
+      email: payload.email,
+      nombre: payload.name,
+      picture: payload.picture,
+      checkOnly: true  // Solo verificar, no crear usuario aún
+    })
+    .subscribe({
+      next: (res: any) => {
+        if (res.success && res.data && res.data.exists === true) {
+          // Usuario ya existe - login directo
+          this.message = 'Login con Google exitoso';
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
+          }
+          this.redirectByRole(res.data.usuario.rol);
+        } else if (res.success && res.data && res.data.exists === false) {
+          // Usuario nuevo - redirigir a completar registro
+          if (isPlatformBrowser(this.platformId)) {
+            sessionStorage.setItem('google_temp_data', JSON.stringify({
+              email: payload.email,
+              nombre: payload.name,
+              picture: payload.picture,
+              googleToken: response.credential
+            }));
+          }
+          this.router.navigate(['/completar-registro']);
+        } else {
+          this.message = 'Error inesperado del servidor';
+        }
+      },
+      error: (error) => {
+        this.message = 'Error de conexión con Google. Por favor, intente nuevamente.';
+      }
+    });
+  }
+
+  decodeJWT(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  redirectByRole(rol: string) {
+    if (rol === 'moderador') {
+      this.router.navigate(['/panel-moderador']);
+    } else if (rol === 'administrador') {
+      this.router.navigate(['/panel-admin']);
+    } else if (rol === 'jefe_equipo') {
+      this.router.navigate(['/panel-jefe-equipo']);
+    } else if (rol === 'registrado' || rol === 'trabajador') {
+      this.router.navigate(['/panel-registrado']);
+    } else {
+      this.message = 'Rol de usuario desconocido';
+    }
+  }
 
   toggleMode() {
     this.isLogin = !this.isLogin;
@@ -27,15 +185,14 @@ export class Login {
   }
 
   onSubmit() {
-    const startTime = Date.now();
-    console.log('Iniciando petición de login...');
-
-    this.http.post('http://localhost/logisteia/src/www/api/login.php', { email: this.email, password: this.password })
+    if (!this.email || !this.password) {
+      this.message = 'Por favor, completa todos los campos';
+      return;
+    }
+    
+    this.http.post(`${environment.apiUrl}/api/login.php`, { email: this.email, password: this.password })
       .subscribe({
         next: (response: any) => {
-          const endTime = Date.now();
-          console.log(`Petición completada en ${endTime - startTime} ms`);
-
           if (response.success) {
             this.message = 'Login exitoso';
             // Guardar datos del usuario en localStorage
@@ -43,51 +200,32 @@ export class Login {
               localStorage.setItem('usuario', JSON.stringify(response.data));
             }
             // Redirigir basado en el rol del usuario
-            if (response.data.rol === 'jefe_equipo' || response.data.rol === 'moderador') {
-              this.router.navigate(['/panel-admin']);
-            } else if (response.data.rol === 'trabajador') {
-              this.router.navigate(['/panel-registrado']);
-            } else {
-              this.message = 'Rol de usuario desconocido';
-            }
+            this.redirectByRole(response.data.rol);
           } else {
             this.message = 'Error: ' + response.error;
           }
         },
         error: (error) => {
-          const endTime = Date.now();
-          console.log(`Error en ${endTime - startTime} ms:`, error);
-          this.message = 'Error de conexión: ' + error.message;
+          this.message = 'Error de conexión. Por favor, intente nuevamente.';
         }
       });
   }
 
   onRegister() {
-    const startTime = Date.now();
-    console.log('Iniciando petición de registro...', {
-      dni: this.dni,
-      nombre: this.nombre,
-      telefono: this.telefono,
-      email: this.email,
-      password: '***'
-    });
-
     // Guardar email y password para login automático
     const emailGuardado = this.email;
     const passwordGuardado = this.password;
 
-    this.http.post('http://localhost/logisteia/src/www/api/RegistroUsuario.php', {
+    this.http.post(`${environment.apiUrl}/api/RegistroUsuario.php`, {
       dni: this.dni,
       nombre: this.nombre,
       telefono: this.telefono,
       email: this.email,
-      password: this.password
+      password: this.password,
+      rol: this.rol
     })
       .subscribe({
         next: (response: any) => {
-          const endTime = Date.now();
-          console.log(`Petición completada en ${endTime - startTime} ms`, response);
-
           if (response.success) {
             this.message = 'Registro exitoso. Iniciando sesión...';
             
@@ -102,12 +240,10 @@ export class Login {
           }
         },
         error: (error) => {
-          const endTime = Date.now();
-          console.log(`Error en ${endTime - startTime} ms:`, error);
           if (error.error && error.error.error) {
             this.message = error.error.error;
           } else {
-            this.message = 'Error de conexión: ' + (error.message || 'Error desconocido');
+            this.message = 'Error de conexión. Por favor, intente nuevamente.';
           }
         }
       });

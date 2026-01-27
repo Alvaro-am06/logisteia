@@ -37,7 +37,6 @@ export class UsuariosComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         this.error = 'Error de conexión con el servidor';
-        console.error('Error cargando usuarios:', err);
       }
     });
   }
@@ -57,7 +56,6 @@ export class UsuariosComponent implements OnInit {
         },
         error: (err) => {
           alert('Error de conexión con el servidor');
-          console.error('Error cambiando rol:', err);
         }
       });
     }

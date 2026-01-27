@@ -1,0 +1,183 @@
+<!-- Navbar superior -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base hidden sm:inline">{{ formatearRol(usuarioRol) }} | </span>
+        <span class="text-white text-xs md:text-base">{{ nombreUsuario }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-sidebar [rol]="'jefe_equipo'"></app-sidebar>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Mi Equipo</h1>
+        <button (click)="toggleAgregarMiembro()"
+                class="w-full sm:w-auto px-4 py-2 bg-[#102a41] text-white rounded-lg hover:bg-[#0f2336] transition font-medium">
+          + Agregar Miembro
+        </button>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+        {{ error }}
+      </div>
+
+      <!-- Formulario para agregar miembro -->
+      <div *ngIf="showAgregarMiembro" class="mb-6 bg-white p-4 md:p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold mb-4">Agregar Nuevo Miembro</h3>
+        <form (ngSubmit)="agregarMiembro()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico del Trabajador</label>
+            <input type="email"
+                   [(ngModel)]="nuevoMiembro.email_trabajador"
+                   name="email_trabajador"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#102a41] focus:border-transparent"
+                   placeholder="correo@ejemplo.com"
+                   required>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button type="submit"
+                    [disabled]="loading"
+                    class="flex-1 sm:flex-none px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition">
+              <span *ngIf="loading">Agregando...</span>
+              <span *ngIf="!loading">Enviar Invitación</span>
+            </button>
+            <button type="button"
+                    (click)="toggleAgregarMiembro()"
+                    class="flex-1 sm:flex-none px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading && !showAgregarMiembro" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#102a41]"></div>
+        <p class="mt-4 text-gray-600">Cargando miembros del equipo...</p>
+      </div>
+
+      <!-- Lista de miembros -->
+      <div *ngIf="!loading" class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-4 md:px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 class="text-lg font-semibold text-gray-900">Miembros del Equipo</h3>
+          <p *ngIf="equipo" class="text-sm text-gray-600 mt-1">Equipo: {{ equipo.nombre }}</p>
+        </div>
+        
+        <!-- Vista de tabla para desktop -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-[#102a41] text-white">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Miembro</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Invitación</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Fecha Ingreso</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr *ngFor="let miembro of miembros" class="hover:bg-gray-50 transition">
+                <td class="px-4 py-4">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ miembro.nombre }}</div>
+                    <div class="text-sm text-gray-500">{{ miembro.email }}</div>
+                    <div class="text-xs text-gray-400">DNI: {{ miembro.dni }}</div>
+                  </div>
+                </td>
+                <td class="px-4 py-4">
+                  <span class="text-sm text-gray-900">{{ miembro.rol_proyecto }}</span>
+                </td>
+                <td class="px-4 py-4">
+                  <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full"
+                        [ngClass]="getEstadoBadgeClass(miembro.estado_usuario)">
+                    {{ miembro.estado_usuario }}
+                  </span>
+                </td>
+                <td class="px-4 py-4">
+                  <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full"
+                        [ngClass]="getInvitacionBadgeClass(miembro.estado_invitacion)">
+                    {{ miembro.estado_invitacion }}
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-500">
+                  {{ miembro.fecha_ingreso | date:'dd/MM/yyyy' }}
+                </td>
+              </tr>
+              <tr *ngIf="miembros.length === 0">
+                <td colspan="5" class="px-4 py-12 text-center text-gray-500">
+                  <div class="text-gray-400 mb-2">
+                    <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                  </div>
+                  No hay miembros en el equipo aún.
+                  <button (click)="toggleAgregarMiembro()" class="text-[#102a41] font-semibold hover:underline ml-1">
+                    Agregar el primero
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Vista de tarjetas para móvil -->
+        <div class="md:hidden divide-y divide-gray-200">
+          <div *ngFor="let miembro of miembros" class="p-4 hover:bg-gray-50 transition">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <div class="font-semibold text-gray-900">{{ miembro.nombre }}</div>
+                <div class="text-sm text-gray-600 mt-1">{{ miembro.email }}</div>
+                <div class="text-xs text-gray-500 mt-1">DNI: {{ miembro.dni }}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span class="text-gray-500 text-xs">Rol:</span>
+                <div class="font-medium">{{ miembro.rol_proyecto }}</div>
+              </div>
+              <div>
+                <span class="text-gray-500 text-xs">Fecha:</span>
+                <div class="font-medium">{{ miembro.fecha_ingreso | date:'dd/MM/yyyy' }}</div>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                    [ngClass]="getEstadoBadgeClass(miembro.estado_usuario)">
+                {{ miembro.estado_usuario }}
+              </span>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                    [ngClass]="getInvitacionBadgeClass(miembro.estado_invitacion)">
+                {{ miembro.estado_invitacion }}
+              </span>
+            </div>
+          </div>
+          
+          <div *ngIf="miembros.length === 0" class="p-8 text-center text-gray-500">
+            <div class="text-gray-400 mb-3">
+              <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <p class="mb-2">No hay miembros en el equipo aún.</p>
+            <button (click)="toggleAgregarMiembro()" class="text-[#102a41] font-semibold hover:underline">
+              Agregar el primero
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -7,17 +7,14 @@
  * GET /{dni}: Obtiene detalle de un usuario específico con historial
  */
 
-// Configurar headers CORS y JSON
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
+// Cargar configuración centralizada
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/jwt.php';
 
-// Manejar preflight OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit(0);
-}
+// Configurar CORS y headers
+setupCors();
+header('Content-Type: application/json');
+handlePreflight();
 
 // Cargar modelos
 require_once __DIR__ . '/../modelos/ConexionBBDD.php';

@@ -1,54 +1,59 @@
 <?php
 class Cliente {
     private $conn;
-    private $table = "usuarios";
+    private $table = "clientes";
 
-    public $dni;
-    public $email;
+    public $id;
+    public $jefe_dni;
     public $nombre;
-    public $password;
+    public $empresa;
+    public $email;
     public $telefono;
+    public $direccion;
+    public $cif_nif;
+    public $notas;
     public $fecha_registro;
+    public $activo;
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
     public function crear() {
-        $query = "INSERT INTO " . $this->table . " (dni, email, nombre, password, rol, telefono) VALUES (:dni, :email, :nombre, :password, 'trabajador', :telefono)";
+        $query = "INSERT INTO " . $this->table . " (jefe_dni, nombre, empresa, email, telefono, direccion, cif_nif, notas, activo) 
+                  VALUES (:jefe_dni, :nombre, :empresa, :email, :telefono, :direccion, :cif_nif, :notas, 1)";
         $stmt = $this->conn->prepare($query);
         $parametros = [
-            ':dni' => $this->dni,
-            ':email' => $this->email,
+            ':jefe_dni' => $this->jefe_dni,
             ':nombre' => $this->nombre,
-            ':password' => $this->password,
-            ':telefono' => $this->telefono
+            ':empresa' => $this->empresa ?? null,
+            ':email' => $this->email,
+            ':telefono' => $this->telefono ?? null,
+            ':direccion' => $this->direccion ?? null,
+            ':cif_nif' => $this->cif_nif ?? null,
+            ':notas' => $this->notas ?? null
         ];
         if ($stmt->execute($parametros)) {
+            $this->id = $this->conn->lastInsertId();
             return true;
         }
         return false;
     }
 
     public function obtenerTodos() {
-        $query = "SELECT * FROM " . $this->table . " WHERE rol = 'trabajador' ORDER BY fecha_registro DESC";
+        $query = "SELECT * FROM " . $this->table . " WHERE activo = 1 ORDER BY fecha_registro DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
     }
 
-    public function obtenerPorDni($dni) {
-        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'trabajador'";
+    public function obtenerPorId($id) {
+        $query = "SELECT * FROM " . $this->table . " WHERE id = :id AND activo = 1";
         $stmt = $this->conn->prepare($query);
-        if ($stmt->execute([':dni' => $dni])) {
+        if ($stmt->execute([':id' => $id])) {
             if ($stmt->rowCount() > 0) {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                $this->dni = $row['dni'];
-                $this->email = $row['email'];
-                $this->nombre = $row['nombre'];
-                $this->password = $row['password'];
-                $this->telefono = $row['telefono'];
-                $this->fecha_registro = $row['fecha_registro'];
+                $this->mapearDatos($row);
                 return true;
             }
         }
@@ -56,33 +61,43 @@ class Cliente {
     }
 
     public function obtenerPorEmail($email) {
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'trabajador' LIMIT 1";
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND activo = 1 LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($usuario) {
-            $this->dni = $usuario['dni'];
-            $this->nombre = $usuario['nombre'];
-            $this->email = $usuario['email'];
-            $this->password = $usuario['password'];
-            $this->telefono = $usuario['telefono'];
-            $this->fecha_registro = $usuario['fecha_registro'];
+        
+        if ($stmt->rowCount() > 0) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $this->mapearDatos($row);
             return true;
         }
         return false;
     }
 
+    public function obtenerPorJefe($jefe_dni) {
+        $query = "SELECT * FROM " . $this->table . " WHERE jefe_dni = :jefe_dni AND activo = 1 ORDER BY fecha_registro DESC";
+        $stmt = $this->conn->prepare($query);
+        if ($stmt->execute([':jefe_dni' => $jefe_dni])) {
+            return $stmt;
+        }
+        return null;
+    }
+
     public function actualizar() {
-        $query = "UPDATE " . $this->table . " SET email = :email, nombre = :nombre, password = :password, telefono = :telefono WHERE dni = :dni AND rol = 'trabajador'";
+        $query = "UPDATE " . $this->table . " 
+                  SET nombre = :nombre, empresa = :empresa, email = :email, telefono = :telefono, 
+                      direccion = :direccion, cif_nif = :cif_nif, notas = :notas
+                  WHERE id = :id AND activo = 1";
         $stmt = $this->conn->prepare($query);
         $parametros = [
-            ':email' => $this->email,
             ':nombre' => $this->nombre,
-            ':password' => $this->password,
-            ':telefono' => $this->telefono,
-            ':dni' => $this->dni
+            ':empresa' => $this->empresa ?? null,
+            ':email' => $this->email,
+            ':telefono' => $this->telefono ?? null,
+            ':direccion' => $this->direccion ?? null,
+            ':cif_nif' => $this->cif_nif ?? null,
+            ':notas' => $this->notas ?? null,
+            ':id' => $this->id
         ];
         if ($stmt->execute($parametros)) {
             return true;
@@ -90,38 +105,40 @@ class Cliente {
         return false;
     }
 
-    public function eliminar($dni) {
-        $query = "DELETE FROM " . $this->table . " WHERE dni = :dni AND rol = 'trabajador'";
+    public function eliminar($id) {
+        // Soft delete: marcar como inactivo
+        $query = "UPDATE " . $this->table . " SET activo = 0 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-        if ($stmt->execute([':dni' => $dni])) {
+        if ($stmt->execute([':id' => $id])) {
             return true;
         }
         return false;
     }
 
-    public function contarProyectosCreados($dni) {
-        $query = "SELECT COUNT(*) as total FROM presupuestos WHERE usuario_dni = :dni";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute([':dni' => $dni]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['total'] ?? 0;
-    }
-
-    public function contarProyectosCompletados($dni) {
-        $query = "SELECT COUNT(*) as total FROM presupuestos WHERE usuario_dni = :dni AND estado = 'aprobado'";
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute([':dni' => $dni]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row['total'] ?? 0;
-    }
-
     public function buscar($termino) {
         $termino = "%{$termino}%";
-        $query = "SELECT * FROM " . $this->table . " WHERE rol = 'registrado' AND (nombre LIKE :termino OR email LIKE :termino OR telefono LIKE :termino) ORDER BY fecha_registro DESC";
+        $query = "SELECT * FROM " . $this->table . " 
+                  WHERE activo = 1 AND (nombre LIKE :termino OR email LIKE :termino OR empresa LIKE :termino) 
+                  ORDER BY fecha_registro DESC";
         $stmt = $this->conn->prepare($query);
         if ($stmt->execute([':termino' => $termino])) {
             return $stmt;
         }
         return null;
     }
+
+    private function mapearDatos($row) {
+        $this->id = $row['id'] ?? null;
+        $this->jefe_dni = $row['jefe_dni'] ?? null;
+        $this->nombre = $row['nombre'] ?? null;
+        $this->empresa = $row['empresa'] ?? null;
+        $this->email = $row['email'] ?? null;
+        $this->telefono = $row['telefono'] ?? null;
+        $this->direccion = $row['direccion'] ?? null;
+        $this->cif_nif = $row['cif_nif'] ?? null;
+        $this->notas = $row['notas'] ?? null;
+        $this->fecha_registro = $row['fecha_registro'] ?? null;
+        $this->activo = $row['activo'] ?? 1;
+    }
 }
+

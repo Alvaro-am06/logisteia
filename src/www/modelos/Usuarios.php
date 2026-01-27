@@ -34,6 +34,17 @@ class Usuarios {
     }
 
     /**
+     * Obtener usuario por email.
+     * @param string $email
+     * @return array|false
+     */
+    public function obtenerPorEmail($email) {
+        $stmt = $this->db->prepare("SELECT usuarios.dni, usuarios.email, usuarios.nombre, usuarios.rol, usuarios.estado, usuarios.telefono, usuarios.fecha_registro FROM usuarios WHERE email = ?");
+        $stmt->execute(array($email));
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Cambiar rol de usuario.
      * @param string $dni
      * @param string $rol
@@ -98,7 +109,7 @@ class Usuarios {
      * @return bool
      */
     public function crearUsuario($dni, $nombre, $email, $hashContrase, $rol = 'registrado') {
-        $stmt = $this->db->prepare("INSERT INTO usuarios (dni,nombre,email,contrase,rol) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO usuarios (dni,nombre,email,password,rol) VALUES (?, ?, ?, ?, ?)");
         return $stmt->execute(array($dni, $nombre, $email, $hashContrase, $rol));
     }
 }

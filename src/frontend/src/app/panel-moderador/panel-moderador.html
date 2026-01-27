@@ -1,0 +1,306 @@
+<!-- Navbar -->
+<nav class="bg-[#102a41] shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base hidden sm:inline">{{ usuarioRol }} | </span>
+        <span class="text-white text-xs md:text-base">{{ moderador?.nombre || 'Usuario' }}</span>
+        <button (click)="logout()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          <span class="hidden sm:inline">Cerrar Sesión</span>
+          <span class="sm:hidden">Salir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Contenido principal -->
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8 overflow-y-auto">
+    <div class="max-w-7xl mx-auto">
+      <!-- Navegación de pestañas -->
+      <nav class="bg-white border-b rounded-t-lg mb-4">
+        <div class="flex space-x-2 md:space-x-4 overflow-x-auto p-2 md:p-4">
+          <button
+            (click)="cambiarVista('dashboard')"
+            [class.border-[#102a41]]="vistaActual === 'dashboard'"
+            [class.text-[#102a41]]="vistaActual === 'dashboard'"
+            class="px-3 py-2 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap"
+            [class.border-transparent]="vistaActual !== 'dashboard'"
+            [class.text-gray-500]="vistaActual !== 'dashboard'">
+            Dashboard
+          </button>
+          <button
+            (click)="cambiarVista('baneos')"
+            [class.border-[#102a41]]="vistaActual === 'baneos'"
+            [class.text-[#102a41]]="vistaActual === 'baneos'"
+            class="px-3 py-2 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap"
+            [class.border-transparent]="vistaActual !== 'baneos'"
+            [class.text-gray-500]="vistaActual !== 'baneos'">
+            Baneos
+          </button>
+          <button
+            (click)="cambiarVista('proyectos')"
+            [class.border-[#102a41]]="vistaActual === 'proyectos'"
+            [class.text-[#102a41]]="vistaActual === 'proyectos'"
+            class="px-3 py-2 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap"
+            [class.border-transparent]="vistaActual !== 'proyectos'"
+            [class.text-gray-500]="vistaActual !== 'proyectos'">
+            Proyectos
+          </button>
+          <button
+            (click)="cambiarVista('usuarios')"
+            [class.border-[#102a41]]="vistaActual === 'usuarios'"
+            [class.text-[#102a41]]="vistaActual === 'usuarios'"
+            class="px-3 py-2 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap"
+            [class.border-transparent]="vistaActual !== 'usuarios'"
+            [class.text-gray-500]="vistaActual !== 'usuarios'">
+            Usuarios
+          </button>
+          <button
+            (click)="cambiarVista('perfil')"
+            [class.border-[#102a41]]="vistaActual === 'perfil'"
+            [class.text-[#102a41]]="vistaActual === 'perfil'"
+            class="px-3 py-2 border-b-2 font-medium text-xs md:text-sm transition-colors whitespace-nowrap"
+            [class.border-transparent]="vistaActual !== 'perfil'"
+            [class.text-gray-500]="vistaActual !== 'perfil'">
+            Perfil
+          </button>
+        </div>
+      </nav>
+    
+      <!-- Vista Dashboard -->
+      <div *ngIf="vistaActual === 'dashboard'" class="space-y-6">
+        <h2 class="text-xl md:text-2xl font-semibold text-gray-900">Estadísticas Globales del Sistema</h2>
+      
+      <!-- Tarjetas de estadísticas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <!-- Usuarios -->
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs md:text-sm text-gray-600">Usuarios Totales</p>
+              <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ estadisticas.usuarios_total }}</p>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-500 space-y-1">
+            <p>Jefes: {{ estadisticas.usuarios_jefes }}</p>
+            <p>Trabajadores: {{ estadisticas.usuarios_trabajadores }}</p>
+          </div>
+        </div>
+
+        <!-- Equipos -->
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs md:text-sm text-gray-600">Equipos Activos</p>
+              <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ estadisticas.equipos_total }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proyectos -->
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs md:text-sm text-gray-600">Proyectos Totales</p>
+              <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ estadisticas.proyectos_total }}</p>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-500 space-y-1">
+            <p>En proceso: {{ estadisticas.proyectos_en_proceso }}</p>
+            <p>Finalizados: {{ estadisticas.proyectos_finalizados }}</p>
+          </div>
+        </div>
+
+        <!-- Baneos -->
+        <div class="bg-white rounded-lg shadow p-4 md:p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs md:text-sm text-gray-600">Usuarios Baneados</p>
+              <p class="text-2xl md:text-3xl font-bold text-red-600">{{ estadisticas.usuarios_baneados }}</p>
+            </div>
+          </div>
+          <div class="mt-4 text-xs text-gray-500 space-y-1">
+            <p>Baneos activos: {{ estadisticas.baneos_activos }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de proyectos detalladas -->
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-base md:text-lg font-semibold mb-4">Estado de Proyectos</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+          <div class="text-center p-3 md:p-4 bg-blue-50 rounded-lg">
+            <p class="text-xl md:text-2xl font-bold text-blue-600">{{ estadisticas.proyectos_planificacion }}</p>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Planificación</p>
+          </div>
+          <div class="text-center p-3 md:p-4 bg-green-50 rounded-lg">
+            <p class="text-xl md:text-2xl font-bold text-green-600">{{ estadisticas.proyectos_en_proceso }}</p>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">En Proceso</p>
+          </div>
+          <div class="text-center p-3 md:p-4 bg-purple-50 rounded-lg">
+            <p class="text-xl md:text-2xl font-bold text-purple-600">{{ estadisticas.proyectos_finalizados }}</p>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Finalizados</p>
+          </div>
+          <div class="text-center p-3 md:p-4 bg-red-50 rounded-lg">
+            <p class="text-xl md:text-2xl font-bold text-red-600">{{ estadisticas.proyectos_cancelados }}</p>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Cancelados</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="bg-white rounded-lg shadow p-4 md:p-6">
+        <h3 class="text-base md:text-lg font-semibold mb-4">Actividad Última Semana</h3>
+        <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ estadisticas.acciones_ultima_semana }}</p>
+        <p class="text-xs md:text-sm text-gray-600 mt-2">Acciones administrativas registradas</p>
+      </div>
+    </div>
+
+    <!-- Vista Historial de Baneos -->
+    <div *ngIf="vistaActual === 'baneos'" class="space-y-4 md:space-y-6">
+      <h2 class="text-xl md:text-2xl font-semibold text-gray-900 mb-4">Historial de Baneos</h2>
+
+      <div *ngIf="cargando" class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">Cargando historial...</p>
+      </div>
+
+      <div *ngIf="!cargando && historialBaneos.length === 0" class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">No hay baneos registrados</p>
+      </div>
+
+      <!-- Vista de escritorio: Tabla -->
+      <div *ngIf="!cargando && historialBaneos.length > 0" class="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Baneado por</th>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motivo</th>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha Baneo</th>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+              <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let baneo of historialBaneos">
+              <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+                <div class="text-xs md:text-sm font-medium text-gray-900">{{ baneo.usuario_nombre }}</div>
+                <div class="text-xs text-gray-500">{{ baneo.usuario_email }}</div>
+              </td>
+              <td class="px-4 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{{ baneo.jefe_nombre }}</td>
+              <td class="px-4 md:px-6 py-4 text-xs md:text-sm text-gray-900">{{ baneo.motivo }}</td>
+              <td class="px-4 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm text-gray-500">{{ baneo.fecha_baneo }}</td>
+              <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+                <span *ngIf="baneo.activo" class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                  Activo
+                </span>
+                <span *ngIf="!baneo.activo" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                  Levantado
+                </span>
+              </td>
+              <td class="px-4 md:px-6 py-4 whitespace-nowrap text-xs md:text-sm">
+                <button 
+                  *ngIf="baneo.activo"
+                  (click)="desbanearUsuario(baneo.id)"
+                  class="text-blue-600 hover:text-blue-900">
+                  Desbanear
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Vista móvil: Tarjetas -->
+      <div *ngIf="!cargando && historialBaneos.length > 0" class="md:hidden space-y-4">
+        <div *ngFor="let baneo of historialBaneos" class="bg-white rounded-lg shadow p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-medium text-sm text-gray-900">{{ baneo.usuario_nombre }}</p>
+              <p class="text-xs text-gray-500">{{ baneo.usuario_email }}</p>
+            </div>
+            <span *ngIf="baneo.activo" class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+              Activo
+            </span>
+            <span *ngIf="!baneo.activo" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+              Levantado
+            </span>
+          </div>
+          <div class="space-y-2 text-xs text-gray-600 mb-3">
+            <p><strong>Baneado por:</strong> {{ baneo.jefe_nombre }}</p>
+            <p><strong>Motivo:</strong> {{ baneo.motivo }}</p>
+            <p><strong>Fecha:</strong> {{ baneo.fecha_baneo }}</p>
+          </div>
+          <button 
+            *ngIf="baneo.activo"
+            (click)="desbanearUsuario(baneo.id)"
+            class="w-full px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">
+            Desbanear
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Vista Proyectos -->
+    <div *ngIf="vistaActual === 'proyectos'" class="space-y-4 md:space-y-6">
+      <h2 class="text-xl md:text-2xl font-semibold text-gray-900">Todos los Proyectos</h2>
+
+      <div *ngIf="cargando" class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">Cargando proyectos...</p>
+      </div>
+
+      <div *ngIf="!cargando && proyectos.length === 0" class="text-center py-12 bg-white rounded-lg shadow">
+        <p class="text-gray-500">No hay proyectos registrados</p>
+      </div>
+
+      <div *ngIf="!cargando && proyectos.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div *ngFor="let proyecto of proyectos" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="text-xs text-gray-500">{{ proyecto.codigo }}</p>
+              <h3 class="text-sm md:text-lg font-semibold text-gray-900">{{ proyecto.nombre }}</h3>
+            </div>
+            <span 
+              [class.bg-blue-100]="proyecto.estado === 'planificacion'"
+              [class.text-blue-800]="proyecto.estado === 'planificacion'"
+              [class.bg-green-100]="proyecto.estado === 'en_proceso'"
+              [class.text-green-800]="proyecto.estado === 'en_proceso'"
+              [class.bg-purple-100]="proyecto.estado === 'finalizado'"
+              [class.text-purple-800]="proyecto.estado === 'finalizado'"
+              class="px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ml-2">
+              {{ proyecto.estado }}
+            </span>
+          </div>
+          
+          <p class="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2">{{ proyecto.descripcion }}</p>
+          
+          <div class="space-y-2 text-xs md:text-sm">
+            <p class="text-gray-700"><strong>Jefe:</strong> {{ proyecto.jefe_nombre }}</p>
+            <p class="text-gray-700"><strong>Cliente:</strong> {{ proyecto.cliente_nombre }}</p>
+            <p class="text-gray-700"><strong>Inicio:</strong> {{ proyecto.fecha_inicio }}</p>
+            <p class="text-gray-700"><strong>Horas:</strong> {{ proyecto.horas_estimadas }}h</p>
+            <p class="text-gray-700"><strong>Precio:</strong> {{ proyecto.precio_estimado }}€</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Usuarios -->
+    <div *ngIf="vistaActual === 'usuarios'" class="space-y-6">
+      <h2 class="text-xl md:text-2xl font-semibold text-gray-900">Gestión de Usuarios</h2>
+      <div class="bg-white rounded-lg shadow p-4 md:p-6 text-center">
+        <p class="text-gray-600 text-sm md:text-base">Funcionalidad próximamente disponible</p>
+      </div>
+    </div>
+
+    <!-- Vista Perfil -->
+    <div *ngIf="vistaActual === 'perfil'" class="space-y-6">
+      <app-perfil [mostrarNavbar]="false"></app-perfil>
+    </div>
+    </div>
+  </main>
+</div>

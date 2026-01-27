@@ -1,0 +1,48 @@
+<aside 
+  *ngIf="!isHidden"
+  (mouseenter)="isCollapsed = false"
+  (mouseleave)="isCollapsed = true"
+  [class.w-64]="!isCollapsed" 
+  [class.w-20]="isCollapsed" 
+  class="bg-white border-r border-gray-200 shadow-sm transition-all duration-300 relative hidden md:block">
+
+  <nav class="py-4">
+    <ul class="space-y-1">
+      <li *ngFor="let item of menuItems">
+        <a 
+          [routerLink]="item.route" 
+          routerLinkActive="active-nav-item"
+          [routerLinkActiveOptions]="{exact: item.route === '/panel-jefe-equipo' || item.route === '/panel-registrado' || item.route === '/panel-moderador' || item.route === '/panel-admin'}"
+          class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer transition group"
+          [title]="isCollapsed ? item.label : ''">
+          <img 
+            [src]="item.icon" 
+            [alt]="item.label"
+            class="w-5 h-5 mr-3 transition-transform group-hover:scale-110">
+          <span *ngIf="!isCollapsed" class="text-sm font-medium">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- Menú móvil inferior -->
+<nav 
+  *ngIf="!isHidden"
+  class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+  <ul class="flex justify-around items-center h-16">
+    <li *ngFor="let item of menuItems" class="flex-1">
+      <a 
+        [routerLink]="item.route" 
+        routerLinkActive="text-[#102a41] bg-blue-50"
+        [routerLinkActiveOptions]="{exact: item.route === '/panel-jefe-equipo' || item.route === '/panel-registrado' || item.route === '/panel-moderador' || item.route === '/panel-admin'}"
+        class="flex flex-col items-center justify-center h-full text-gray-600 hover:text-[#102a41] hover:bg-gray-50 transition py-2">
+        <img 
+          [src]="item.icon" 
+          [alt]="item.label"
+          class="w-5 h-5 mb-1">
+        <span class="text-[10px] font-medium">{{ item.label }}</span>
+      </a>
+    </li>
+  </ul>
+</nav>
