@@ -155,12 +155,12 @@ try {
                 'success' => false,
                 'error' => 'Usuario no encontrado. Use completar-registro-google.php'
             ]);
-     rror_log("Login Google - Error: " . $e->getMessage());
-    error_log("Login Google - Stack trace: " . $e->getTraceAsString());
-    e   }
+        }
     }
     
 } catch (Exception $e) {
+    error_log("Login Google - Error: " . $e->getMessage());
+    error_log("Login Google - Stack trace: " . $e->getTraceAsString());
     echo json_encode([
         'success' => false,
         'error' => 'Error del servidor: ' . $e->getMessage()
