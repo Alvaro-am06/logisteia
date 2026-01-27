@@ -98,7 +98,6 @@ class PresupuestoWizard {
             return false;
 
         } catch (Exception $e) {
-            error_log("Error en PresupuestoWizard::crear: " . $e->getMessage());
             return false;
         }
     }

@@ -129,7 +129,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        console.error('Error cargando proyectos:', error);
         this.message = 'Error de conexión al cargar proyectos';
         this.proyectos = [];
       }
@@ -145,7 +144,6 @@ export class MisProyectos implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error cargando clientes:', error);
         this.clientes = [];
       }
     });
@@ -158,7 +156,6 @@ export class MisProyectos implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error cargando equipos:', error);
         this.equipos = [];
       }
     });
@@ -205,7 +202,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error: any) => {
         this.cargandoMiembros = false;
-        console.error('Error cargando miembros:', error);
       }
     });
   }
@@ -279,13 +275,11 @@ export class MisProyectos implements OnInit {
               }
             },
             error: (error) => {
-              console.error('Error cargando miembros del equipo:', error);
             }
           });
         }
       },
       error: (error) => {
-        console.error('Error cargando trabajadores:', error);
         this.trabajadoresProyecto = [];
       }
     });
@@ -311,7 +305,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.message = 'Error de conexión al agregar trabajador';
-        console.error('Error:', error);
       }
     });
   }
@@ -334,7 +327,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.message = 'Error de conexión al remover trabajador';
-        console.error('Error:', error);
       }
     });
   }
@@ -367,7 +359,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.message = 'Error de conexión al eliminar proyecto';
-        console.error('Error:', error);
       }
     });
   }
@@ -411,7 +402,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.message = 'Error de conexión al finalizar proyecto';
-        console.error('Error:', error);
       }
     });
   }

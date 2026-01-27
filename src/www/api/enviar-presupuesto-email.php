@@ -110,7 +110,6 @@ try {
         $htmlPresupuesto = generarHTMLPresupuestoEmail($presupuesto, $detalles);
     } catch (Exception $htmlError) {
         ob_end_clean();
-        error_log("❌ Error al generar HTML: " . $htmlError->getMessage());
         http_response_code(500);
         echo json_encode([
             'error' => 'Error al generar HTML del presupuesto',
@@ -145,7 +144,6 @@ try {
         );
     } catch (Exception $emailSendError) {
         ob_end_clean();
-        error_log("❌ Error al enviar email: " . $emailSendError->getMessage());
         http_response_code(500);
         echo json_encode([
             'error' => 'Error al enviar email',
@@ -173,8 +171,6 @@ try {
     
 } catch (Exception $e) {
     ob_end_clean();
-    error_log('❌ Error en enviar-presupuesto-email.php: ' . $e->getMessage());
-    error_log('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'error' => 'Error interno del servidor',

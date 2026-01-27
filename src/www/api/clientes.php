@@ -178,7 +178,6 @@ switch ($method) {
             }
         } catch (Exception $e) {
             ob_end_clean();
-            error_log("❌ POST clientes.php EXCEPTION: " . $e->getMessage());
             http_response_code(500);
             echo json_encode([
                 'error' => 'Error al crear cliente',

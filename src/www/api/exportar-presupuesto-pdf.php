@@ -68,7 +68,6 @@ try {
     
 } catch (Exception $e) {
     http_response_code(500);
-    error_log('Error en exportar-presupuesto-pdf.php: ' . $e->getMessage());
     echo json_encode(['error' => 'Error interno: ' . $e->getMessage()]);
 }
 

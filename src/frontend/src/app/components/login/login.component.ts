@@ -53,7 +53,6 @@ export class LoginComponent {
       error: (err) => {
         this.loading = false;
         this.error = 'Error de conexión con el servidor';
-        console.error('Error de login:', err);
       }
     });
   }

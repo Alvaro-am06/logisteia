@@ -51,9 +51,6 @@ class ConexionBBDD {
             $this->pdo = new PDO($dsn, $user, $pass, $opciones);
             
         } catch (PDOException $e) {
-            // Log del error (en producción usar un sistema de logs apropiado)
-            error_log("Error de conexión a BD: " . $e->getMessage());
-            
             // Lanzar excepción para que sea manejada por el código que llama
             throw new PDOException("Error al conectar con la base de datos. Contacte al administrador.");
         }

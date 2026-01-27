@@ -195,7 +195,6 @@ try {
         enviarEmail($email, $nombre, $asunto, $mensajeHTML, 'logisteiaa@gmail.com', 'Equipo Logisteia');
     } catch (Exception $e) {
         // Continuar aunque falle el envío del email
-        error_log('Error al enviar email de bienvenida: ' . $e->getMessage());
     }
     
     // Registrar acción administrativa

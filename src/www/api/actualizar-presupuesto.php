@@ -94,6 +94,5 @@ try {
 } catch (Exception $e) {
     ob_end_clean();
     http_response_code(500);
-    error_log('Error en actualizar-presupuesto.php: ' . $e->getMessage() . ' - ' . $e->getFile() . ':' . $e->getLine());
     echo json_encode(['success' => false, 'error' => 'Error interno: ' . $e->getMessage()]);
 }
