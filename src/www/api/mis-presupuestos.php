@@ -50,6 +50,26 @@ try {
     $stmt = $presupuesto->obtenerPorUsuario($dni);
     $presupuestos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Parsear proyecto y cliente de las notas para cada presupuesto
+    foreach ($presupuestos as &$pres) {
+        $notas = $pres['notas'] ?? '';
+        
+        // Extraer nombre del proyecto
+        if (preg_match('/Proyecto:\s*(.+?)$/m', $notas, $matches) || 
+            preg_match('/Presupuesto automático para proyecto:\s*(.+?)$/mi', $notas, $matches)) {
+            $pres['nombre_proyecto'] = trim($matches[1]);
+        } else {
+            $pres['nombre_proyecto'] = '-';
+        }
+        
+        // Extraer nombre del cliente
+        if (preg_match('/Cliente:\s*(.+?)$/m', $notas, $matches)) {
+            $pres['cliente_nombre'] = trim($matches[1]);
+        } else {
+            $pres['cliente_nombre'] = '-';
+        }
+    }
+    
     // Devolver respuesta exitosa
     echo json_encode([
         'success' => true,
