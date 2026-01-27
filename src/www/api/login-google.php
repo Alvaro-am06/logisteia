@@ -1,6 +1,7 @@
 <?php
 // Cargar configuración centralizada
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/jwt.php';
 
 // Configurar CORS y manejar preflight
 setupCors();
@@ -92,6 +93,14 @@ try {
             }
         }
         
+        // Generar token JWT
+        $token = generarTokenJWT([
+            'dni' => $usuario['dni'],
+            'rol' => $usuario['rol'],
+            'nombre' => $usuario['nombre'],
+            'email' => $usuario['email']
+        ]);
+        
         // Preparar respuesta
         $responseData = array_merge([
             'dni' => $usuario['dni'],
@@ -100,7 +109,8 @@ try {
             'telefono' => $usuario['telefono'],
             'rol' => $usuario['rol'],
             'estado' => $usuario['estado'],
-            'fecha_registro' => $usuario['fecha_registro']
+            'fecha_registro' => $usuario['fecha_registro'],
+            'token' => $token
         ], $datosAdicionales);
         
         echo json_encode([
