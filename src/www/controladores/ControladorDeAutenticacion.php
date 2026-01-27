@@ -163,7 +163,7 @@ class ControladorDeAutenticacion {
 
         try {
             // Buscar usuario por email directamente en la tabla usuarios
-            $query = "SELECT dni, email, nombre, password, rol, estado, telefono 
+            $query = "SELECT dni, email, nombre, contrase, rol, estado, telefono 
                       FROM usuarios 
                       WHERE email = :email 
                       LIMIT 1";
@@ -195,7 +195,7 @@ class ControladorDeAutenticacion {
             }
 
             // Verificar la contraseña
-            if (!password_verify($password, $usuario['password'])) {
+            if (!password_verify($password, $usuario['contrase'])) {
                 registrarIntentoFallido($email);
                 $intentosRestantes = obtenerIntentosRestantes($email);
                 sendJsonError(
