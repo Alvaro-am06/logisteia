@@ -32,6 +32,9 @@ try {
 
 // Procesar según el método HTTP
 $method = $_SERVER['REQUEST_METHOD'];
+$requestUri = $_SERVER['REQUEST_URI'];
+$parsedUrl = parse_url($requestUri);
+$path = $parsedUrl['path'];
 
 switch ($method) {
     case 'GET':
@@ -49,7 +52,44 @@ switch ($method) {
             exit();
         }
 
-        // Listar proyectos del jefe autenticado
+        // Ruta: /api/proyectos.php/{id}/trabajadores
+        if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            $trabajadores = $proyecto->obtenerTrabajadoresProyecto($proyectoId);
+            echo json_encode([
+                'success' => true,
+                'trabajadores' => $trabajadores
+            ]);
+            exit();
+        }
+
+        // Ruta: /api/proyectos.php/{id}/miembros-disponibles
+        if (preg_match('#/api/proyectos\.php/(\d+)/miembros-disponibles#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            
+            // Obtener el equipo_id del proyecto
+            $sqlEquipo = "SELECT equipo_id FROM proyectos WHERE id = :id";
+            $stmtEquipo = $db->prepare($sqlEquipo);
+            $stmtEquipo->execute([':id' => $proyectoId]);
+            $proyectoData = $stmtEquipo->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$proyectoData || !$proyectoData['equipo_id']) {
+                echo json_encode([
+                    'success' => true,
+                    'miembros' => []
+                ]);
+                exit();
+            }
+            
+            $miembros = $proyecto->obtenerMiembrosEquipoDisponibles($proyectoData['equipo_id'], $proyectoId);
+            echo json_encode([
+                'success' => true,
+                'miembros' => $miembros
+            ]);
+            exit();
+        }
+
+        // Ruta por defecto: Listar proyectos del jefe autenticado
         $proyectos = $proyecto->obtenerProyectosPorJefe($jefe_dni);
         if ($proyectos !== false) {
             echo json_encode([
@@ -64,28 +104,55 @@ switch ($method) {
         break;
 
     case 'POST':
-        try {
-            // Crear nuevo proyecto
-            $rawInput = file_get_contents('php://input');
-            $input = json_decode($rawInput, true);
+        $rawInput = file_get_contents('php://input');
+        $input = json_decode($rawInput, true);
+        
+        // Obtener jefe_dni de los headers
+        $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
+        if (!$jefe_dni && isset($_SERVER['HTTP_X_USER_DII'])) {
+            $jefe_dni = $_SERVER['HTTP_X_USER_DII'];
+        }
+        
+        if (!$jefe_dni) {
+            ob_end_clean();
+            http_response_code(401);
+            echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
+            exit();
+        }
+
+        // Ruta: /api/proyectos.php/{id}/asignar-trabajador
+        if (preg_match('#/api/proyectos\.php/(\d+)/asignar-trabajador#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
             
+            if (!isset($input['trabajador_dni']) || !isset($input['rol'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'DNI del trabajador y rol son requeridos']);
+                exit();
+            }
+            
+            try {
+                $proyecto->asignarTrabajadores($proyectoId, [[
+                    'dni' => $input['trabajador_dni'],
+                    'rol' => $input['rol']
+                ]]);
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Trabajador asignado correctamente'
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error al asignar trabajador: ' . $e->getMessage()]);
+            }
+            exit();
+        }
+
+        // Ruta por defecto: Crear nuevo proyecto
+        try {
             if (!$input) {
                 ob_end_clean();
                 http_response_code(400);
                 echo json_encode(['error' => 'Datos inválidos']);
-                exit();
-            }
-
-            // Obtener jefe_dni de los headers
-            $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
-            if (!$jefe_dni && isset($_SERVER['HTTP_X_USER_DII'])) {
-                $jefe_dni = $_SERVER['HTTP_X_USER_DII'];
-            }
-            
-            if (!$jefe_dni) {
-                ob_end_clean();
-                http_response_code(401);
-                echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
                 exit();
             }
 
@@ -272,14 +339,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        // Eliminar proyecto
         $input = json_decode(file_get_contents('php://input'), true);
-
-        if (!$input || !isset($input['id'])) {
-            sendJsonError('ID de proyecto requerido', 400);
-        }
-
-        $proyectoId = $input['id'];
 
         // Obtener jefe_dni de los headers
         $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
@@ -290,6 +350,36 @@ switch ($method) {
             echo json_encode(['error' => 'Usuario no autenticado']);
             exit();
         }
+
+        // Ruta: /api/proyectos.php/{id}/remover-trabajador
+        if (preg_match('#/api/proyectos\.php/(\d+)/remover-trabajador#', $path, $matches)) {
+            $proyectoId = intval($matches[1]);
+            
+            if (!isset($input['trabajador_dni'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'DNI del trabajador es requerido']);
+                exit();
+            }
+            
+            try {
+                $proyecto->removerAsignacion($proyectoId, $input['trabajador_dni']);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Trabajador removido correctamente'
+                ]);
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error al remover trabajador: ' . $e->getMessage()]);
+            }
+            exit();
+        }
+
+        // Ruta por defecto: Eliminar proyecto
+        if (!$input || !isset($input['id'])) {
+            sendJsonError('ID de proyecto requerido', 400);
+        }
+
+        $proyectoId = $input['id'];
 
         try {
             // Eliminar proyecto (solo si es del jefe autenticado)
