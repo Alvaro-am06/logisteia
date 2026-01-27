@@ -216,16 +216,39 @@ switch ($method) {
                 $presupuestoError = null;
                 
                 try {
-                    $numero_presupuesto = 'PRES-' . date('Ymd') . '-' . str_pad($resultado['proyecto_id'], 4, '0', STR_PAD_LEFT);
+                    $numero_presupuesto = 'PRW-' . date('Ymd') . '-' . str_pad($resultado['proyecto_id'], 4, '0', STR_PAD_LEFT);
                     
-                    $sqlPresupuesto = "INSERT INTO presupuestos (numero_presupuesto, usuario_dni, total, validez_dias, notas, fecha_creacion)
-                                      VALUES (:numero_presupuesto, :usuario_dni, :total, 30, :notas, NOW())";
+                    // Obtener datos del cliente
+                    $sqlCliente = "SELECT nombre, email FROM clientes WHERE id = :cliente_id";
+                    $stmtCliente = $db->prepare($sqlCliente);
+                    $stmtCliente->execute([':cliente_id' => $cliente_id]);
+                    $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
+                    
+                    // Preparar notas en formato wizard
+                    $notasWizard = "PRESUPUESTO GENERADO DESDE CONFIGURADOR\n\n";
+                    $notasWizard .= "Proyecto: " . $nombre . "\n";
+                    $notasWizard .= "Cliente: " . ($cliente['nombre'] ?? 'Sin especificar') . "\n";
+                    if ($cliente && !empty($cliente['email'])) {
+                        $notasWizard .= "Email Cliente: " . $cliente['email'] . "\n";
+                    }
+                    $notasWizard .= "Descripción: " . $descripcion . "\n";
+                    if (!empty($tecnologias)) {
+                        $techs = is_array($tecnologias) ? implode(',', $tecnologias) : $tecnologias;
+                        $notasWizard .= "Tecnologías: " . $techs . "\n";
+                    }
+                    if (!empty($notas)) {
+                        $notasWizard .= "Notas: " . $notas . "\n";
+                    }
+                    
+                    // Insertar en presupuestos_wizard
+                    $sqlPresupuesto = "INSERT INTO presupuestos_wizard (numero_presupuesto, usuario_dni, total, validez_dias, notas, fecha_creacion, estado)
+                                      VALUES (:numero_presupuesto, :usuario_dni, :total, 30, :notas, NOW(), 'borrador')";
                     $stmtPresupuesto = $db->prepare($sqlPresupuesto);
                     $stmtPresupuesto->execute([
                         ':numero_presupuesto' => $numero_presupuesto,
                         ':usuario_dni' => $jefe_dni,
                         ':total' => isset($input['precio_total']) ? floatval($input['precio_total']) : 0,
-                        ':notas' => ($notas ?? '')
+                        ':notas' => $notasWizard
                     ]);
                     
                     $presupuesto_id = $db->lastInsertId();
@@ -239,7 +262,7 @@ switch ($method) {
                     ]);
                     
                     $presupuestoCreado = true;
-                    error_log("✅ Presupuesto creado: $numero_presupuesto para proyecto {$resultado['proyecto_id']}");
+                    error_log("✅ Presupuesto wizard creado: $numero_presupuesto para proyecto {$resultado['proyecto_id']}");
                 } catch (Exception $e) {
                     $presupuestoError = $e->getMessage();
                     error_log("❌ Error creando presupuesto automático: " . $presupuestoError);
@@ -457,9 +480,15 @@ switch ($method) {
                 // Si el proyecto tenía un presupuesto asociado, eliminarlo también
                 if ($proyecto_data && !empty($proyecto_data['presupuesto_numero'])) {
                     try {
+                        // Intentar eliminar de ambas tablas
                         $sqlDeletePresupuesto = "DELETE FROM presupuestos WHERE numero_presupuesto = :numero";
                         $stmtDeletePresupuesto = $db->prepare($sqlDeletePresupuesto);
                         $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['presupuesto_numero']]);
+                        
+                        $sqlDeletePresupuestoWizard = "DELETE FROM presupuestos_wizard WHERE numero_presupuesto = :numero";
+                        $stmtDeletePresupuestoWizard = $db->prepare($sqlDeletePresupuestoWizard);
+                        $stmtDeletePresupuestoWizard->execute([':numero' => $proyecto_data['presupuesto_numero']]);
+                        
                         error_log("✅ Presupuesto {$proyecto_data['presupuesto_numero']} eliminado junto con proyecto {$proyectoId}");
                     } catch (Exception $presupuestoError) {
                         error_log("⚠️ No se pudo eliminar presupuesto: " . $presupuestoError->getMessage());
