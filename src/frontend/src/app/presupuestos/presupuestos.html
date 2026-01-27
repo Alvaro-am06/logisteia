@@ -1,77 +1,70 @@
-<!-- Navbar superior -->
+<!-- Navbar -->
 <nav class="bg-[#102a41] shadow-lg">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center h-16">
-      <a routerLink="/panel-jefe-equipo" class="text-white font-bold text-xl">Logisteia</a>
-      <div navbar-actions class="flex items-center space-x-4">
-        <span class="text-white text-sm">{{ nombreUsuario }}</span>
-        <button (click)="cerrarSesion()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm transition border border-white/20">
-          Cerrar sesión
+      <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
+      <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base">{{ nombreUsuario }}</span>
+        <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
+          Cerrar Sesión
         </button>
       </div>
     </div>
   </div>
 </nav>
 
-<div class="flex min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar -->
   <app-sidebar></app-sidebar>
-  
-  <main class="flex-1 p-6 md:p-8">
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8">
     <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Mis Presupuestos</h1>
-        <p class="text-gray-600">Gestiona y visualiza todos tus presupuestos</p>
+      <!-- Encabezado -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Mis Presupuestos</h1>
+          <p class="text-sm md:text-base text-gray-600 mt-2">
+            Gestiona y visualiza todos tus presupuestos
+          </p>
+        </div>
       </div>
 
-      <!-- Card principal -->
-      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <!-- Loading state -->
-        <div *ngIf="loading" class="flex flex-col items-center justify-center p-12">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p class="text-gray-600">Cargando presupuestos...</p>
-        </div>
-      
-        <!-- Error message -->
-        <div *ngIf="error" class="m-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
-          <span class="text-2xl">⚠️</span>
-          <span class="text-red-700">{{ error }}</span>
-        </div>
+      <!-- Cargando -->
+      <div *ngIf="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#102a41]"></div>
+        <p class="text-gray-600 mt-4">Cargando presupuestos...</p>
+      </div>
 
-        <!-- Empty state -->
-        <div *ngIf="!loading && presupuestos.length === 0 && !error" class="text-center p-12">
-          <div class="text-6xl mb-4">📋</div>
-          <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay presupuestos</h3>
-          <p class="text-gray-500">Aún no tienes presupuestos registrados en el sistema.</p>
-        </div>
-
-        <!-- Tabla de presupuestos -->
-        <div *ngIf="!loading && presupuestos.length > 0" class="overflow-x-auto">
+      <!-- Lista de presupuestos -->
+      <div *ngIf="!loading && presupuestos.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Vista de tabla para desktop -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Número
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Proyecto
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cliente
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fecha
-                </th>
-                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
+              <thead class="bg-[#102a41] text-white">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Número
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Proyecto
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Cliente
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr *ngFor="let p of presupuestos" class="hover:bg-gray-50 transition">
@@ -99,25 +92,42 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ p.fecha_creacion | date:'dd/MM/yyyy' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="flex items-center justify-center space-x-2">
-                    <button 
-                      (click)="verPresupuesto(p)" 
-                      class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                      title="Ver presupuesto">
-                      Ver
-                    </button>
-                    <button 
-                      (click)="eliminarPresupuesto(p)" 
-                      class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                      title="Eliminar presupuesto">
-                      Eliminar
-                    </button>
-                  </div>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <button (click)="verPresupuesto(p)"
+                          class="text-blue-600 hover:text-blue-800">
+                    Ver PDF
+                  </button>
+                  <button (click)="descargarPresupuesto(p)"
+                          class="text-green-600 hover:text-green-800">
+                    Descargar
+                  </button>
+                  <button (click)="eliminarPresupuesto(p)"
+                          class="text-red-600 hover:text-red-800">
+                    Eliminar
+                  </button>
                 </td>
               </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Resumen inferior -->
+          <div class="bg-gray-50 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200">
+            <span class="text-xs md:text-sm text-gray-600">
+              Total: {{ presupuestos.length }} presupuesto{{ presupuestos.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sin presupuestos -->
+        <div *ngIf="presupuestos.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
+          <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay presupuestos</h3>
+          <p class="text-gray-600 mb-6">
+            Aún no tienes presupuestos registrados en el sistema.
+          </p>
         </div>
       </div>
     </div>
