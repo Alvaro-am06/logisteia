@@ -6,8 +6,24 @@
 api.logisteia.com {
     root * /var/www/html
     
+    # Headers CORS
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email"
+        Access-Control-Allow-Credentials "false"
+    }
+    
+    # Manejar OPTIONS directamente
+    @options {
+        method OPTIONS
+    }
+    respond @options 204
+    
     # PHP-FPM
-    php_fastcgi backend:9000
+    php_fastcgi backend:9000 {
+        root /var/www/html
+    }
     
     # Compresión
     encode gzip
