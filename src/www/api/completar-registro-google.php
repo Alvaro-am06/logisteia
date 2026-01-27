@@ -107,6 +107,31 @@ try {
         ]);
     }
     
+    // Enviar email de bienvenida
+    try {
+        require_once __DIR__ . '/../config/email.php';
+        
+        $asunto = "Bienvenido a Logisteia";
+        $mensajeHTML = "<html><body>
+            <h2>¡Bienvenido a Logisteia, $nombre!</h2>
+            <p>Tu cuenta ha sido creada exitosamente mediante Google.</p>
+            <p><strong>Datos de acceso:</strong></p>
+            <ul>
+                <li>Email: $email</li>
+                <li>Rol: $rol</li>
+                <li>DNI: $dni</li>
+            </ul>
+            <p>Ya puedes iniciar sesión en la plataforma y comenzar a utilizar nuestros servicios.</p>
+            <br>
+            <p>Saludos,<br>Equipo Logisteia</p>
+        </body></html>";
+        
+        enviarEmail($email, $nombre, $asunto, $mensajeHTML, 'logisteiaa@gmail.com', 'Equipo Logisteia');
+    } catch (Exception $e) {
+        // Continuar aunque falle el envío del email
+        error_log('Error al enviar email de bienvenida: ' . $e->getMessage());
+    }
+    
     // Registrar acción administrativa
     try {
         $stmtAccion = $db->prepare("

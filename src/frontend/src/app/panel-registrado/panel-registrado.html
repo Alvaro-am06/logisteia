@@ -24,6 +24,11 @@
       <div class="flex justify-between items-center mb-6 md:mb-8">
         <div>
           <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Bienvenido, {{ nombreUsuario }}</h1>
+          <p class="text-sm md:text-base text-gray-600 mt-1">
+            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs md:text-sm font-semibold">
+              {{ usuarioRol === 'jefe_equipo' ? 'Jefe de Equipo' : usuarioRol === 'trabajador' ? 'Trabajador' : usuarioRol === 'moderador' ? 'Moderador' : 'Administrador' }}
+            </span>
+          </p>
           <p *ngIf="equipoNombre" class="text-sm md:text-base text-gray-600 mt-2">Equipo: <span class="font-semibold">{{ equipoNombre }}</span></p>
           <p *ngIf="!equipoNombre" class="text-sm md:text-base text-gray-500 mt-2 italic">No estás asignado a ningún equipo aún</p>
         </div>
