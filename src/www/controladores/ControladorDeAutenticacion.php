@@ -483,7 +483,6 @@ class ControladorDeAutenticacion {
                                 me.trabajador_dni,
                                 me.rol_proyecto,
                                 me.fecha_ingreso,
-                                me.estado_invitacion,
                                 me.activo,
                                 u.nombre,
                                 u.email,
@@ -508,7 +507,6 @@ class ControladorDeAutenticacion {
                     'telefono' => $miembro['telefono'],
                     'rol_proyecto' => $miembro['rol_proyecto'],
                     'fecha_ingreso' => $miembro['fecha_ingreso'],
-                    'estado_invitacion' => $miembro['estado_invitacion'],
                     'activo' => (bool)$miembro['activo'],
                     'estado_usuario' => $miembro['estado']
                 ];
@@ -612,8 +610,8 @@ class ControladorDeAutenticacion {
 
             // Agregar el miembro al equipo
             $queryInsert = "INSERT INTO miembros_equipo
-                           (equipo_id, trabajador_dni, rol_proyecto, estado_invitacion, activo)
-                           VALUES (:equipo_id, :trabajador_dni, :rol_proyecto, 'pendiente', 1)";
+                           (equipo_id, trabajador_dni, rol_proyecto, activo)
+                           VALUES (:equipo_id, :trabajador_dni, :rol_proyecto, 1)";
 
             $stmtInsert = $this->db->prepare($queryInsert);
             $stmtInsert->execute([
@@ -623,13 +621,12 @@ class ControladorDeAutenticacion {
             ]);
 
             sendJsonSuccess([
-                'message' => 'Invitación enviada exitosamente',
+                'message' => 'Miembro agregado exitosamente',
                 'miembro' => [
                     'dni' => $trabajador['dni'],
                     'nombre' => $trabajador['nombre'],
                     'email' => $trabajador['email'],
-                    'rol_proyecto' => $rolProyecto,
-                    'estado_invitacion' => 'pendiente'
+                    'rol_proyecto' => $rolProyecto
                 ]
             ]);
 

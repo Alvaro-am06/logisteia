@@ -36,8 +36,7 @@ try {
             u.nombre as jefe_nombre,
             u.email as jefe_email,
             me.rol_proyecto,
-            me.fecha_ingreso,
-            me.estado_invitacion
+            me.fecha_ingreso
         FROM miembros_equipo me
         INNER JOIN equipos e ON me.equipo_id = e.id
         INNER JOIN usuarios u ON e.jefe_dni = u.dni

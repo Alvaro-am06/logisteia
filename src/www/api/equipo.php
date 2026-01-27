@@ -96,7 +96,6 @@ switch ($method) {
                     u.telefono,
                     em.rol_proyecto,
                     em.fecha_ingreso,
-                    em.estado_invitacion,
                     u.estado as estado_usuario
                 FROM miembros_equipo em
                 INNER JOIN usuarios u ON em.trabajador_dni = u.dni
@@ -201,24 +200,16 @@ switch ($method) {
 
             // Verificar si el trabajador ya está en el equipo
             $stmt = $conn->prepare("
-                SELECT id, estado_invitacion FROM miembros_equipo
-                WHERE equipo_id = ? AND trabajador_dni = ?
+                SELECT id FROM miembros_equipo
+                WHERE equipo_id = ? AND trabajador_dni = ? AND activo = 1
             ");
             $stmt->execute([$equipo['id'], $trabajador['dni']]);
             $existe = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($existe) {
-                if ($existe['estado_invitacion'] === 'aceptada') {
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'error' => 'El trabajador ya es miembro activo del equipo']);
-                    exit;
-                } else if ($existe['estado_invitacion'] === 'pendiente') {
-                    // Permitir reenviar invitación
-                } else {
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'error' => 'El trabajador ya tiene una invitación ' . $existe['estado_invitacion']]);
-                    exit;
-                }
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'El trabajador ya es miembro del equipo']);
+                exit;
             }
 
             // Asignar rol por defecto
@@ -227,25 +218,13 @@ switch ($method) {
             // Generar token único para la invitación
             $token_invitacion = bin2hex(random_bytes(32));
             
-            // Agregar o actualizar el miembro al equipo (reenvío de invitación)
-            if ($existe) {
-                // Reenviar invitación - actualizar fecha y token
-                $stmt = $conn->prepare("
-                    UPDATE miembros_equipo 
-                    SET fecha_ingreso = NOW(), rol_proyecto = ?, token_invitacion = ?, estado_invitacion = 'pendiente'
-                    WHERE equipo_id = ? AND trabajador_dni = ?
-                ");
-                $stmt->execute([$rol_proyecto, $token_invitacion, $equipo['id'], $trabajador['dni']]);
-                $esReenvio = true;
-            } else {
-                // Nueva invitación
-                $stmt = $conn->prepare("
-                    INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, estado_invitacion, fecha_ingreso, token_invitacion)
-                    VALUES (?, ?, ?, 'pendiente', NOW(), ?)
-                ");
-                $stmt->execute([$equipo['id'], $trabajador['dni'], $rol_proyecto, $token_invitacion]);
-                $esReenvio = false;
-            }
+            // Agregar miembro al equipo
+            $stmt = $conn->prepare("
+                INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, fecha_ingreso, activo)
+                VALUES (?, ?, ?, NOW(), 1)
+            ");
+            $stmt->execute([$equipo['id'], $trabajador['dni'], $rol_proyecto]);
+            $esReenvio = false;
 
             // Enviar email de bienvenida con enlace de confirmación
             try {

@@ -11,7 +11,6 @@ export interface EquipoTrabajador {
   jefe_email: string;
   rol_proyecto: string;
   fecha_ingreso: string;
-  estado_invitacion: string;
 }
 
 export interface ApiResponse<T> {

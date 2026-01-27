@@ -1,4 +1,11 @@
 <?php
+/**
+ * ARCHIVO DEPRECADO - YA NO SE USA SISTEMA DE INVITACIONES
+ * Los miembros se agregan directamente al equipo sin necesidad de confirmación
+ */
+exit('Esta funcionalidad ya no está disponible');
+
+/*
 header('Content-Type: text/html; charset=UTF-8');
 
 require_once '../config/config.php';
@@ -25,35 +32,19 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
 
         // Buscar la invitación por token
         $stmt = $conn->prepare("
-            SELECT me.id, me.equipo_id, me.trabajador_dni, me.estado_invitacion,
+            SELECT me.id, me.equipo_id, me.trabajador_dni,
                    u.nombre as trabajador_nombre, e.nombre as equipo_nombre
             FROM miembros_equipo me
             INNER JOIN usuarios u ON me.trabajador_dni = u.dni
             INNER JOIN equipos e ON me.equipo_id = e.id
-            WHERE me.token_invitacion = ? AND me.activo = 1
+            WHERE me.activo = 1
         ");
         $stmt->execute([$token]);
         $invitacion = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($invitacion) {
-            if ($invitacion['estado_invitacion'] === 'pendiente') {
-                // Actualizar el estado de la invitación a aceptada
-                $stmt = $conn->prepare("
-                    UPDATE miembros_equipo
-                    SET estado_invitacion = 'aceptada'
-                    WHERE id = ?
-                ");
-                $stmt->execute([$invitacion['id']]);
-
-                $mensaje = "¡Felicitaciones! Has confirmado exitosamente tu participación en el equipo '{$invitacion['equipo_nombre']}'.";
-                $tipoMensaje = "success";
-            } elseif ($invitacion['estado_invitacion'] === 'aceptada') {
-                $mensaje = "Esta invitación ya ha sido aceptada anteriormente.";
-                $tipoMensaje = "info";
-            } elseif ($invitacion['estado_invitacion'] === 'rechazada') {
-                $mensaje = "Esta invitación fue rechazada anteriormente.";
-                $tipoMensaje = "warning";
-            }
+            $mensaje = "¡Felicitaciones! Has confirmado exitosamente tu participación en el equipo '{$invitacion['equipo_nombre']}'.";
+            $tipoMensaje = "success";
         } else {
             $mensaje = "Token de invitación inválido o expirado.";
             $tipoMensaje = "error";
