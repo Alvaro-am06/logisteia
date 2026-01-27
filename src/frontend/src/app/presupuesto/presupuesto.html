@@ -1,0 +1,189 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Navbar -->
+  <nav class="bg-[#102a41] shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <a href="#" class="text-white font-bold text-xl">Logisteia</a>
+        <div class="flex items-center space-x-4">
+          <span class="text-white">{{ usuarioNombre }}</span>
+          <button (click)="cancelar()" class="px-4 py-2 border border-white text-white rounded hover:bg-white hover:text-[#102a41] transition">
+            Volver al Panel
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Título -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Configurar Presupuesto Personalizado</h1>
+      <p class="text-gray-600 mt-2">Seleccione los servicios y configure las cantidades según sus necesidades</p>
+    </div>
+
+    <!-- Mensaje de estado -->
+    <div *ngIf="message" class="mb-6 p-4 rounded-lg" [ngClass]="message.includes('Error') || message.includes('debe') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+      {{ message }}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Columna izquierda: Servicios disponibles -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Servicios Disponibles</h2>
+
+          <!-- Filtros -->
+          <div class="mb-4 flex flex-col sm:flex-row gap-3">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Buscar servicio</label>
+              <input 
+                type="text" 
+                [(ngModel)]="busqueda" 
+                (ngModelChange)="filtrarServicios()"
+                placeholder="Buscar por nombre o descripción..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="sm:w-48">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+              <select 
+                [(ngModel)]="categoriaSeleccionada" 
+                (ngModelChange)="filtrarServicios()"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="Todas">Todas</option>
+                <option *ngFor="let categoria of categorias" [value]="categoria">{{ categoria }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Mensaje de carga -->
+          <div *ngIf="loading" class="text-center py-8">
+            <p class="text-gray-600">Cargando servicios...</p>
+          </div>
+
+          <!-- Lista de servicios -->
+          <div *ngIf="!loading" class="space-y-3 max-h-[600px] overflow-y-auto">
+            <div *ngFor="let servicio of serviciosFiltrados" 
+                 class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="font-semibold text-gray-900">{{ servicio.nombre }}</h3>
+                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">{{ servicio.categoria_nombre }}</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mb-2">{{ servicio.descripcion }}</p>
+                  <p class="text-lg font-bold text-[#102a41]">{{ servicio.precio_base | number:'1.2-2' }}€</p>
+                </div>
+                <button 
+                  (click)="agregarServicio(servicio)"
+                  class="ml-4 px-4 py-2 bg-[#102a41] text-white rounded hover:bg-[#1a3f5e] transition">
+                  <i class="bi bi-plus-circle mr-1"></i> Agregar
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="serviciosFiltrados.length === 0" class="text-center py-8 text-gray-500">
+              No se encontraron servicios que coincidan con los filtros
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Resumen del presupuesto -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Resumen del Presupuesto</h2>
+
+          <!-- Servicios seleccionados -->
+          <div class="space-y-3 mb-4 max-h-[400px] overflow-y-auto">
+            <div *ngIf="serviciosSeleccionados.length === 0" class="text-center py-6 text-gray-500">
+              <i class="bi bi-inbox text-4xl block mb-2"></i>
+              <p>No hay servicios seleccionados</p>
+            </div>
+
+            <div *ngFor="let item of serviciosSeleccionados; let i = index" 
+                 class="border border-gray-200 rounded-lg p-3">
+              <div class="flex justify-between items-start mb-2">
+                <h4 class="font-medium text-gray-900 text-sm flex-1">{{ item.servicio.nombre }}</h4>
+                <button 
+                  (click)="eliminarServicio(i)"
+                  class="text-red-600 hover:text-red-800 ml-2">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+
+              <div class="space-y-2">
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Cantidad</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="item.cantidad" 
+                    (ngModelChange)="actualizarSubtotal(item)"
+                    min="1"
+                    class="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Comentario (opcional)</label>
+                  <textarea 
+                    [(ngModel)]="item.comentario"
+                    rows="2"
+                    placeholder="Especificaciones adicionales..."
+                    class="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <div class="pt-2 border-t border-gray-200">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-600">Subtotal:</span>
+                    <span class="font-bold text-[#102a41]">{{ item.subtotal | number:'1.2-2' }}€</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notas generales -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Notas del presupuesto</label>
+            <textarea 
+              [(ngModel)]="notas"
+              rows="3"
+              placeholder="Añada notas o requisitos especiales..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+          </div>
+
+          <!-- Total -->
+          <div class="border-t border-gray-200 pt-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">Subtotal</span>
+              <span class="font-semibold">{{ total | number:'1.2-2' }}€</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600">IVA (21%)</span>
+              <span class="font-semibold">{{ (total * 0.21) | number:'1.2-2' }}€</span>
+            </div>
+            <div class="flex justify-between items-center text-xl font-bold text-[#102a41] pt-2 border-t border-gray-300">
+              <span>TOTAL</span>
+              <span>{{ (total * 1.21) | number:'1.2-2' }}€</span>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="space-y-2">
+            <button 
+              (click)="guardarPresupuesto()"
+              [disabled]="guardando || serviciosSeleccionados.length === 0"
+              class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+              <i class="bi bi-save mr-2"></i>
+              {{ guardando ? 'Guardando...' : 'Guardar Presupuesto' }}
+            </button>
+            <button 
+              (click)="cancelar()"
+              class="w-full px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+              <i class="bi bi-x-circle mr-2"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

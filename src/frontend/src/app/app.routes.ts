@@ -1,43 +1,19 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './guards/auth.guard';
+import { Login } from './login/login';
+import { PanelAdmin } from './panel-admin/panel-admin';
+import { PanelRegistrado } from './panel-registrado/panel-registrado';
+import { Plantilla } from './plantilla/plantilla';
+import { Usuarios } from './usuarios/usuarios';
+import { Presupuesto } from './presupuesto/presupuesto';
+import { MisProyectos } from './mis-proyectos/mis-proyectos';
 
 export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: '/login',
-    pathMatch: 'full'
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
-  },
-  {
-    path: 'dashboard',
-    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'usuarios',
-    loadComponent: () => import('./components/usuarios/usuarios.component').then(m => m.UsuariosComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'usuarios/:dni',
-    loadComponent: () => import('./components/usuario-detalle/usuario-detalle.component').then(m => m.UsuarioDetalleComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'clientes',
-    loadComponent: () => import('./components/clientes/clientes.component').then(m => m.ClientesComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'historial',
-    loadComponent: () => import('./components/historial/historial.component').then(m => m.HistorialComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: '**',
-    redirectTo: '/dashboard'
-  }
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: Login },
+  { path: 'panel-admin', component: PanelAdmin },
+  { path: 'panel-registrado', component: PanelRegistrado },
+  { path: 'plantilla', component: Plantilla },
+  { path: 'usuarios', component: Usuarios },
+  { path: 'presupuesto', component: Presupuesto },
+  { path: 'mis-proyectos', component: MisProyectos },
 ];
