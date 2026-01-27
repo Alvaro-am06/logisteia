@@ -1,4 +1,11 @@
-﻿-- bbdd.sql: tabla usuarios y acciones_administrativas (dni como PK)
+﻿-- bbdd.sql: crea la BD Logisteia si no existe y crea las tablas
+CREATE DATABASE IF NOT EXISTS 'Logisteia'
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+USE 'Logisteia';
+
+-- Tablas
 CREATE TABLE IF NOT EXISTS usuarios (
   dni VARCHAR(50) NOT NULL PRIMARY KEY,
   email VARCHAR(255) NOT NULL UNIQUE,
