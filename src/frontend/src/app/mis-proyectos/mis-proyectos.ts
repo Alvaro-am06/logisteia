@@ -267,29 +267,30 @@ export class MisProyectos implements OnInit {
         if (response.success) {
           this.trabajadoresProyecto = response.trabajadores || [];
         }
+        
+        // ✅ FIX: Cargar miembros disponibles DESPUÉS de tener los trabajadores asignados
+        // Esto evita race condition donde getMiembrosEquipo() se completa antes
+        if (proyecto.equipo_id) {
+          this.equipoService.getMiembrosEquipo().subscribe({
+            next: (response) => {
+              if (response.success && response.data) {
+                // Filtrar miembros que ya están asignados
+                const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
+                this.miembrosDisponiblesDetalle = (response.data.miembros || [])
+                  .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
+              }
+            },
+            error: (error) => {
+              console.error('Error cargando miembros del equipo:', error);
+            }
+          });
+        }
       },
       error: (error) => {
         console.error('Error cargando trabajadores:', error);
         this.trabajadoresProyecto = []; // Asegurar array vacío en error
       }
     });
-
-    // Cargar miembros del equipo disponibles si el proyecto tiene equipo_id
-    if (proyecto.equipo_id) {
-      this.equipoService.getMiembrosEquipo().subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            // Filtrar miembros que ya están asignados (sin importar estado_invitacion)
-            const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
-            this.miembrosDisponiblesDetalle = (response.data.miembros || [])
-              .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
-          }
-        },
-        error: (error) => {
-          console.error('Error cargando miembros del equipo:', error);
-        }
-      });
-    }
   }
 
   agregarTrabajadorDetalle(miembro: any) {
