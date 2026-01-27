@@ -53,8 +53,7 @@ try {
     $dni = filter_var($data['usuario_dni'], FILTER_SANITIZE_SPECIAL_CHARS);
 
     // Obtener conexión
-    $database = new Conexion();
-    $db = $database->obtener();
+    $db = ConexionBBDD::obtener();
     
     // Obtener datos del usuario
     $usuariosModel = new Usuarios($db);

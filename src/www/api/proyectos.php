@@ -190,31 +190,6 @@ switch ($method) {
 
         // Actualizar estado si se proporciona
         if (isset($input['estado'])) {
-            // Si se está finalizando el proyecto, sumar el dinero del presupuesto al dashboard
-            if ($input['estado'] === 'finalizado') {
-                // Obtener el presupuesto asociado al proyecto
-                $sqlPresupuesto = "SELECT p.total, pr.nombre as nombre_proyecto 
-                                   FROM presupuestos p 
-                                   INNER JOIN proyectos pr ON p.proyecto_id = pr.id 
-                                   WHERE pr.id = :proyecto_id 
-                                   LIMIT 1";
-                $stmtPresupuesto = $db->prepare($sqlPresupuesto);
-                $stmtPresupuesto->execute([':proyecto_id' => $proyectoId]);
-                $presupuesto = $stmtPresupuesto->fetch(PDO::FETCH_ASSOC);
-                
-                if ($presupuesto && $presupuesto['total'] > 0) {
-                    // Registrar el ingreso en la tabla de ingresos del dashboard
-                    $sqlIngreso = "INSERT INTO ingresos_dashboard (proyecto_id, monto, concepto, fecha_registro) 
-                                   VALUES (:proyecto_id, :monto, :concepto, NOW())";
-                    $stmtIngreso = $db->prepare($sqlIngreso);
-                    $stmtIngreso->execute([
-                        ':proyecto_id' => $proyectoId,
-                        ':monto' => $presupuesto['total'],
-                        ':concepto' => 'Finalización proyecto: ' . $presupuesto['nombre_proyecto']
-                    ]);
-                }
-            }
-            
             $sql = "UPDATE proyectos SET estado = :estado, fecha_actualizacion = NOW() WHERE id = :id AND jefe_dni = :jefe_dni";
             $stmt = $db->prepare($sql);
             $stmt->execute([
