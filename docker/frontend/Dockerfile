@@ -1,22 +1,25 @@
-# --- Etapa 1: Compilar Angular (Igual que antes) ---
+# --- Etapa 1: Compilar Angular ---
 FROM node:20 as build-step
 
 WORKDIR /app
+
+# Copiamos dependencias
 COPY src/frontend/package.json src/frontend/package-lock.json ./
 RUN npm install
 
+# Copiamos el código y compilamos
 COPY src/frontend/ .
 RUN npm run build -- --configuration production
 
-# --- Etapa 2: Caddy como Proxy Inverso y Servidor Web ---
+# --- Etapa 2: Servidor Caddy ---
 FROM caddy:alpine
 
-# Copiamos el 'Caddyfile' de configuración al contenedor
+# Copiamos la configuración de Caddy
 COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 
-# Copiamos la Web compilada (Angular) a donde Caddy la espera
+# Copiamos la aplicación compilada (Ruta confirmada por tu angular.json)
 COPY --from=build-step /app/dist/frontend/browser /srv
 
-# Exponemos puertos HTTP y HTTPS
+# Exponemos puertos
 EXPOSE 80
 EXPOSE 443
