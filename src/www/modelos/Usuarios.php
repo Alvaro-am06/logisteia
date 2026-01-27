@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/Conexion.php';
+require_once 'ConexionBBDD.php';
 
 /**
  * Clase Usuarios
@@ -18,7 +18,7 @@ class Usuarios {
      * @return array
      */
     public function obtenerTodos() {
-        $stmt = $this->db->query("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol,usuarios.estado,usuarios.creado_en FROM usuarios ORDER BY nombre");
+        $stmt = $this->db->query("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios ORDER BY nombre");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -28,29 +28,57 @@ class Usuarios {
      * @return array|false
      */
     public function obtenerPorDni($dni) {
-        $stmt = $this->db->prepare("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol,usuarios.estado,usuarios.creado_en FROM usuarios WHERE dni = ?");
+        $stmt = $this->db->prepare("SELECT usuarios.dni,usuarios.email,usuarios.nombre,usuarios.rol FROM usuarios WHERE dni = ?");
         $stmt->execute(array($dni));
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Cambiar estado de usuario (activo/suspendido/eliminado).
+     * Cambiar rol de usuario.
      * @param string $dni
-     * @param string $estado
+     * @param string $rol
      * @return bool
      */
-    public function cambiarEstado($dni, $estado) {
-        $stmt = $this->db->prepare("UPDATE usuarios SET estado = ? WHERE dni = ?");
-        return $stmt->execute(array($estado, $dni));
+    public function cambiarRol($dni, $rol) {
+        $stmt = $this->db->prepare("UPDATE usuarios SET rol = ? WHERE dni = ?");
+        return $stmt->execute(array($rol, $dni));
     }
 
     /**
-     * Eliminación lógica (marcar como eliminado).
+     * Eliminación lógica (marcar como registrado).
      * @param string $dni
      * @return bool
      */
     public function eliminarLogico($dni) {
-        return $this->cambiarEstado($dni, 'eliminado');
+        return $this->cambiarRol($dni, 'registrado');
+    }
+
+    /**
+     * Activar usuario (cambiar a administrador).
+     * @param string $dni
+     * @return bool
+     */
+    public function activar($dni) {
+        return $this->cambiarRol($dni, 'administrador');
+    }
+
+    /**
+     * Suspender usuario (cambiar a registrado).
+     * @param string $dni
+     * @return bool
+     */
+    public function suspender($dni) {
+        return $this->cambiarRol($dni, 'registrado');
+    }
+
+    /**
+     * Eliminar usuario físicamente de la base de datos.
+     * @param string $dni
+     * @return bool
+     */
+    public function eliminar($dni) {
+        $stmt = $this->db->prepare("DELETE FROM usuarios WHERE dni = ?");
+        return $stmt->execute(array($dni));
     }
 
     /**
