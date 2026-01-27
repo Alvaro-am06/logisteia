@@ -125,6 +125,9 @@ switch ($method) {
 
             if ($resultado && isset($resultado['proyecto_id'])) {
                 // Crear presupuesto automáticamente enlazado al proyecto
+                $presupuestoCreado = false;
+                $presupuestoError = null;
+                
                 try {
                     $numero_presupuesto = 'PRES-' . date('Ymd') . '-' . str_pad($resultado['proyecto_id'], 4, '0', STR_PAD_LEFT);
                     
@@ -147,9 +150,12 @@ switch ($method) {
                         ':presupuesto_numero' => $numero_presupuesto,
                         ':id' => $resultado['proyecto_id']
                     ]);
+                    
+                    $presupuestoCreado = true;
+                    error_log("✅ Presupuesto creado: $numero_presupuesto para proyecto {$resultado['proyecto_id']}");
                 } catch (Exception $e) {
-                    error_log("Error creando presupuesto automático: " . $e->getMessage());
-                    // No fallar el proyecto si el presupuesto falla
+                    $presupuestoError = $e->getMessage();
+                    error_log("❌ Error creando presupuesto automático: " . $presupuestoError);
                 }
 
                 // Registrar acción administrativa si hay sesión
@@ -170,7 +176,7 @@ switch ($method) {
 
                 ob_end_flush();
                 http_response_code(200);
-                echo json_encode([
+                $response = [
                     'success' => true,
                     'message' => 'Proyecto creado exitosamente',
                     'proyecto' => [
@@ -179,7 +185,18 @@ switch ($method) {
                         'descripcion' => $descripcion,
                         'cliente_id' => $cliente_id
                     ]
-                ]);
+                ];
+                
+                // Incluir información del presupuesto
+                if ($presupuestoCreado) {
+                    $response['presupuesto_creado'] = true;
+                    $response['numero_presupuesto'] = $numero_presupuesto;
+                } else if ($presupuestoError) {
+                    $response['presupuesto_creado'] = false;
+                    $response['presupuesto_error'] = $presupuestoError;
+                }
+                
+                echo json_encode($response);
             } else {
                 ob_end_clean();
                 http_response_code(500);

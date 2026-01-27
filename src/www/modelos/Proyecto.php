@@ -28,6 +28,17 @@ class Proyecto {
                     : $datos['tecnologias'];
             }
 
+            // Obtener equipo_id del jefe si no se proporcionó
+            $equipo_id = $datos['equipo_id'] ?? null;
+            if (!$equipo_id && isset($datos['jefe_dni'])) {
+                $stmtEquipo = $this->conn->prepare("SELECT id FROM equipos WHERE jefe_dni = :jefe_dni LIMIT 1");
+                $stmtEquipo->execute([':jefe_dni' => $datos['jefe_dni']]);
+                $equipo = $stmtEquipo->fetch(PDO::FETCH_ASSOC);
+                if ($equipo) {
+                    $equipo_id = $equipo['id'];
+                }
+            }
+
             // Insertar en tabla proyectos
             $sql = "INSERT INTO proyectos (
                 codigo, nombre, descripcion, jefe_dni, cliente_id, equipo_id, estado,
@@ -44,7 +55,7 @@ class Proyecto {
                 ':descripcion' => $datos['descripcion'] ?? null,
                 ':jefe_dni' => $datos['jefe_dni'],
                 ':cliente_id' => $datos['cliente_id'] ?? null,
-                ':equipo_id' => $datos['equipo_id'] ?? null,
+                ':equipo_id' => $equipo_id,
                 ':fecha_inicio' => $datos['fecha_inicio'] ?? date('Y-m-d'),
                 ':precio_total' => $datos['precio_total'] ?? 0,
                 ':tecnologias' => $tecnologias_json,
