@@ -1,11 +1,6 @@
 <?php
-/**
- * ARCHIVO: /src/www/login.php
- * COMMIT 10: Página de login
- */
+require_once '../controladores/ControladorDeAutenticacion.php';
 
-require_once 'controladores/AuthController.php';
-
-$controller = new AuthController();
+$controller = new ControladordeAutenticacion();
 $controller->mostrarLogin();
 ?>
