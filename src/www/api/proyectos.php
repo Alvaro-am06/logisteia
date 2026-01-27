@@ -27,8 +27,8 @@ try {
     // Obtener conexión a la base de datos
     $conn = ConexionBBDD::obtener();
 
-    $method = $_SERVER['REQUEST_METHOD'];
-    $request = $_SERVER['REQUEST_URI'];
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    $request = $_SERVER['REQUEST_URI'] ?? '/';
 
     // Obtener el path relativo
     $path = parse_url($request, PHP_URL_PATH);

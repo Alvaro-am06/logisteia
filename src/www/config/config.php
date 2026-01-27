@@ -167,6 +167,11 @@ function verificarAutenticacion() {
     // Obtener headers personalizados directamente desde $_SERVER
     $userDni = $_SERVER['HTTP_X_USER_DNI'] ?? '';
     
+    // Si se ejecuta desde CLI, retornar null
+    if (php_sapi_name() === 'cli') {
+        return null;
+    }
+    
     error_log(' HTTP_X_USER_DNI desde $_SERVER: ' . $userDni);
     error_log(' Todos los headers HTTP: ' . json_encode(array_filter($_SERVER, function($key) {
         return strpos($key, 'HTTP_') === 0;
