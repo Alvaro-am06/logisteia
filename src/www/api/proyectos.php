@@ -108,21 +108,20 @@ switch ($method) {
             $fecha_inicio = isset($input['fecha_inicio']) ? trim($input['fecha_inicio']) : null;
             $notas = isset($input['notas']) ? trim($input['notas']) : null;
 
-            // Convertir tecnologias a JSON si es array
-            if (is_array($tecnologias)) {
-                $tecnologias = json_encode($tecnologias);
-            }
+            // Preparar datos para el modelo
+            $datos = [
+                'nombre' => $nombre,
+                'descripcion' => $descripcion,
+                'cliente_id' => $cliente_id,
+                'jefe_dni' => $jefe_dni,
+                'tecnologias' => $tecnologias,
+                'fecha_inicio' => $fecha_inicio,
+                'notas' => $notas,
+                'precio_total' => isset($input['precio_total']) ? floatval($input['precio_total']) : 0
+            ];
 
             // Crear proyecto usando el método del modelo
-            $resultado = $proyecto->crearProyecto(
-                $nombre,
-                $descripcion,
-                $cliente_id,
-                $jefe_dni,
-                $tecnologias,
-                $fecha_inicio,
-                $notas
-            );
+            $resultado = $proyecto->crearProyecto($datos);
 
             if ($resultado && isset($resultado['proyecto_id'])) {
                 // Registrar acción administrativa si hay sesión
@@ -148,7 +147,6 @@ switch ($method) {
                     'message' => 'Proyecto creado exitosamente',
                     'proyecto' => [
                         'id' => $resultado['proyecto_id'],
-                        'codigo' => $resultado['codigo_proyecto'],
                         'nombre' => $nombre,
                         'descripcion' => $descripcion,
                         'cliente_id' => $cliente_id

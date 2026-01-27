@@ -68,15 +68,6 @@ class Proyecto {
         }
     }
 
-    /**
-     * Generar código de proyecto único
-     */
-    public function generarCodigoProyecto() {
-        $fecha = date('Ymd');
-        $stmt = $this->conn->query("SELECT COUNT(*) + 1 as num FROM proyectos WHERE DATE(fecha_creacion) = CURDATE()");
-        $num = $stmt->fetchColumn();
-        return "PRY-{$fecha}-" . str_pad($num, 4, '0', STR_PAD_LEFT);
-    }
 
     /**
      * Asignar trabajadores a un proyecto

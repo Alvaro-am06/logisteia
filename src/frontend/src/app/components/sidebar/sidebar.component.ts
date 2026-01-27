@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 
 export interface MenuItem {
@@ -18,6 +18,7 @@ export interface MenuItem {
 export class SidebarComponent implements OnInit {
   @Input() rol: 'jefe_equipo' | 'trabajador' | 'moderador' | 'admin' = 'trabajador';
   
+  private platformId = inject(PLATFORM_ID);
   isCollapsed = true; // Comienza colapsado
   menuItems: MenuItem[] = [];
   isHidden = false; // Controla si el sidebar está oculto
@@ -25,6 +26,15 @@ export class SidebarComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
+    // Leer el rol del localStorage si está en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      const usuarioStr = localStorage.getItem('usuario');
+      if (usuarioStr) {
+        const usuario = JSON.parse(usuarioStr);
+        this.rol = usuario.rol || 'trabajador';
+      }
+    }
+    
     this.menuItems = this.getMenuItemsByRole();
     // Detectar cambios de ruta
     this.router.events.subscribe(() => {
