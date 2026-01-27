@@ -1,34 +1,32 @@
-import { Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('angular-app');
+  private http = inject(HttpClient);
   email = '';
   password = '';
   message = '';
 
-  private http = inject(HttpClient);
-
-  onSubmit() {
-    this.http.post('/api/login', { email: this.email, password: this.password }).subscribe({
-      next: (response: unknown) => {
-        const res = response as { success?: boolean; error?: string; data?: unknown };
-        if (res.success) {
-          this.message = 'Login exitoso: ' + JSON.stringify(res.data);
+onSubmit() {
+  this.http.post('http://localhost/logisteia/src/www/api/login.php', { email: this.email, password: this.password })
+    .subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.message = 'Login exitoso: ' + JSON.stringify(response.data);
         } else {
-          this.message = 'Error: ' + (res.error || 'Desconocido');
+          this.message = 'Error: ' + response.error;
         }
       },
-      error: (err: HttpErrorResponse) => {
-        this.message = 'Error de conexión: ' + (err?.message || err?.statusText || JSON.stringify(err));
+      error: (error) => {
+        this.message = 'Error de conexión: ' + error.message;
       }
     });
   }
