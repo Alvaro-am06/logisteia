@@ -1,0 +1,175 @@
+2026-01-23 02:18:49 - Email enviado a: test@example.com
+Asunto: Bienvenido al equipo Equipo de Desarrollo - Logisteia
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Usuario de Prueba!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Desarrollo</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Jefe de Equipo (jefe@example.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+Headers: MIME-Version: 1.0
+Content-type:text/html;charset=UTF-8
+From: Jefe de Equipo (Logisteia) <jefe@example.com>
+
+==================================================
+
+2026-01-23 03:40:24 - Email enviado a: txwie@virgilian.com
+Asunto: Bienvenido al equipo Equipo de Mamita Molona - Logisteia
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Pepito rodriguez serrano!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Mamita Molona</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Mamita Molona (bobamo1744@elafans.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+Headers: MIME-Version: 1.0
+Content-type:text/html;charset=UTF-8
+From: Mamita Molona (Logisteia) <bobamo1744@elafans.com>
+
+==================================================
+
+2026-01-23 03:00:23 - [DEV] Email a: bobamo1744@elafans.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Mamita Molona</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:23 - [DEV] Email a: aandradesm01@educarex.es
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Alvaro Andrades Marquez</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:23 - [DEV] Email a: fjlevar02@educarex.es
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Fernando Leva Rosa</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: txwie@virgilian.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Pepito rodriguez serrano</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: admin@example.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Administrador</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: yuanalberto69@gmail.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Pedro González</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: juan@example.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Juan Pérez</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: maria@example.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido María López</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 03:00:24 - [DEV] Email a: prueba2@test.com
+Asunto: ¡Bienvenido a Logisteia!
+Mensaje:
+<h1>Bienvenido Usuario Prueba</h1><p>Gracias por registrarte.</p>
+==================================================
+
+2026-01-23 04:05:24 - [DEV] Email a: txwie@virgilian.com
+De: Equipo Logisteia <logisteiaa@gmail.com>
+Asunto: Bienvenido al equipo Equipo de Mamita Molona - Logisteia
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Pepito rodriguez serrano!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Mamita Molona</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Mamita Molona (bobamo1744@elafans.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+==================================================
+
+2026-01-23 04:09:10 - [DEV] Email a: txwie@virgilian.com
+De: Equipo Logisteia <logisteiaa@gmail.com>
+Asunto: Bienvenido al equipo Equipo de Mamita Molona - Logisteia
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Pepito rodriguez serrano!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Mamita Molona</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Mamita Molona (bobamo1744@elafans.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+==================================================
+
+2026-01-23 03:14:30 - [DEV] Email a: test@example.com
+De: Test Sender <logisteiaa@gmail.com>
+Asunto: Test Email
+Mensaje:
+<h1>Test</h1>
+==================================================
+
+2026-01-23 04:31:52 - Email NO enviado a: txwie@virgilian.com
+Asunto: Bienvenido al equipo Equipo de Mamita Molona - Logisteia
+Error: SMTP Error: Could not authenticate.
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Pepito rodriguez serrano!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Mamita Molona</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Mamita Molona (bobamo1744@elafans.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+==================================================
+
+2026-01-27 14:26:36 - Email NO enviado a: neseg86629@gxuzi.com
+Asunto: Bienvenido a Logisteia
+Error: SMTP Error: Could not authenticate.
+Mensaje:
+<html><body>
+            <h2>¡Bienvenido a Logisteia, Puchi!</h2>
+            <p>Tu cuenta ha sido creada exitosamente.</p>
+            <p><strong>Datos de acceso:</strong></p>
+            <ul>
+                <li>Email: neseg86629@gxuzi.com</li>
+                <li>Rol: trabajador</li>
+            </ul>
+            <p>Ya puedes iniciar sesión en la plataforma y comenzar a utilizar nuestros servicios.</p>
+            <br>
+            <p>Saludos,<br>Equipo Logisteia</p>
+        </body></html>
+==================================================
+
+2026-01-27 14:33:25 - Email NO enviado a: neseg86629@gxuzi.com
+Asunto: Bienvenido al equipo Equipo de Pedro González - Logisteia
+Error: SMTP Error: Could not authenticate.
+Mensaje:
+<html><body>
+        <h2>¡Bienvenido Puchi!</h2>
+        <p>Te damos la bienvenida al equipo <strong>Equipo de Pedro González</strong> en la plataforma Logisteia.</p>
+        <p>Ya formas parte del equipo y puedes comenzar a colaborar en los proyectos asignados.</p>
+        <p><strong>Agregado por:</strong> Pedro González (yuanalberto69@gmail.com)</p>
+        <p>Para acceder a la plataforma, inicia sesión con tus credenciales habituales.</p>
+        <br>
+        <p>Saludos,<br>Equipo Logisteia</p>
+    </body></html>
+==================================================
+

@@ -3,3 +3,10 @@ dist/
 .vscode/
 .env
 *.pem
+vendor/
+logs/
+*.log
+.cache/
+.idea/
+compose.yml
+docker/

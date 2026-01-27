@@ -1,0 +1,93 @@
+[2026-01-22 12:52:20] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-22 12:57:23] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-23 01:51:00] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-23 04:11:53] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-23 04:12:14] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-23 04:40:10] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:13:42] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:13:43] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:13:50] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:14:23] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:14:49] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-26 13:14:50] Error al obtener acciones recientes para moderador - SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause' - Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php - Línea: 319
+[2026-01-27 00:46:27] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 00:55:35] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:05:16] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:08:37] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:11:45] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:15:46] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:24:39] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 01:38:50] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
+[2026-01-27 11:19:07] Error al obtener acciones recientes para moderador
+  Exception: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'fecha_hora' in 'where clause'
+  Archivo: C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php
+  Línea: 339
+  Stack trace: 
+#0 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\controladores\ControladorDeAutenticacion.php(339): PDO->query('SELECT COUNT(*)...')
+#1 C:\Users\el_an\Documents\Repositorios\logisteia\src\www\api\login.php(21): ControladorDeAutenticacion->apiLogin()
+#2 {main}
+--------------------------------------------------------------------------------
