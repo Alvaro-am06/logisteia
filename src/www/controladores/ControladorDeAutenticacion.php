@@ -104,13 +104,11 @@ class ControladordeAutenticacion {
      * Devuelve JSON para integración con frontend SPA.
      */
     public function apiLogin() {
-        header('Content-Type: application/json');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: POST');
-        header('Access-Control-Allow-Headers: Content-Type');
-
+        // No establecer headers aquí, ya se hicieron en login.php
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['error' => 'Método no permitido']);
+            http_response_code(405);
             return;
         }
 
@@ -120,20 +118,28 @@ class ControladordeAutenticacion {
 
         if (empty($email) || empty($password)) {
             echo json_encode(['error' => 'Email y contraseña requeridos']);
+            http_response_code(400);
             return;
         }
 
-        if ($this->administrador->login($email, $password)) {
-            echo json_encode([
-                'success' => true,
-                'data' => [
-                    'dni' => $this->administrador->dni,
-                    'nombre' => $this->administrador->nombre,
-                    'email' => $this->administrador->email
-                ]
-            ]);
-        } else {
-            echo json_encode(['error' => 'Credenciales incorrectas']);
+        try {
+            if ($this->administrador->login($email, $password)) {
+                echo json_encode([
+                    'success' => true,
+                    'data' => [
+                        'dni' => $this->administrador->dni,
+                        'nombre' => $this->administrador->nombre,
+                        'email' => $this->administrador->email
+                    ]
+                ]);
+                http_response_code(200);
+            } else {
+                echo json_encode(['error' => 'Credenciales incorrectas']);
+                http_response_code(401);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['error' => 'Error en la base de datos: ' . $e->getMessage()]);
+            http_response_code(500);
         }
     }
 }
