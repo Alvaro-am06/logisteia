@@ -63,12 +63,12 @@ class Administrador {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // Verificar contraseña usando hash bcrypt
-                if (password_verify($password, $row['password'])) {
+                if (password_verify($password, $row['contrase'])) {
                     // Cargar datos del administrador
                     $this->dni = $row['dni'];
                     $this->nombre = $row['nombre'];
                     $this->email = $row['email'];
-                    $this->password = $row['password'];
+                    $this->password = $row['contrase'];
                     $this->rol = $row['rol'];
                     $this->telefono = $row['telefono'] ?? null;
                     $this->fecha_registro = $row['fecha_registro'];
@@ -107,7 +107,7 @@ class Administrador {
                 $this->dni = $row['dni'];
                 $this->nombre = $row['nombre'];
                 $this->email = $row['email'];
-                $this->password = $row['password'];
+                $this->password = $row['contrase'];
                 $this->rol = $row['rol'];
                 $this->telefono = $row['telefono'] ?? null;
                 $this->fecha_registro = $row['fecha_registro'];
