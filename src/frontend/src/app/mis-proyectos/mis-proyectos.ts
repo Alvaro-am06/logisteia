@@ -240,15 +240,15 @@ export class MisProyectos implements OnInit {
     this.proyectoService.crearProyecto(proyectoData).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto creado exitosamente';
+          this.message = 'Proyecto creado exitosamente';
           this.cerrarModalCrear();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al crear proyecto';
+          this.message = 'Error al crear proyecto';
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al crear proyecto';
+        this.message = 'Error de conexión al crear proyecto';
       }
     });
   }
@@ -302,15 +302,15 @@ export class MisProyectos implements OnInit {
     }]).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = `✅ ${miembro.nombre} agregado al proyecto`;
+          this.message = `${miembro.nombre} agregado al proyecto`;
           this.mostrarAsignarTrabajadores = false;
           this.verDetalleProyecto(this.proyectoSeleccionado!);
         } else {
-          this.message = '❌ Error al agregar trabajador: ' + (response.message || 'Error desconocido');
+          this.message = 'Error al agregar trabajador: ' + (response.message || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al agregar trabajador';
+        this.message = 'Error de conexión al agregar trabajador';
         console.error('Error:', error);
       }
     });
@@ -326,14 +326,14 @@ export class MisProyectos implements OnInit {
     this.proyectoService.removerAsignacion(this.proyectoSeleccionado.id, trabajador.dni).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = `✅ ${trabajador.nombre} removido del proyecto`;
+          this.message = `${trabajador.nombre} removido del proyecto`;
           this.verDetalleProyecto(this.proyectoSeleccionado!);
         } else {
-          this.message = '❌ Error al remover trabajador';
+          this.message = 'Error al remover trabajador';
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al remover trabajador';
+        this.message = 'Error de conexión al remover trabajador';
         console.error('Error:', error);
       }
     });
@@ -358,15 +358,15 @@ export class MisProyectos implements OnInit {
     this.proyectoService.eliminarProyecto(proyecto.id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto eliminado correctamente';
+          this.message = 'Proyecto eliminado correctamente';
           this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al eliminar proyecto: ' + (response.error || 'Error desconocido');
+          this.message = 'Error al eliminar proyecto: ' + (response.error || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al eliminar proyecto';
+        this.message = 'Error de conexión al eliminar proyecto';
         console.error('Error:', error);
       }
     });
@@ -391,7 +391,7 @@ export class MisProyectos implements OnInit {
     this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto finalizado correctamente.';
+          this.message = 'Proyecto finalizado correctamente.';
           if (this.proyectoSeleccionado) {
             this.proyectoSeleccionado.estado = 'finalizado';
           }
@@ -406,11 +406,11 @@ export class MisProyectos implements OnInit {
           this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
+          this.message = 'Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al finalizar proyecto';
+        this.message = 'Error de conexión al finalizar proyecto';
         console.error('Error:', error);
       }
     });

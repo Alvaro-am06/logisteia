@@ -35,7 +35,7 @@
       </div>
 
       <!-- Mensaje de error -->
-      <div *ngIf="message" class="mb-6 p-4 rounded-lg text-sm" [ngClass]="message.includes('Error') || message.includes('✗') || message.includes('❌') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+      <div *ngIf="message" class="mb-6 p-4 rounded-lg text-sm" [ngClass]="message.includes('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
         {{ message }}
       </div>
 
