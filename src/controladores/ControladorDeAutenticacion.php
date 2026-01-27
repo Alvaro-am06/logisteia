@@ -1,15 +1,14 @@
 <?php
 require_once './modelos/ConexionBBDD.php';
 require_once './modelos/Administrador.php';
-require_once './modelos/Database.php';
 
 class ControladordeAutenticacion {
     private $db;
     private $administrador;
 
     public function __construct() {
-        $database = new Database();
-        $this->db = $database->getConnection();
+        $database = new Conexion();
+        $this->db = $database->obtener();
         $this->administrador = new Administrador($this->db);
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
