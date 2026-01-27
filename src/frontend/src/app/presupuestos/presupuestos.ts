@@ -10,6 +10,7 @@ interface Presupuesto {
   usuario_dni: string;
   nombre_proyecto: string;
   cliente_nombre: string;
+  cliente_email?: string;
   total: number;
   estado: string;
   fecha_creacion: string;
@@ -102,15 +103,26 @@ export class PresupuestosComponent implements OnInit {
 
   enviarPDFPresupuesto(presupuesto: Presupuesto | null) {
     if (!presupuesto) return;
-    alert('Funcionalidad de enviar PDF por correo en desarrollo');
-  }
-
-  finalizarPresupuesto(presupuesto: Presupuesto | null) {
-    if (!presupuesto) return;
-    if (!confirm(`¿Estás seguro de marcar el presupuesto ${presupuesto.numero_presupuesto} como finalizado?`)) {
+    
+    if (!confirm(`¿Enviar el presupuesto ${presupuesto.numero_presupuesto} por email al cliente ${presupuesto.cliente_nombre}?`)) {
       return;
     }
-    alert('Funcionalidad de finalizar presupuesto en desarrollo');
+
+    this.http.post(`${environment.apiUrl}/api/enviar-presupuesto-email.php`, {
+      numero_presupuesto: presupuesto.numero_presupuesto
+    }).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          alert(`✅ Presupuesto enviado correctamente a ${presupuesto.cliente_email || 'el cliente'}`);
+        } else {
+          alert('❌ Error al enviar: ' + (response.error || 'Error desconocido'));
+        }
+      },
+      error: (err) => {
+        alert('❌ Error de conexión al enviar presupuesto');
+        console.error('Error:', err);
+      }
+    });
   }
 
   eliminarPresupuesto(presupuesto: Presupuesto | null) {
