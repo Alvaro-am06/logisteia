@@ -5,15 +5,10 @@
  * Ejecutar: php enviar_emails_trabajadores.php
  */
 
-// Determinar el directorio raíz del proyecto
-$rootDir = dirname(__DIR__, 1); // Desde src/www
-if (!file_exists($rootDir . '/config/config.php')) {
-    $rootDir = dirname(__DIR__, 3); // Si estamos en otro lugar
-}
-
-require_once $rootDir . '/src/www/config/config.php';
-require_once $rootDir . '/src/www/config/email.php';
-require_once $rootDir . '/src/www/modelos/ConexionBBDD.php';
+// Cargar configuración desde el directorio correcto
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/email.php';
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
 
 echo "========================================\n";
 echo "ENVÍO DE EMAILS A TRABAJADORES\n";
