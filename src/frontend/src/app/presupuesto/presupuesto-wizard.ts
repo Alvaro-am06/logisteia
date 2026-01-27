@@ -297,15 +297,13 @@ export class PresupuestoWizard implements OnInit {
       return;
     }
 
-    // Preparar datos para crear PROYECTO (no presupuesto)
+    // Preparar datos para crear PROYECTO (solo campos que la API acepta)
     const datosProyecto = {
       nombre: this.formulario.nombreProyecto.trim(),
       descripcion: this.formulario.descripcionProyecto.trim(),
       cliente_id: this.formulario.clienteSeleccionadoId,
       tecnologias: this.formulario.tecnologiasSeleccionadas,
       fecha_inicio: this.formulario.fechaInicio,
-      fecha_fin_estimada: this.formulario.plazoEntrega,
-      prioridad: this.formulario.prioridad,
       notas: this.formulario.notasAdicionales.trim()
     };
 

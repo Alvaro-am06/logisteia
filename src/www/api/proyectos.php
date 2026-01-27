@@ -13,13 +13,13 @@
 // Cargar configuración centralizada
 require_once __DIR__ . '/../config/config.php';
 
-// Configurar CORS y manejar preflight
-setupCors();
-handlePreflight();
-
 header('Content-Type: application/json');
 
 try {
+    // Configurar CORS y manejar preflight dentro del try-catch
+    setupCors();
+    handlePreflight();
+    
     require_once __DIR__ . '/../modelos/ConexionBBDD.php';
     require_once __DIR__ . '/../modelos/Proyecto.php';
     require_once __DIR__ . '/../modelos/Usuarios.php';
