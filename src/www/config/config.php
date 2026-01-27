@@ -113,6 +113,11 @@ define('LOGIN_TIMEOUT_MINUTES', (int)($_ENV['LOGIN_TIMEOUT_MINUTES'] ?? 15));
 function setupCors() {
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
     
+    // Si se ejecuta desde CLI, salir inmediatamente
+    if (php_sapi_name() === 'cli') {
+        return;
+    }
+    
     // Si no hay origin en la petición, intentar construirlo desde otros headers
     if (empty($origin)) {
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
@@ -148,7 +153,7 @@ function setupCors() {
  * @return void
  */
 function handlePreflight() {
-    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(204); // No Content es más apropiado para OPTIONS
         exit();
     }
