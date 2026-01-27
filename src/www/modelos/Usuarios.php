@@ -109,7 +109,7 @@ class Usuarios {
      * @return bool
      */
     public function crearUsuario($dni, $nombre, $email, $hashContrase, $rol = 'registrado') {
-        $stmt = $this->db->prepare("INSERT INTO usuarios (dni,nombre,email,password,rol) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO usuarios (dni,nombre,email,contrase,rol) VALUES (?, ?, ?, ?, ?)");
         return $stmt->execute(array($dni, $nombre, $email, $hashContrase, $rol));
     }
 }
