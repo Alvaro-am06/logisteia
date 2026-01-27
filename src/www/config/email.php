@@ -79,7 +79,7 @@ function enviarEmail($destinatario, $nombreDestinatario, $asunto, $mensajeHTML, 
         $mail->Host = 'smtp.gmail.com'; // Cambiar según tu proveedor
         $mail->SMTPAuth = true;
         $mail->Username = 'logisteiaa@gmail.com'; // Email oficial de Logisteia
-        $mail->Password = getenv('GMAIL_APP_PASSWORD'); // Contraseña de aplicación de Gmail
+        $mail->Password = $_ENV['GMAIL_APP_PASSWORD'] ?? $_SERVER['GMAIL_APP_PASSWORD'] ?? getenv('GMAIL_APP_PASSWORD'); // Contraseña de aplicación de Gmail
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
         $mail->CharSet = 'UTF-8';
@@ -107,7 +107,8 @@ function enviarEmail($destinatario, $nombreDestinatario, $asunto, $mensajeHTML, 
         error_log("   Excepción: " . $e->getMessage());
         error_log("   SMTP Host: {$mail->Host}");
         error_log("   SMTP Username: {$mail->Username}");
-        error_log("   GMAIL_APP_PASSWORD configurado: " . (getenv('GMAIL_APP_PASSWORD') ? 'SÍ' : 'NO'));
+        $passwordConfigured = !empty($_ENV['GMAIL_APP_PASSWORD']) || !empty($_SERVER['GMAIL_APP_PASSWORD']) || !empty(getenv('GMAIL_APP_PASSWORD'));
+        error_log("   GMAIL_APP_PASSWORD configurado: " . ($passwordConfigured ? 'SÍ' : 'NO'));
         
         // En desarrollo, guardar en log como fallback
         if (APP_ENV === 'development') {
