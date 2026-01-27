@@ -188,11 +188,28 @@ switch ($method) {
             exit();
         }
 
-        // Aquí implementar la lógica de actualización
-        // Por ahora respuesta básica
-        ob_end_clean();
-        http_response_code(501);
-        echo json_encode(['error' => 'Actualización de proyectos aún no implementada']);
+        // Actualizar estado si se proporciona
+        if (isset($input['estado'])) {
+            $sql = "UPDATE proyectos SET estado = :estado, fecha_actualizacion = NOW() WHERE id = :id AND jefe_dni = :jefe_dni";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':estado' => $input['estado'],
+                ':id' => $proyectoId,
+                ':jefe_dni' => $jefe_dni
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => true, 'message' => 'Proyecto actualizado correctamente']);
+            } else {
+                ob_end_clean();
+                http_response_code(404);
+                echo json_encode(['error' => 'Proyecto no encontrado o no tienes permisos']);
+            }
+        } else {
+            ob_end_clean();
+            http_response_code(400);
+            echo json_encode(['error' => 'No se proporcionaron campos para actualizar']);
+        }
         break;
 
     case 'DELETE':
@@ -215,11 +232,43 @@ switch ($method) {
             exit();
         }
 
-        // Aquí implementar la lógica de eliminación
-        // Por ahora respuesta básica
-        ob_end_clean();
-        http_response_code(501);
-        echo json_encode(['error' => 'Eliminación de proyectos aún no implementada']);
+        try {
+            // Eliminar proyecto (solo si es del jefe autenticado)
+            $sql = "DELETE FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':id' => $proyectoId,
+                ':jefe_dni' => $jefe_dni
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                // Registrar acción administrativa
+                session_start();
+                if (isset($_SESSION['usuario_dni'])) {
+                    try {
+                        $accionAdmin = new AccionesAdministrativas();
+                        $accionAdmin->registrar(
+                            $_SESSION['usuario_dni'],
+                            'Eliminación de proyecto',
+                            $proyectoId,
+                            "Proyecto eliminado: ID $proyectoId"
+                        );
+                    } catch (Exception $e) {
+                        // No fallar si no se puede registrar la acción
+                    }
+                }
+
+                echo json_encode(['success' => true, 'message' => 'Proyecto eliminado correctamente']);
+            } else {
+                ob_end_clean();
+                http_response_code(404);
+                echo json_encode(['error' => 'Proyecto no encontrado o no tienes permisos']);
+            }
+        } catch (Exception $e) {
+            ob_end_clean();
+            http_response_code(500);
+            echo json_encode(['error' => 'Error al eliminar proyecto: ' . $e->getMessage()]);
+        }
         break;
 
     default:

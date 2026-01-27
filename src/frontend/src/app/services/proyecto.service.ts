@@ -83,4 +83,18 @@ export class ProyectoService {
     const params = proyectoId ? `?proyecto_id=${proyectoId}` : '';
     return this.http.get<{success: boolean, miembros: MiembroEquipo[]}>(`${environment.apiUrl}/api/proyectos.php/miembros-disponibles/${equipoId}${params}`);
   }
+
+  // Eliminar proyecto
+  eliminarProyecto(proyectoId: number): Observable<{success: boolean, error?: string}> {
+    return this.http.request<{success: boolean, error?: string}>('DELETE', `${environment.apiUrl}/api/proyectos.php`, {
+      body: { id: proyectoId }
+    });
+  }
+
+  // Cambiar estado del proyecto
+  cambiarEstadoProyecto(proyectoId: number, nuevoEstado: string): Observable<{success: boolean, error?: string}> {
+    return this.http.request<{success: boolean, error?: string}>('PUT', `${environment.apiUrl}/api/proyectos.php`, {
+      body: { id: proyectoId, estado: nuevoEstado }
+    });
+  }
 }

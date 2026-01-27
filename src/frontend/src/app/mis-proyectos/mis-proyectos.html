@@ -356,9 +356,9 @@
       <div *ngIf="proyectoSeleccionado.tecnologias" class="mb-6">
         <h3 class="text-lg font-semibold mb-3">Tecnologías</h3>
         <div class="flex flex-wrap gap-2">
-          <span *ngFor="let tech of proyectoSeleccionado.tecnologias.split(',')"
+          <span *ngFor="let tech of getTecnologiasArray(proyectoSeleccionado)"
                 class="px-3 py-1 bg-[#102a41] text-white rounded-full text-sm">
-            {{ tech.trim() }}
+            {{ tech }}
           </span>
         </div>
       </div>
@@ -366,7 +366,7 @@
       <!-- Trabajadores asignados -->
       <div class="mb-6">
         <h3 class="text-lg font-semibold mb-3">Trabajadores Asignados</h3>
-        <div *ngIf="trabajadoresProyecto.length > 0" class="space-y-3">
+        <div *ngIf="trabajadoresProyecto && trabajadoresProyecto.length > 0" class="space-y-3">
           <div *ngFor="let trabajador of trabajadoresProyecto"
                class="flex justify-between items-center p-4 border border-gray-200 rounded-lg">
             <div>
@@ -380,7 +380,7 @@
             </div>
           </div>
         </div>
-        <div *ngIf="trabajadoresProyecto.length === 0" class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded">
+        <div *ngIf="!trabajadoresProyecto || trabajadoresProyecto.length === 0" class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded">
           No hay trabajadores asignados
         </div>
       </div>
@@ -394,8 +394,23 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="bg-gray-50 px-6 py-4 flex justify-end border-t">
+    <!-- Footer con acciones -->
+    <div class="bg-gray-50 px-6 py-4 flex justify-between border-t">
+      <div class="space-x-2">
+        <button (click)="eliminarProyecto(proyectoSeleccionado)"
+                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+          Eliminar
+        </button>
+        <button (click)="enviarPDFProyecto(proyectoSeleccionado)"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+          Enviar PDF
+        </button>
+        <button *ngIf="proyectoSeleccionado.estado !== 'finalizado'" 
+                (click)="finalizarProyecto(proyectoSeleccionado)"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+          Finalizar Proyecto
+        </button>
+      </div>
       <button (click)="cerrarModalDetalle()"
               class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
         Cerrar
