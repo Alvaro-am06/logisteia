@@ -6,7 +6,7 @@ class Cliente {
     public $dni;
     public $email;
     public $nombre;
-    public $contrase;
+    public $password;
     public $telefono;
     public $fecha_registro;
 
@@ -15,13 +15,13 @@ class Cliente {
     }
 
     public function crear() {
-        $query = "INSERT INTO " . $this->table . " (dni, email, nombre, contrase, rol, telefono) VALUES (:dni, :email, :nombre, :contrase, 'registrado', :telefono)";
+        $query = "INSERT INTO " . $this->table . " (dni, email, nombre, password, rol, telefono) VALUES (:dni, :email, :nombre, :password, 'trabajador', :telefono)";
         $stmt = $this->conn->prepare($query);
         $parametros = [
             ':dni' => $this->dni,
             ':email' => $this->email,
             ':nombre' => $this->nombre,
-            ':contrase' => $this->contrase,
+            ':password' => $this->password,
             ':telefono' => $this->telefono
         ];
         if ($stmt->execute($parametros)) {
@@ -31,14 +31,14 @@ class Cliente {
     }
 
     public function obtenerTodos() {
-        $query = "SELECT * FROM " . $this->table . " WHERE rol = 'registrado' ORDER BY fecha_registro DESC";
+        $query = "SELECT * FROM " . $this->table . " WHERE rol = 'trabajador' ORDER BY fecha_registro DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;
     }
 
     public function obtenerPorDni($dni) {
-        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'registrado'";
+        $query = "SELECT * FROM " . $this->table . " WHERE dni = :dni AND rol = 'trabajador'";
         $stmt = $this->conn->prepare($query);
         if ($stmt->execute([':dni' => $dni])) {
             if ($stmt->rowCount() > 0) {
@@ -46,7 +46,7 @@ class Cliente {
                 $this->dni = $row['dni'];
                 $this->email = $row['email'];
                 $this->nombre = $row['nombre'];
-                $this->contrase = $row['contrase'];
+                $this->password = $row['password'];
                 $this->telefono = $row['telefono'];
                 $this->fecha_registro = $row['fecha_registro'];
                 return true;
@@ -56,7 +56,7 @@ class Cliente {
     }
 
     public function obtenerPorEmail($email) {
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'registrado' LIMIT 1";
+        $query = "SELECT * FROM " . $this->table . " WHERE email = :email AND rol = 'trabajador' LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
@@ -66,7 +66,7 @@ class Cliente {
             $this->dni = $usuario['dni'];
             $this->nombre = $usuario['nombre'];
             $this->email = $usuario['email'];
-            $this->contrase = $usuario['contrase'];
+            $this->password = $usuario['password'];
             $this->telefono = $usuario['telefono'];
             $this->fecha_registro = $usuario['fecha_registro'];
             return true;
@@ -75,12 +75,12 @@ class Cliente {
     }
 
     public function actualizar() {
-        $query = "UPDATE " . $this->table . " SET email = :email, nombre = :nombre, contrase = :contrase, telefono = :telefono WHERE dni = :dni AND rol = 'registrado'";
+        $query = "UPDATE " . $this->table . " SET email = :email, nombre = :nombre, password = :password, telefono = :telefono WHERE dni = :dni AND rol = 'trabajador'";
         $stmt = $this->conn->prepare($query);
         $parametros = [
             ':email' => $this->email,
             ':nombre' => $this->nombre,
-            ':contrase' => $this->contrase,
+            ':password' => $this->password,
             ':telefono' => $this->telefono,
             ':dni' => $this->dni
         ];
@@ -91,7 +91,7 @@ class Cliente {
     }
 
     public function eliminar($dni) {
-        $query = "DELETE FROM " . $this->table . " WHERE dni = :dni AND rol = 'registrado'";
+        $query = "DELETE FROM " . $this->table . " WHERE dni = :dni AND rol = 'trabajador'";
         $stmt = $this->conn->prepare($query);
         if ($stmt->execute([':dni' => $dni])) {
             return true;
