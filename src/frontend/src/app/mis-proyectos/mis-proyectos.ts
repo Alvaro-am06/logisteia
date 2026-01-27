@@ -368,6 +368,14 @@ export class MisProyectos implements OnInit {
           if (this.proyectoSeleccionado) {
             this.proyectoSeleccionado.estado = 'finalizado';
           }
+          
+          // Actualizar dashboard facturado
+          if (response.presupuesto_total && response.presupuesto_total > 0) {
+            const totalActual = parseFloat(localStorage.getItem('totalFacturado') || '0');
+            const nuevoTotal = totalActual + parseFloat(response.presupuesto_total);
+            localStorage.setItem('totalFacturado', nuevoTotal.toString());
+          }
+          
           this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
