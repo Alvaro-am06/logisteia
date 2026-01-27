@@ -46,7 +46,7 @@ export class SidebarComponent implements OnInit {
           { label: 'Dashboard', route: '/panel-jefe-equipo', icon: '/icons/home-2-svgrepo-com.svg' },
           { label: 'Mi Equipo', route: '/mi-equipo', icon: '/icons/people-svgrepo-com.svg' },
           { label: 'Proyectos', route: '/mis-proyectos', icon: '/icons/layout-1-svgrepo-com.svg' },
-          { label: 'Presupuestos', route: '/mis-presupuestos', icon: '/icons/document-svgrepo-com.svg' },
+          { label: 'Presupuestos', route: '/mis-presupuestos', icon: '/icons/box-1-svgrepo-com.svg' },
           { label: 'Clientes', route: '/clientes', icon: '/icons/folder-svgrepo-com.svg' },
           { label: 'Perfil', route: '/perfil', icon: '/icons/user-3-svgrepo-com.svg' }
         ];

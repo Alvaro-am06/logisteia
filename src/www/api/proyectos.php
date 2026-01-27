@@ -1,164 +1,229 @@
 <?php
 /**
- * API endpoint para operaciones con proyectos
- *
- * GET /api/proyectos - Obtener proyectos del usuario actual
- * POST /api/proyectos - Crear nuevo proyecto
- * GET /api/proyectos/{id}/trabajadores - Obtener trabajadores asignados
- * POST /api/proyectos/{id}/trabajadores - Asignar trabajadores
- * DELETE /api/proyectos/{id}/trabajadores/{dni} - Remover asignación
- * GET /api/proyectos/{id}/miembros-disponibles - Obtener miembros disponibles
+ * API REST para gestión de proyectos.
+ * Endpoints:
+ * - GET: Listar todos los proyectos del jefe autenticado
+ * - POST: Crear un nuevo proyecto
+ * - PUT: Actualizar proyecto existente
+ * - DELETE: Eliminar proyecto
  */
 
 // Cargar configuración centralizada
 require_once __DIR__ . '/../config/config.php';
 
-// Configurar CORS y headers (IGUAL que equipo.php y clientes.php)
+// Configurar CORS y headers
 setupCors();
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 handlePreflight();
 
+// Cargar dependencias
+require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../modelos/Proyecto.php';
+require_once __DIR__ . '/../modelos/AccionesAdministrativas.php';
+
+// Inicializar conexión
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-    require_once __DIR__ . '/../modelos/Proyecto.php';
-    require_once __DIR__ . '/../modelos/Usuarios.php';
-
-    // Obtener conexión a la base de datos
-    $conn = ConexionBBDD::obtener();
-
-    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-    $request = $_SERVER['REQUEST_URI'] ?? '/';
-
-    // Obtener el path relativo
-    $path = parse_url($request, PHP_URL_PATH);
-    // Quitar /api/proyectos.php o /api/proyectos del path
-    $path = preg_replace('#^/api/proyectos(\.php)?#', '', $path);
-    $path_parts = array_values(array_filter(explode('/', trim($path, '/')), fn($p) => $p !== ''));
-    // Si no hay partes, asegurar que el array tenga al menos un elemento vacío
-    if (empty($path_parts)) {
-        $path_parts = [''];
-    }
-
-    $proyecto = new Proyecto($conn);
-    $usuarios = new Usuarios($conn);
-
-    // Verificar autenticación
-    error_log("=== PROYECTOS.PHP DEBUG START ===");
-    $usuario_actual = verificarAutenticacion();
-    error_log("Usuario autenticado: " . ($usuario_actual ? json_encode($usuario_actual) : "NULL"));
-    
-    // Si no hay autenticación, devolver error
-    if (!$usuario_actual) {
-        error_log("ERROR: No autenticado");
-        http_response_code(401);
-        echo json_encode(['success' => false, 'error' => 'No autenticado']);
-        exit();
-    }
-
-    error_log("Método: $method, Rol: " . $usuario_actual['rol']);
-
-    switch ($method) {
-        case 'GET':
-            if (empty($path_parts[0])) {
-                // GET /api/proyectos - Obtener proyectos del usuario
-                $rol = $usuario_actual['rol'];
-                error_log("Obteniendo proyectos para rol: $rol, DNI: " . $usuario_actual['dni']);
-
-                if ($rol === 'jefe_equipo') {
-                    $proyectos = $proyecto->obtenerProyectosPorJefe($usuario_actual['dni']);
-                } elseif ($rol === 'trabajador') {
-                    $proyectos = $proyecto->obtenerProyectosPorTrabajador($usuario_actual['dni']);
-                } else {
-                    // Moderador o admin pueden ver todos
-                    $proyectos = $proyecto->obtenerProyectosPorJefe($usuario_actual['dni']); // Temporal
-                }
-
-                error_log("Proyectos obtenidos: " . count($proyectos));
-                echo json_encode(['success' => true, 'proyectos' => $proyectos]);
-
-            } elseif ($path_parts[0] === 'miembros-disponibles' && isset($path_parts[1])) {
-                // GET /api/proyectos/miembros-disponibles/{equipo_id}
-                $equipo_id = $path_parts[1];
-                $proyecto_id = $_GET['proyecto_id'] ?? null;
-
-                $miembros = $proyecto->obtenerMiembrosEquipoDisponibles($equipo_id, $proyecto_id);
-                echo json_encode(['success' => true, 'miembros' => $miembros]);
-
-            } elseif (is_numeric($path_parts[0]) && isset($path_parts[1]) && $path_parts[1] === 'trabajadores') {
-                // GET /api/proyectos/{id}/trabajadores
-                $proyecto_id = $path_parts[0];
-                $trabajadores = $proyecto->obtenerTrabajadoresProyecto($proyecto_id);
-                echo json_encode(['success' => true, 'trabajadores' => $trabajadores]);
-            }
-            break;
-
-        case 'POST':
-            if (empty($path_parts[0])) {
-                // POST /api/proyectos - Crear proyecto
-                $input = json_decode(file_get_contents('php://input'), true);
-
-                if (!$input) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Datos inválidos']);
-                    exit();
-                }
-
-                // Generar código si no se proporciona
-                if (!isset($input['codigo']) || empty($input['codigo'])) {
-                    $input['codigo'] = $proyecto->generarCodigoProyecto();
-                }
-
-                // Agregar jefe_dni del usuario actual
-                $input['jefe_dni'] = $usuario_actual['dni'];
-
-                $resultado = $proyecto->crearProyecto($input);
-                echo json_encode($resultado);
-
-            } elseif (is_numeric($path_parts[0]) && isset($path_parts[1]) && $path_parts[1] === 'trabajadores') {
-                // POST /api/proyectos/{id}/trabajadores - Asignar trabajadores
-                $proyecto_id = $path_parts[0];
-                $input = json_decode(file_get_contents('php://input'), true);
-
-                if (!$input || !isset($input['trabajadores'])) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Datos inválidos']);
-                    exit();
-                }
-
-                $proyecto->asignarTrabajadores($proyecto_id, $input['trabajadores']);
-                echo json_encode(['success' => true, 'message' => 'Trabajadores asignados correctamente']);
-            }
-            break;
-
-        case 'DELETE':
-            if (is_numeric($path_parts[0]) && isset($path_parts[1]) && $path_parts[1] === 'trabajadores' && isset($path_parts[2])) {
-                // DELETE /api/proyectos/{id}/trabajadores/{dni}
-                $proyecto_id = $path_parts[0];
-                $trabajador_dni = $path_parts[2];
-
-                $resultado = $proyecto->removerAsignacion($proyecto_id, $trabajador_dni);
-                if ($resultado) {
-                    echo json_encode(['success' => true, 'message' => 'Asignación removida correctamente']);
-                } else {
-                    http_response_code(404);
-                    echo json_encode(['error' => 'Asignación no encontrada']);
-                }
-            }
-            break;
-
-        default:
-            http_response_code(405);
-            echo json_encode(['error' => 'Método no permitido']);
-    }
-
+    $db = ConexionBBDD::obtener();
+    $proyecto = new Proyecto($db);
 } catch (Exception $e) {
-    error_log("Error en API proyectos: " . $e->getMessage());
-    error_log("Stack trace: " . $e->getTraceAsString());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Error interno del servidor',
-        'message' => $e->getMessage()
-    ]);
+    logError('Error de conexión en proyectos.php', $e);
+    sendJsonError('Error de conexión a la base de datos', 500);
 }
-?>
+
+// Procesar según el método HTTP
+$method = $_SERVER['REQUEST_METHOD'];
+
+switch ($method) {
+    case 'GET':
+        // Obtener jefe_dni de los headers
+        $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
+        
+        if (!$jefe_dni && isset($_SERVER['HTTP_X_USER_DII'])) {
+            $jefe_dni = $_SERVER['HTTP_X_USER_DII'];
+        }
+        
+        if (!$jefe_dni) {
+            ob_end_clean();
+            http_response_code(401);
+            echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
+            exit();
+        }
+
+        // Listar proyectos del jefe autenticado
+        $proyectos = $proyecto->obtenerProyectosPorJefe($jefe_dni);
+        if ($proyectos !== false) {
+            echo json_encode([
+                'success' => true,
+                'proyectos' => $proyectos
+            ]);
+        } else {
+            ob_end_clean();
+            http_response_code(500);
+            echo json_encode(['error' => 'Error al obtener proyectos']);
+        }
+        break;
+
+    case 'POST':
+        try {
+            // Crear nuevo proyecto
+            $rawInput = file_get_contents('php://input');
+            $input = json_decode($rawInput, true);
+            
+            if (!$input) {
+                ob_end_clean();
+                http_response_code(400);
+                echo json_encode(['error' => 'Datos inválidos']);
+                exit();
+            }
+
+            // Obtener jefe_dni de los headers
+            $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
+            if (!$jefe_dni && isset($_SERVER['HTTP_X_USER_DII'])) {
+                $jefe_dni = $_SERVER['HTTP_X_USER_DII'];
+            }
+            
+            if (!$jefe_dni) {
+                ob_end_clean();
+                http_response_code(401);
+                echo json_encode(['error' => 'Usuario no autenticado. Se requiere X-User-DNI header']);
+                exit();
+            }
+
+            // Validar campos requeridos
+            $required_fields = ['nombre', 'descripcion', 'cliente_id'];
+            foreach ($required_fields as $field) {
+                if (!isset($input[$field]) || empty(trim($input[$field]))) {
+                    ob_end_clean();
+                    http_response_code(400);
+                    echo json_encode(['error' => "Campo requerido: $field"]);
+                    exit();
+                }
+            }
+
+            // Sanitizar datos
+            $nombre = trim($input['nombre']);
+            $descripcion = trim($input['descripcion']);
+            $cliente_id = intval($input['cliente_id']);
+            $tecnologias = isset($input['tecnologias']) ? $input['tecnologias'] : [];
+            $fecha_inicio = isset($input['fecha_inicio']) ? trim($input['fecha_inicio']) : null;
+            $notas = isset($input['notas']) ? trim($input['notas']) : null;
+
+            // Convertir tecnologias a JSON si es array
+            if (is_array($tecnologias)) {
+                $tecnologias = json_encode($tecnologias);
+            }
+
+            // Crear proyecto usando el método del modelo
+            $resultado = $proyecto->crearProyecto(
+                $nombre,
+                $descripcion,
+                $cliente_id,
+                $jefe_dni,
+                $tecnologias,
+                $fecha_inicio,
+                $notas
+            );
+
+            if ($resultado && isset($resultado['proyecto_id'])) {
+                // Registrar acción administrativa si hay sesión
+                session_start();
+                if (isset($_SESSION['usuario_dni'])) {
+                    try {
+                        $accionAdmin = new AccionesAdministrativas();
+                        $accionAdmin->registrar(
+                            $_SESSION['usuario_dni'],
+                            'Creación de proyecto',
+                            $resultado['proyecto_id'],
+                            "Proyecto creado: $nombre (Cliente ID: $cliente_id)"
+                        );
+                    } catch (Exception $e) {
+                        // No fallar si no se puede registrar la acción
+                    }
+                }
+
+                ob_end_flush();
+                http_response_code(200);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Proyecto creado exitosamente',
+                    'proyecto' => [
+                        'id' => $resultado['proyecto_id'],
+                        'codigo' => $resultado['codigo_proyecto'],
+                        'nombre' => $nombre,
+                        'descripcion' => $descripcion,
+                        'cliente_id' => $cliente_id
+                    ]
+                ]);
+            } else {
+                ob_end_clean();
+                http_response_code(500);
+                echo json_encode(['error' => 'Error al crear el proyecto']);
+            }
+        } catch (Exception $e) {
+            ob_end_clean();
+            error_log("❌ POST proyectos.php EXCEPTION: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Error al crear proyecto',
+                'details' => $e->getMessage()
+            ]);
+        }
+        break;
+
+    case 'PUT':
+        // Actualizar proyecto existente
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!$input || !isset($input['id'])) {
+            sendJsonError('ID de proyecto requerido', 400);
+        }
+
+        $proyectoId = $input['id'];
+
+        // Obtener jefe_dni de los headers
+        $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
+        
+        if (!$jefe_dni) {
+            ob_end_clean();
+            http_response_code(401);
+            echo json_encode(['error' => 'Usuario no autenticado']);
+            exit();
+        }
+
+        // Aquí implementar la lógica de actualización
+        // Por ahora respuesta básica
+        ob_end_clean();
+        http_response_code(501);
+        echo json_encode(['error' => 'Actualización de proyectos aún no implementada']);
+        break;
+
+    case 'DELETE':
+        // Eliminar proyecto
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!$input || !isset($input['id'])) {
+            sendJsonError('ID de proyecto requerido', 400);
+        }
+
+        $proyectoId = $input['id'];
+
+        // Obtener jefe_dni de los headers
+        $jefe_dni = isset($_SERVER['HTTP_X_USER_DNI']) ? $_SERVER['HTTP_X_USER_DNI'] : null;
+        
+        if (!$jefe_dni) {
+            ob_end_clean();
+            http_response_code(401);
+            echo json_encode(['error' => 'Usuario no autenticado']);
+            exit();
+        }
+
+        // Aquí implementar la lógica de eliminación
+        // Por ahora respuesta básica
+        ob_end_clean();
+        http_response_code(501);
+        echo json_encode(['error' => 'Eliminación de proyectos aún no implementada']);
+        break;
+
+    default:
+        sendJsonError('Método no permitido', 405);
+}
