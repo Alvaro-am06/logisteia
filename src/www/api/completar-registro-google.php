@@ -86,7 +86,7 @@ try {
     
     // Crear el nuevo usuario
     $stmt = $db->prepare("
-        INSERT INTO usuarios (dni, nombre, email, telefono, password, rol, estado, fecha_registro) 
+        INSERT INTO usuarios (dni, nombre, email, telefono, contrase, rol, estado, fecha_registro) 
         VALUES (?, ?, ?, ?, ?, ?, 'activo', NOW())
     ");
     
