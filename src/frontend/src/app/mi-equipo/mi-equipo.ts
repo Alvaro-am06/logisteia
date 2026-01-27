@@ -110,12 +110,14 @@ export class MiEquipo implements OnInit {
       next: (response) => {
         this.loading = false;
         if (response.success) {
-          // Recargar la lista de miembros
-          this.cargarMiembrosEquipo();
-          // Cerrar el formulario
+          // Cerrar el formulario primero
           this.toggleAgregarMiembro();
           // Mostrar mensaje de éxito
-          alert('Invitación enviada exitosamente. El trabajador recibirá un email para confirmar su participación.');
+          alert(response.message || 'Miembro agregado al equipo exitosamente.');
+          // Recargar la lista de miembros con un pequeño delay para asegurar que la BD se actualice
+          setTimeout(() => {
+            this.cargarMiembrosEquipo();
+          }, 500);
         } else {
           this.error = response.error || 'Error al agregar el miembro';
         }
