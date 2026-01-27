@@ -4,6 +4,7 @@
     <div class="flex justify-between items-center h-16">
       <a href="#" class="text-white font-bold text-lg md:text-xl">Logisteia</a>
       <div class="flex items-center space-x-2 md:space-x-4">
+        <span class="text-white text-xs md:text-base hidden sm:inline">{{ formatearRol(usuarioRol) }} | </span>
         <span class="text-white text-xs md:text-base">{{ nombreUsuario }}</span>
         <button (click)="cerrarSesion()" class="px-2 py-1 md:px-4 md:py-2 border border-white text-white text-xs md:text-base rounded hover:bg-white hover:text-[#102a41] transition">
           Cerrar Sesión
@@ -93,17 +94,9 @@
                   {{ p.fecha_creacion | date:'dd/MM/yyyy' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                  <button (click)="verPresupuesto(p)"
+                  <button (click)="verDetallePresupuesto(p)"
                           class="text-blue-600 hover:text-blue-800">
-                    Ver PDF
-                  </button>
-                  <button (click)="descargarPresupuesto(p)"
-                          class="text-green-600 hover:text-green-800">
-                    Descargar
-                  </button>
-                  <button (click)="eliminarPresupuesto(p)"
-                          class="text-red-600 hover:text-red-800">
-                    Eliminar
+                    Ver detalle
                   </button>
                 </td>
               </tr>
@@ -130,6 +123,84 @@
           </p>
         </div>
       </div>
-    </div>
   </main>
+</div>
+<!-- Modal Ver Detalle Presupuesto -->
+<div *ngIf="mostrarModalDetalle" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="cerrarModalDetalle()">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="bg-[#102a41] text-white px-6 py-4 flex justify-between items-center">
+      <div *ngIf="presupuestoSeleccionado">
+        <h2 class="text-xl font-bold">Presupuesto {{ presupuestoSeleccionado.numero_presupuesto }}</h2>
+        <p class="text-sm text-gray-300">{{ presupuestoSeleccionado.nombre_proyecto }}</p>
+      </div>
+      <button (click)="cerrarModalDetalle()" class="text-white hover:text-gray-300 text-2xl">
+        ×
+      </button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]" *ngIf="presupuestoSeleccionado">
+      <!-- Información general -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Estado</p>
+          <span 
+            [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + 
+            (presupuestoSeleccionado.estado === 'aprobado' ? 'bg-green-100 text-green-800' : 
+             presupuestoSeleccionado.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : 
+             'bg-red-100 text-red-800')">
+            {{ presupuestoSeleccionado.estado }}
+          </span>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Cliente</p>
+          <p class="font-semibold">{{ presupuestoSeleccionado.cliente_nombre || 'Sin cliente' }}</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Total</p>
+          <p class="font-semibold text-green-600">{{ presupuestoSeleccionado.total | currency:'EUR' }}</p>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-600 mb-1">Fecha Creación</p>
+          <p class="font-semibold">{{ presupuestoSeleccionado.fecha_creacion | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+
+      <!-- Información del Proyecto -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">Proyecto</h3>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <p class="text-gray-700 font-medium">{{ presupuestoSeleccionado.nombre_proyecto }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer con acciones -->
+    <div class="bg-gray-50 px-6 py-4 flex justify-between border-t">
+      <div class="space-x-2">
+        <button (click)="eliminarPresupuesto(presupuestoSeleccionado)"
+                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+          Eliminar
+        </button>
+        <button (click)="enviarPDFPresupuesto(presupuestoSeleccionado)"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+          Enviar PDF
+        </button>
+        <button (click)="imprimirPDFPresupuesto(presupuestoSeleccionado)"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+          Imprimir PDF
+        </button>
+        <button *ngIf="presupuestoSeleccionado && presupuestoSeleccionado.estado !== 'finalizado'" 
+                (click)="finalizarPresupuesto(presupuestoSeleccionado)"
+                class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+          Finalizado
+        </button>
+      </div>
+      <button (click)="cerrarModalDetalle()"
+              class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+        Cerrar
+      </button>
+    </div>
+  </div>
 </div>
