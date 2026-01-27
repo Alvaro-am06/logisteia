@@ -286,6 +286,74 @@ switch ($method) {
         }
         break;
 
+    case 'PUT':
+        // Actualizar información del equipo (nombre)
+        $usuario = verificarAutenticacion();
+
+        if (!$usuario || $usuario['rol'] !== 'jefe_equipo') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Solo los jefes de equipo pueden actualizar el equipo']);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['nombre']) || empty(trim($input['nombre']))) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'El nombre del equipo es requerido']);
+            exit;
+        }
+
+        try {
+            $conn = getConexion();
+
+            // Verificar que el jefe tenga un equipo
+            $stmt = $conn->prepare("
+                SELECT e.id
+                FROM equipos e
+                WHERE e.jefe_dni = ?
+            ");
+            $stmt->execute([$usuario['dni']]);
+            $equipo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$equipo) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'No se encontró el equipo del jefe']);
+                exit;
+            }
+
+            // Actualizar nombre del equipo
+            $stmt = $conn->prepare("
+                UPDATE equipos
+                SET nombre = ?, descripcion = ?
+                WHERE id = ?
+            ");
+            
+            $descripcion = isset($input['descripcion']) ? $input['descripcion'] : "Equipo gestionado por {$usuario['nombre']}";
+            
+            $stmt->execute([
+                trim($input['nombre']),
+                $descripcion,
+                $equipo['id']
+            ]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Nombre del equipo actualizado exitosamente',
+                'data' => [
+                    'equipo_id' => $equipo['id'],
+                    'nombre' => trim($input['nombre']),
+                    'descripcion' => $descripcion
+                ]
+            ]);
+
+        } catch(PDOException $e) {
+            error_log('Error al actualizar equipo: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Error al actualizar el equipo: ' . $e->getMessage()]);
+        }
+        break;
+
     default:
         http_response_code(405);
         echo json_encode(['success' => false, 'error' => 'Método no permitido']);
