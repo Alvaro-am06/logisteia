@@ -124,6 +124,34 @@ switch ($method) {
             $resultado = $proyecto->crearProyecto($datos);
 
             if ($resultado && isset($resultado['proyecto_id'])) {
+                // Crear presupuesto automáticamente enlazado al proyecto
+                try {
+                    $numero_presupuesto = 'PRES-' . date('Ymd') . '-' . str_pad($resultado['proyecto_id'], 4, '0', STR_PAD_LEFT);
+                    
+                    $sqlPresupuesto = "INSERT INTO presupuestos (numero_presupuesto, usuario_dni, total, validez_dias, notas, fecha_creacion)
+                                      VALUES (:numero_presupuesto, :usuario_dni, :total, 30, :notas, NOW())";
+                    $stmtPresupuesto = $db->prepare($sqlPresupuesto);
+                    $stmtPresupuesto->execute([
+                        ':numero_presupuesto' => $numero_presupuesto,
+                        ':usuario_dni' => $jefe_dni,
+                        ':total' => isset($input['precio_total']) ? floatval($input['precio_total']) : 0,
+                        ':notas' => "Presupuesto automático para proyecto: $nombre\n\n" . ($notas ?? '')
+                    ]);
+                    
+                    $presupuesto_id = $db->lastInsertId();
+                    
+                    // Actualizar proyecto con presupuesto_numero
+                    $sqlUpdateProyecto = "UPDATE proyectos SET presupuesto_numero = :presupuesto_numero WHERE id = :id";
+                    $stmtUpdateProyecto = $db->prepare($sqlUpdateProyecto);
+                    $stmtUpdateProyecto->execute([
+                        ':presupuesto_numero' => $numero_presupuesto,
+                        ':id' => $resultado['proyecto_id']
+                    ]);
+                } catch (Exception $e) {
+                    error_log("Error creando presupuesto automático: " . $e->getMessage());
+                    // No fallar el proyecto si el presupuesto falla
+                }
+
                 // Registrar acción administrativa si hay sesión
                 session_start();
                 if (isset($_SESSION['usuario_dni'])) {

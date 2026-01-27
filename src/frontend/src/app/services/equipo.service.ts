@@ -80,6 +80,17 @@ export class EquipoService {
   }
 
   /**
+   * Eliminar un miembro del equipo
+   */
+  eliminarMiembroEquipo(dni: string): Observable<{success: boolean, message?: string, error?: string}> {
+    const headers = this.getAuthHeaders();
+    return this.http.request<{success: boolean, message?: string, error?: string}>('DELETE', this.apiUrl, {
+      headers,
+      body: { trabajador_dni: dni }
+    });
+  }
+
+  /**
    * Obtener headers de autenticación desde localStorage
    */
   private getAuthHeaders(): { [key: string]: string } {

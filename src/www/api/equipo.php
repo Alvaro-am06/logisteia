@@ -297,6 +297,67 @@ switch ($method) {
         }
         break;
 
+    case 'DELETE':
+        // Eliminar miembro del equipo
+        $usuario = verificarAutenticacion();
+
+        if (!$usuario || $usuario['rol'] !== 'jefe_equipo') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Solo los jefes de equipo pueden eliminar miembros']);
+            exit;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $trabajador_dni = isset($input['trabajador_dni']) ? trim($input['trabajador_dni']) : '';
+
+        if (empty($trabajador_dni)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'El DNI del trabajador es requerido']);
+            exit;
+        }
+
+        try {
+            $conn = getConexion();
+
+            // Obtener equipo del jefe
+            $stmt = $conn->prepare("
+                SELECT e.id, e.nombre
+                FROM equipos e
+                WHERE e.jefe_dni = ?
+            ");
+            $stmt->execute([$usuario['dni']]);
+            $equipo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$equipo) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'El jefe de equipo no tiene un equipo asignado']);
+                exit;
+            }
+
+            // Eliminar miembro del equipo
+            $stmt = $conn->prepare("
+                DELETE FROM miembros_equipo
+                WHERE equipo_id = ? AND trabajador_dni = ?
+            ");
+            $stmt->execute([$equipo['id'], $trabajador_dni]);
+
+            if ($stmt->rowCount() > 0) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Miembro eliminado del equipo correctamente'
+                ]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'El trabajador no pertenece a este equipo']);
+            }
+
+        } catch(PDOException $e) {
+            error_log('Error al eliminar miembro: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Error al eliminar el miembro del equipo']);
+        }
+        break;
+
     case 'PUT':
         // Actualizar información del equipo (nombre)
         $usuario = verificarAutenticacion();
