@@ -5,13 +5,12 @@
 # --- API Backend (para el frontend) ---
 api.logisteia.com {
     # Proxy inverso al backend PHP
-    reverse_proxy backend:80
-    
-    # Headers CORS
-    header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email"
+    reverse_proxy backend:80 {
+        # Pasar todos los headers originales
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
     }
     
     # Compresión
