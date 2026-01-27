@@ -1,0 +1,86 @@
+<div class="usuario-detalle-container">
+  <div class="header">
+    <button (click)="volver()" class="btn-volver">← Volver a Usuarios</button>
+    <h1>Detalle de Usuario</h1>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <p>Cargando información del usuario...</p>
+  </div>
+
+  <div class="usuario-info" *ngIf="!loading && !error && usuario">
+    <div class="info-card">
+      <h2>Información del Usuario</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">DNI:</span>
+          <span>{{ usuario.usuario.dni }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Nombre:</span>
+          <span>{{ usuario.usuario.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email:</span>
+          <span>{{ usuario.usuario.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Estado:</span>
+          <span class="estado-badge" [ngClass]="getEstadoClass(usuario.usuario.estado)">
+            {{ usuario.usuario.estado || 'Desconocido' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fecha de Registro:</span>
+          <span>{{ usuario.usuario.fecha_registro | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="acciones-card">
+      <h3>Acciones Administrativas</h3>
+      <div class="acciones-buttons">
+        <button
+          (click)="cambiarRol('activar')"
+          class="btn-accion btn-activar"
+          [disabled]="usuario.usuario.estado === 'activo'">
+          Activar Usuario
+        </button>
+        <button
+          (click)="cambiarRol('suspender')"
+          class="btn-accion btn-suspender"
+          [disabled]="usuario.usuario.estado === 'suspendido'">
+          Suspender Usuario
+        </button>
+        <button
+          (click)="cambiarRol('eliminar')"
+          class="btn-accion btn-eliminar">
+          Eliminar Usuario
+        </button>
+      </div>
+    </div>
+
+    <div class="historial-card">
+      <h3>Historial de Acciones</h3>
+      <div class="historial-list" *ngIf="usuario.historial && usuario.historial.length > 0; else noHistorial">
+        <div class="historial-item" *ngFor="let accion of usuario.historial">
+          <div class="historial-header">
+            <span class="fecha">{{ accion.creado_en | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="admin">Admin: {{ accion.administrador_dni }}</span>
+          </div>
+          <div class="historial-body">
+            <span class="accion">{{ accion.accion }}</span>
+            <span class="motivo" *ngIf="accion.motivo"> - {{ accion.motivo }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noHistorial>
+        <p class="no-historial">No hay acciones registradas para este usuario.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
