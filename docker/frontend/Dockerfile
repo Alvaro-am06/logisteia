@@ -1,23 +1,22 @@
-# Etapa 1: Compilación de Angular
+# --- Etapa 1: Compilar Angular (Igual que antes) ---
 FROM node:20 as build-step
 
 WORKDIR /app
-
-# Copiar package.json y lock desde la ruta correcta
 COPY src/frontend/package.json src/frontend/package-lock.json ./
-
-# Instalar dependencias
 RUN npm install
 
-# Copiar el código fuente del frontend
 COPY src/frontend/ .
-
-# Construir la aplicación para producción
 RUN npm run build -- --configuration production
 
-# Etapa 2: Servidor Web
-FROM nginx:alpine
+# --- Etapa 2: Caddy como Proxy Inverso y Servidor Web ---
+FROM caddy:alpine
 
-# Copiar los archivos compilados al servidor Nginx
-# NOTA: Angular 17+ suele compilar en dist/frontend/browser
-COPY --from=build-step /app/dist/frontend/browser /usr/share/nginx/html
+# Copiamos el 'Caddyfile' de configuración al contenedor
+COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
+
+# Copiamos la Web compilada (Angular) a donde Caddy la espera
+COPY --from=build-step /app/dist/frontend/browser /srv
+
+# Exponemos puertos HTTP y HTTPS
+EXPOSE 80
+EXPOSE 443
