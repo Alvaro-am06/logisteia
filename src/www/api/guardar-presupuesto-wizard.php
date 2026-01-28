@@ -107,7 +107,6 @@ try {
     
 } catch (Exception $e) {
     http_response_code(500);
-    error_log("Error en guardar-presupuesto-wizard.php: " . $e->getMessage());
     echo json_encode([
         'error' => 'Error interno del servidor: ' . $e->getMessage(),
         'file' => $e->getFile(),

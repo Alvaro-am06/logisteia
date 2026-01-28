@@ -99,17 +99,8 @@ function enviarEmail($destinatario, $nombreDestinatario, $asunto, $mensajeHTML, 
         $mail->AltBody = strip_tags($mensajeHTML);
 
         $mail->send();
-        error_log("✅ Email enviado exitosamente a: $destinatario | Asunto: $asunto");
         return true;
     } catch (Exception $e) {
-        error_log("❌ ERROR ENVIANDO EMAIL a: $destinatario");
-        error_log("   Mensaje de error: {$mail->ErrorInfo}");
-        error_log("   Excepción: " . $e->getMessage());
-        error_log("   SMTP Host: {$mail->Host}");
-        error_log("   SMTP Username: {$mail->Username}");
-        $passwordConfigured = !empty($_ENV['GMAIL_APP_PASSWORD']) || !empty($_SERVER['GMAIL_APP_PASSWORD']) || !empty(getenv('GMAIL_APP_PASSWORD'));
-        error_log("   GMAIL_APP_PASSWORD configurado: " . ($passwordConfigured ? 'SÍ' : 'NO'));
-        
         // En desarrollo, guardar en log como fallback
         if (APP_ENV === 'development') {
             $logFile = __DIR__ . '/../logs/emails.log';
@@ -146,7 +137,6 @@ function enviarEmailDev($destinatario, $asunto, $mensajeHTML, $remitente = null,
     $logEntry .= str_repeat("=", 50) . "\n\n";
 
     file_put_contents($logFile, $logEntry, FILE_APPEND);
-    error_log("📧 [DEV] Email guardado en log para: $destinatario");
     
     return true;
 }

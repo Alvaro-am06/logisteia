@@ -111,26 +111,19 @@ switch ($method) {
         if (preg_match('#/api/proyectos\.php/(\d+)/trabajadores#', $path, $matches)) {
             $proyectoId = intval($matches[1]);
             
-            error_log("🔵 POST /trabajadores - Proyecto ID: $proyectoId");
-            error_log("🔵 Input recibido: " . json_encode($input));
-            
             if (!isset($input['trabajadores']) || !is_array($input['trabajadores'])) {
-                error_log("❌ Error: No se envió array de trabajadores");
                 http_response_code(400);
                 echo json_encode(['error' => 'Se requiere un array de trabajadores']);
                 exit();
             }
             
             try {
-                error_log("🔵 Intentando asignar " . count($input['trabajadores']) . " trabajadores");
                 $proyecto->asignarTrabajadores($proyectoId, $input['trabajadores']);
-                error_log("✅ Trabajadores asignados correctamente");
                 echo json_encode([
                     'success' => true,
                     'message' => 'Trabajadores asignados correctamente'
                 ]);
             } catch (Exception $e) {
-                error_log("❌ Error asignando trabajadores: " . $e->getMessage());
                 http_response_code(500);
                 echo json_encode([
                     'success' => false,
@@ -349,8 +342,6 @@ switch ($method) {
                                 ':total' => $totalDetalle,
                                 ':id' => $presupuesto_id
                             ]);
-                            
-                            error_log("Servicio agregado al presupuesto: $nombreServicio ($horas horas x $precioHora€ = $totalDetalle€)");
                         }
                     }
                     
@@ -364,10 +355,8 @@ switch ($method) {
                     ]);
                     
                     $presupuestoCreado = true;
-                    error_log("Presupuesto creado: $numero_presupuesto ($totalEstimado€) para proyecto {$resultado['proyecto_id']}");
                 } catch (Exception $e) {
                     $presupuestoError = $e->getMessage();
-                    error_log("Error creando presupuesto automático: " . $presupuestoError);
                 }
 
                 // Registrar acción administrativa si hay sesión
@@ -416,7 +405,6 @@ switch ($method) {
             }
         } catch (Exception $e) {
             ob_end_clean();
-            error_log("❌ POST proyectos.php EXCEPTION: " . $e->getMessage());
             http_response_code(500);
             echo json_encode([
                 'error' => 'Error al crear proyecto',
@@ -585,9 +573,7 @@ switch ($method) {
                         $sqlDeletePresupuesto = "DELETE FROM presupuestos WHERE numero_presupuesto = :numero";
                         $stmtDeletePresupuesto = $db->prepare($sqlDeletePresupuesto);
                         $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['presupuesto_numero']]);
-                        error_log("✅ Presupuesto {$proyecto_data['presupuesto_numero']} eliminado junto con proyecto {$proyectoId}");
                     } catch (Exception $presupuestoError) {
-                        error_log("⚠️ No se pudo eliminar presupuesto: " . $presupuestoError->getMessage());
                     }
                 }
                 

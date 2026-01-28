@@ -103,7 +103,6 @@ function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreE
 
         return enviarEmail($emailDestinatario, $nombreDestinatario, $asunto, $mensaje, 'logisteiaa@gmail.com', 'Equipo Logisteia');
     } catch (Exception $e) {
-        error_log("❌ ERROR en enviarEmailBienvenida: " . $e->getMessage());
         return false;
     }
 }
@@ -294,7 +293,6 @@ switch ($method) {
                     $token_invitacion
                 );
             } catch (Exception $e) {
-                error_log('Error enviando email: ' . $e->getMessage());
                 $emailEnviado = false;
             }
 
@@ -327,7 +325,6 @@ switch ($method) {
         } catch(PDOException $e) {
             handleDatabaseError('Error al agregar miembro al equipo', $e);
         } catch(Exception $e) {
-            error_log('Error general: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Error inesperado: ' . $e->getMessage()]);
         }
@@ -388,7 +385,6 @@ switch ($method) {
             }
 
         } catch(PDOException $e) {
-            error_log('Error al eliminar miembro: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Error al eliminar el miembro del equipo']);
         }
@@ -456,7 +452,6 @@ switch ($method) {
             ]);
 
         } catch(PDOException $e) {
-            error_log('Error al actualizar equipo: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Error al actualizar el equipo: ' . $e->getMessage()]);
         }

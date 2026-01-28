@@ -139,7 +139,6 @@ class Proyecto {
             
             return $proyectos;
         } catch (PDOException $e) {
-            error_log('Error en obtenerProyectosPorJefe: ' . $e->getMessage());
             return [];
         }
     }
@@ -177,7 +176,6 @@ class Proyecto {
             
             return $proyectos;
         } catch (PDOException $e) {
-            error_log('Error en obtenerProyectosPorTrabajador: ' . $e->getMessage());
             return [];
         }
     }
@@ -228,7 +226,6 @@ class Proyecto {
         $stmt->execute($params);
         
         $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("✅ Miembros disponibles para equipo $equipo_id: " . count($resultado) . " encontrados");
         return $resultado;
     }
 
