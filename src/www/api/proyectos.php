@@ -224,42 +224,140 @@ switch ($method) {
                     $stmtCliente->execute([':cliente_id' => $cliente_id]);
                     $cliente = $stmtCliente->fetch(PDO::FETCH_ASSOC);
                     
-                    // Preparar notas
+                    // Preparar notas del presupuesto con datos del wizard
                     $notasPresupuesto = "Presupuesto automático para proyecto: " . $nombre . "\n\n";
                     $notasPresupuesto .= "Cliente: " . ($cliente['nombre'] ?? 'Sin especificar') . "\n";
                     if ($cliente && !empty($cliente['email'])) {
                         $notasPresupuesto .= "Email: " . $cliente['email'] . "\n";
                     }
                     $notasPresupuesto .= "Descripción: " . $descripcion . "\n";
+                    
+                    // Agregar información del wizard si está disponible
+                    if (isset($input['categoriaPrincipal'])) {
+                        $notasPresupuesto .= "Categoría: " . $input['categoriaPrincipal'] . "\n";
+                    }
+                    if (isset($input['tiempoEstimado'])) {
+                        $notasPresupuesto .= "Tiempo estimado: " . $input['tiempoEstimado'] . "\n";
+                    }
+                    if (isset($input['plazoEntrega'])) {
+                        $notasPresupuesto .= "Plazo de entrega: " . $input['plazoEntrega'] . "\n";
+                    }
+                    if (isset($input['prioridad'])) {
+                        $notasPresupuesto .= "Prioridad: " . $input['prioridad'] . "\n";
+                    }
+                    if (isset($input['metodologia'])) {
+                        $notasPresupuesto .= "Metodología: " . $input['metodologia'] . "\n";
+                    }
                     if (!empty($notas)) {
                         $notasPresupuesto .= "\nNotas: " . $notas;
                     }
                     
-                    // Insertar en tabla presupuestos con total=0
+                    // Calcular total estimado basado en presupuestoAproximado
+                    $totalEstimado = 0.00;
+                    if (isset($input['presupuestoAproximado'])) {
+                        $rangos = [
+                            'menos-1000' => 800,
+                            '1000-5000' => 3000,
+                            '5000-10000' => 7500,
+                            'mas-10000' => 15000
+                        ];
+                        $totalEstimado = $rangos[$input['presupuestoAproximado']] ?? 0;
+                    }
+                    
+                    // Insertar en tabla presupuestos
                     $sqlPresupuesto = "INSERT INTO presupuestos (numero_presupuesto, usuario_dni, total, validez_dias, notas, fecha_creacion, estado)
-                                      VALUES (:numero_presupuesto, :usuario_dni, 0.00, 30, :notas, NOW(), 'borrador')";
+                                      VALUES (:numero_presupuesto, :usuario_dni, :total, 30, :notas, NOW(), 'borrador')";
                     $stmtPresupuesto = $db->prepare($sqlPresupuesto);
                     $stmtPresupuesto->execute([
                         ':numero_presupuesto' => $numero_presupuesto,
                         ':usuario_dni' => $jefe_dni,
+                        ':total' => $totalEstimado,
                         ':notas' => $notasPresupuesto
                     ]);
                     
                     $presupuesto_id = $db->lastInsertId();
                     
-                    // Actualizar proyecto con presupuesto_numero
-                    $sqlUpdateProyecto = "UPDATE proyectos SET presupuesto_numero = :presupuesto_numero WHERE id = :id";
+                    // Crear detalles de presupuesto basados en la categoría y tiempo estimado
+                    if (isset($input['categoriaPrincipal']) && isset($input['tiempoEstimado'])) {
+                        $categoria = $input['categoriaPrincipal'];
+                        $tiempo = $input['tiempoEstimado'];
+                        
+                        // Mapeo de servicios según categoría
+                        $serviciosPorCategoria = [
+                            'Desarrollo Web' => 'Desarrollo Web Frontend',
+                            'Desarrollo Móvil' => 'Desarrollo Móvil',
+                            'Base de Datos' => 'Administración Base de Datos',
+                            'UI/UX Design' => 'Diseño UI/UX',
+                            'Testing' => 'Testing y QA',
+                            'DevOps' => 'DevOps y CI/CD',
+                            'Infraestructura' => 'Infraestructura Cloud',
+                            'Consultoría' => 'Consultoría Técnica',
+                            'Mantenimiento' => 'Mantenimiento Web'
+                        ];
+                        
+                        $nombreServicio = $serviciosPorCategoria[$categoria] ?? 'Desarrollo Web Frontend';
+                        
+                        // Obtener precio del servicio de la base de datos
+                        $sqlServicio = "SELECT precio_base FROM servicios_informatica WHERE nombre = :nombre LIMIT 1";
+                        $stmtServicio = $db->prepare($sqlServicio);
+                        $stmtServicio->execute([':nombre' => $nombreServicio]);
+                        $servicio = $stmtServicio->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($servicio) {
+                            $precioHora = $servicio['precio_base'];
+                            
+                            // Calcular horas según tiempo estimado
+                            $horas = 40; // Por defecto
+                            $horasPorTiempo = [
+                                'menos-1-semana' => 30,
+                                '1-2-semanas' => 70,
+                                '3-4-semanas' => 140,
+                                '1-2-meses' => 250,
+                                'mas-2-meses' => 400
+                            ];
+                            $horas = $horasPorTiempo[$tiempo] ?? 40;
+                            
+                            $totalDetalle = $horas * $precioHora;
+                            
+                            // Insertar detalle
+                            $sqlDetalle = "INSERT INTO detalle_presupuesto (numero_presupuesto, presupuesto_id, servicio_nombre, cantidad, preci, comentario)
+                                          VALUES (:numero_presupuesto, :presupuesto_id, :servicio_nombre, :cantidad, :preci, :comentario)";
+                            $stmtDetalle = $db->prepare($sqlDetalle);
+                            $stmtDetalle->execute([
+                                ':numero_presupuesto' => $numero_presupuesto,
+                                ':presupuesto_id' => $presupuesto_id,
+                                ':servicio_nombre' => $nombreServicio,
+                                ':cantidad' => $horas,
+                                ':preci' => $precioHora,
+                                ':comentario' => "Estimado para $categoria - $tiempo"
+                            ]);
+                            
+                            // Actualizar total del presupuesto
+                            $sqlUpdateTotal = "UPDATE presupuestos SET total = :total WHERE id_presupuesto = :id";
+                            $stmtUpdateTotal = $db->prepare($sqlUpdateTotal);
+                            $stmtUpdateTotal->execute([
+                                ':total' => $totalDetalle,
+                                ':id' => $presupuesto_id
+                            ]);
+                            
+                            error_log("Servicio agregado al presupuesto: $nombreServicio ($horas horas x $precioHora€ = $totalDetalle€)");
+                        }
+                    }
+                    
+                    // Actualizar proyecto con presupuesto_numero y precio_total
+                    $sqlUpdateProyecto = "UPDATE proyectos SET presupuesto_numero = :presupuesto_numero, precio_total = :precio_total WHERE id = :id";
                     $stmtUpdateProyecto = $db->prepare($sqlUpdateProyecto);
                     $stmtUpdateProyecto->execute([
                         ':presupuesto_numero' => $numero_presupuesto,
+                        ':precio_total' => $totalEstimado,
                         ':id' => $resultado['proyecto_id']
                     ]);
                     
                     $presupuestoCreado = true;
-                    error_log("✅ Presupuesto creado: $numero_presupuesto (0€) para proyecto {$resultado['proyecto_id']}");
+                    error_log("Presupuesto creado: $numero_presupuesto ($totalEstimado€) para proyecto {$resultado['proyecto_id']}");
                 } catch (Exception $e) {
                     $presupuestoError = $e->getMessage();
-                    error_log("❌ Error creando presupuesto automático: " . $presupuestoError);
+                    error_log("Error creando presupuesto automático: " . $presupuestoError);
                 }
 
                 // Registrar acción administrativa si hay sesión

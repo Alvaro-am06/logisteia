@@ -293,41 +293,50 @@ export class PresupuestoWizard implements OnInit {
   enviarPresupuesto() {
     // Validar que hay un cliente seleccionado
     if (!this.clienteSeleccionado) {
-      this.message = '✗ Debe seleccionar un cliente';
+      this.message = 'Debe seleccionar un cliente';
       return;
     }
 
-    // Preparar datos para crear PROYECTO (solo campos que la API acepta)
-    const datosProyecto = {
+    // Preparar datos completos del wizard para crear proyecto Y presupuesto
+    const datosCompletos = {
+      // Datos del proyecto
       nombre: this.formulario.nombreProyecto.trim(),
       descripcion: this.formulario.descripcionProyecto.trim(),
       cliente_id: this.formulario.clienteSeleccionadoId,
       tecnologias: this.formulario.tecnologiasSeleccionadas,
       fecha_inicio: this.formulario.fechaInicio,
-      notas: this.formulario.notasAdicionales.trim()
+      notas: this.formulario.notasAdicionales.trim(),
+      
+      // Datos adicionales del wizard para el presupuesto
+      categoriaPrincipal: this.formulario.categoriaPrincipal,
+      tiempoEstimado: this.formulario.tiempoEstimado,
+      presupuestoAproximado: this.formulario.presupuestoAproximado,
+      plazoEntrega: this.formulario.plazoEntrega,
+      prioridad: this.formulario.prioridad,
+      metodologia: this.formulario.metodologia
     };
 
-    this.message = 'Guardando proyecto...';
+    this.message = 'Guardando proyecto y presupuesto...';
     this.loading = true;
 
-    this.http.post(`${environment.apiUrl}/api/proyectos.php`, datosProyecto)
+    this.http.post(`${environment.apiUrl}/api/proyectos.php`, datosCompletos)
       .subscribe({
         next: (response: any) => {
           this.loading = false;
           if (response.success) {
-            this.message = `✓ Proyecto creado correctamente`;
+            this.message = `Proyecto y presupuesto creados correctamente`;
             
             setTimeout(() => {
               this.router.navigate(['/mis-proyectos']);
             }, 2000);
           } else {
-            this.message = '✗ Error: ' + (response.error || 'No se pudo crear el proyecto');
+            this.message = 'Error: ' + (response.error || 'No se pudo crear el proyecto');
           }
         },
         error: (error) => {
           this.loading = false;
           const errorMsg = error.error?.error || error.message || 'Error de conexión';
-          this.message = '✗ Error: ' + errorMsg;
+          this.message = 'Error: ' + errorMsg;
         }
       });
   }
