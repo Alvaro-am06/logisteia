@@ -113,7 +113,7 @@ export class MiEquipo implements OnInit {
           // Cerrar el formulario primero
           this.toggleAgregarMiembro();
           // Mostrar mensaje de éxito
-          alert(response.message || 'Miembro agregado al equipo exitosamente.');
+          alert('Miembro agregado al equipo exitosamente. Se ha enviado un email de bienvenida.');
           // Recargar la lista de miembros con un pequeño delay para asegurar que la BD se actualice
           setTimeout(() => {
             this.cargarMiembrosEquipo();
