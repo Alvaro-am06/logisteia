@@ -395,7 +395,7 @@ function generarHTMLPresupuesto($datos, $detalles, $esWizard = false) {
         // Parsear datos del wizard
         $notas = $datos['notas'];
         
-        if (preg_match('/Proyecto:\s*(.+?)$/m', $notas, $matches)) {
+        if (preg_match('/Proyecto:\s*(.+?)$/m', $notas, $matches) || preg_match('/Presupuesto automático para proyecto:\s*(.+?)$/mi', $notas, $matches)) {
             $html .= "<div class='wizard-item'>
                 <div class='wizard-item-label'>Proyecto</div>
                 <div class='wizard-item-value'>" . htmlspecialchars(trim($matches[1])) . "</div>
@@ -423,7 +423,7 @@ function generarHTMLPresupuesto($datos, $detalles, $esWizard = false) {
             </div>";
         }
         
-        if (preg_match('/Presupuesto:\s*(.+?)$/m', $notas, $matches)) {
+        if (preg_match('/Presupuesto:\s*(.+?)$/m', $notas, $matches) || preg_match('/Presupuesto aproximado:\s*(.+?)$/mi', $notas, $matches)) {
             $html .= "<div class='wizard-item'>
                 <div class='wizard-item-label'>Presupuesto Aproximado</div>
                 <div class='wizard-item-value'>" . htmlspecialchars(trim($matches[1])) . "</div>
@@ -444,10 +444,17 @@ function generarHTMLPresupuesto($datos, $detalles, $esWizard = false) {
             </div>";
         }
         
-        if (preg_match('/Plazo entrega:\s*(.+?)$/m', $notas, $matches)) {
+        if (preg_match('/Plazo de entrega:\s*(.+?)$/m', $notas, $matches) || preg_match('/Plazo entrega:\s*(.+?)$/m', $notas, $matches)) {
             $html .= "<div class='wizard-item'>
                 <div class='wizard-item-label'>Plazo de Entrega</div>
                 <div class='wizard-item-value'>" . ucfirst(htmlspecialchars(trim($matches[1]))) . "</div>
+            </div>";
+        }
+
+        if (preg_match('/Metodología:\s*(.+?)$/m', $notas, $matches)) {
+            $html .= "<div class='wizard-item'>
+                <div class='wizard-item-label'>Metodología</div>
+                <div class='wizard-item-value'>" . htmlspecialchars(trim($matches[1])) . "</div>
             </div>";
         }
         
