@@ -275,10 +275,10 @@ switch ($method) {
             // Generar token único para la invitación
             $token_invitacion = bin2hex(random_bytes(32));
             
-            // Agregar miembro al equipo
+            // Agregar miembro al equipo con estado_invitacion aceptada
             $stmt = $conn->prepare("
-                INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, fecha_ingreso, activo)
-                VALUES (?, ?, ?, NOW(), 1)
+                INSERT INTO miembros_equipo (equipo_id, trabajador_dni, rol_proyecto, fecha_ingreso, activo, estado_invitacion)
+                VALUES (?, ?, ?, NOW(), 1, 'aceptada')
             ");
             $stmt->execute([$equipo['id'], $trabajador['dni'], $rol_proyecto]);
             $esReenvio = false;
