@@ -116,19 +116,81 @@ try {
         require_once __DIR__ . '/../config/email.php';
         
         $asunto = "Bienvenido a Logisteia";
-        $mensajeHTML = "<html><body>
-            <h2>¡Bienvenido a Logisteia, $nombre!</h2>
-            <p>Tu cuenta ha sido creada exitosamente mediante Google.</p>
-            <p><strong>Datos de acceso:</strong></p>
-            <ul>
-                <li>Email: $email</li>
-                <li>Rol: $rol</li>
-                <li>DNI: $dni</li>
-            </ul>
-            <p>Ya puedes iniciar sesión en la plataforma y comenzar a utilizar nuestros servicios.</p>
-            <br>
-            <p>Saludos,<br>Equipo Logisteia</p>
-        </body></html>";
+        $mensajeHTML = "<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <title>Bienvenido a Logisteia</title>
+</head>
+<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;'>
+    <table width='100%' cellpadding='0' cellspacing='0' style='background-color: #f4f4f4; padding: 20px;'>
+        <tr>
+            <td align='center'>
+                <table width='600' cellpadding='0' cellspacing='0' style='background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+                    <!-- Header -->
+                    <tr>
+                        <td style='background: linear-gradient(135deg, #102a41 0%, #1a3f5e 100%); padding: 40px; text-align: center;'>
+                            <h1 style='color: #ffffff; margin: 0; font-size: 32px; letter-spacing: 2px;'>LOGISTEIA</h1>
+                            <p style='color: #ffffff; margin: 10px 0 0 0; font-size: 14px; opacity: 0.9; font-style: italic;'>Planifica con precisión. Ejecuta con control.</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style='padding: 40px;'>
+                            <h2 style='color: #102a41; margin: 0 0 20px 0; font-size: 24px;'>¡Bienvenido, $nombre!</h2>
+                            
+                            <p style='color: #333; line-height: 1.6; margin: 0 0 15px 0;'>
+                                Tu cuenta ha sido creada exitosamente mediante Google. Estamos encantados de tenerte con nosotros.
+                            </p>
+                            
+                            <div style='background: #f8f9fa; border-left: 4px solid #102a41; padding: 20px; margin: 25px 0;'>
+                                <h3 style='color: #102a41; margin: 0 0 15px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;'>Datos de tu cuenta</h3>
+                                <table width='100%' cellpadding='8' cellspacing='0'>
+                                    <tr>
+                                        <td style='color: #666; font-size: 14px; padding: 8px 0;'><strong>Email:</strong></td>
+                                        <td style='color: #333; font-size: 14px; padding: 8px 0;'>$email</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='color: #666; font-size: 14px; padding: 8px 0;'><strong>Rol:</strong></td>
+                                        <td style='color: #333; font-size: 14px; padding: 8px 0;'>$rol</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='color: #666; font-size: 14px; padding: 8px 0;'><strong>DNI:</strong></td>
+                                        <td style='color: #333; font-size: 14px; padding: 8px 0;'>$dni</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <p style='color: #333; line-height: 1.6; margin: 20px 0;'>
+                                Ya puedes iniciar sesión en la plataforma con tu cuenta de Google y comenzar a utilizar nuestros servicios de gestión de proyectos y presupuestos.
+                            </p>
+                            
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <a href='https://logisteia.com/login' style='display: inline-block; background: #102a41; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; font-size: 16px;'>
+                                    Iniciar Sesión
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style='background: #f8f9fa; padding: 25px; text-align: center; border-top: 1px solid #dee2e6;'>
+                            <p style='color: #666; margin: 0; font-size: 14px;'>
+                                <strong>Logisteia</strong> - Gestión de Proyectos y Presupuestos
+                            </p>
+                            <p style='color: #999; margin: 10px 0 0 0; font-size: 12px;'>
+                                Este es un mensaje automático, por favor no respondas a este correo.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>";
         
         enviarEmail($email, $nombre, $asunto, $mensajeHTML, 'logisteiaa@gmail.com', 'Equipo Logisteia');
     } catch (Exception $e) {
