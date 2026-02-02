@@ -15,6 +15,8 @@ USE `Logisteia`;
 -- LIMPIEZA PREVIA (Evita conflictos con claves foráneas)
 -- =====================================================================
 SET FOREIGN_KEY_CHECKS = 0;
+-- Orden inverso: tablas dependientes primero
+DROP TABLE IF EXISTS asignaciones_proyecto;
 DROP TABLE IF EXISTS acciones_administrativas;
 DROP TABLE IF EXISTS pagos;
 DROP TABLE IF EXISTS facturas;
@@ -28,7 +30,6 @@ DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS miembros_equipo;
 DROP TABLE IF EXISTS equipos;
 DROP TABLE IF EXISTS usuarios;
-DROP TABLE IF EXISTS asignaciones_proyecto;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =====================================================================
