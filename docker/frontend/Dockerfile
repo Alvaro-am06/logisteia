@@ -1,33 +1,21 @@
-# Etapa 1: Compilar Angular
-FROM node:20-alpine as build
-
+# --- ETAPA 1: CONSTRUCCIÓN (Node.js) ---
+FROM node:18-alpine AS build
 WORKDIR /app
-
-COPY src/frontend/package*.json ./
-RUN npm install
-
-COPY src/frontend/ ./
+COPY package*.json ./
+RUN npm ci
+COPY . .
+# Compila para producción
 RUN npm run build -- --configuration production
 
-# Etapa 2: Servir con Caddy
-FROM caddy:alpine
+# --- ETAPA 2: SERVIDOR (Nginx) ---
+FROM nginx:alpine
+# Copiamos la configuración de Nginx (paso 3)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=build /app/dist/frontend/browser /usr/share/caddy
+# ¡OJO AQUÍ! Revisa el nombre de tu carpeta en dist/
+# Si en tu angular.json el outputPath es "dist/logisteia", usa esto:
+COPY --from=build /app/dist/logisteia /usr/share/nginx/html
+# Si no estás seguro, entra en el contenedor luego y lo miramos.
 
-# Si Angular genera index.csr.html, copiarlo como index.html
-RUN if [ -f /usr/share/caddy/index.csr.html ]; then cp /usr/share/caddy/index.csr.html /usr/share/caddy/index.html; fi
-
-# Configurar Caddy
-RUN printf 'logisteia.com {\n\
-    root * /usr/share/caddy\n\
-    try_files {path} {path}/ /index.html\n\
-    reverse_proxy /api/* logisteia_backend:80\n\
-}\n\
-\n\
-api.logisteia.com {\n\
-    reverse_proxy logisteia_backend:80\n\
-}\n\
-\n\
-pma.logisteia.com {\n\
-    reverse_proxy logisteia_pma:80\n\
-}\n' > /etc/caddy/Caddyfile
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

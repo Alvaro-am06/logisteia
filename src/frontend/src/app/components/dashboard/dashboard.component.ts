@@ -10,7 +10,7 @@ import { ClienteService } from '../../services/cliente.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
@@ -56,16 +56,9 @@ export class DashboardComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.authService.clearSession();
-        window.location.href = '/login';
-      },
-      error: (err) => {
-        // Forzar logout del lado cliente
-        this.authService.clearSession();
-        window.location.href = '/login';
-      }
-    });
+    this.authService.logout();
+    this.authService.clearSession();
+    
+
   }
 }

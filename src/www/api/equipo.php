@@ -31,7 +31,7 @@ function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreE
         require_once __DIR__ . '/../config/email.php';
 
         $asunto = "Invitación al equipo $nombreEquipo - Logisteia";
-        $enlaceConfirmacion = "https://logisteia.com/api/confirmar-invitacion.php?token=$token_invitacion";
+        $enlaceConfirmacion = "https://api.logisteia.es/api/confirmar-invitacion.php?token=$token_invitacion";
 
         $mensaje = "<!DOCTYPE html>
 <html>

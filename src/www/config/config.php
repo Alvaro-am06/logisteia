@@ -7,18 +7,8 @@
  */
 
 // Headers CORS solo si NO es CLI
-if (php_sapi_name() !== 'cli') {
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email, X-Auth-Token, Origin, Accept, X-Requested-With');
-    header('Access-Control-Allow-Credentials: false');
-
-    // Manejar OPTIONS inmediatamente
-    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        http_response_code(204);
-        exit();
-    }
-}
+// IMPORTANTE: Los headers CORS se configuran más adelante basados en ALLOWED_ORIGINS del .env
+// No usar wildcard (*) en producción por seguridad
 
 // Cargar autoloader de Composer
 // En Docker, el vendor está en /app/vendor
@@ -140,11 +130,22 @@ function setupCors() {
         $defaultOrigin = !empty($origin) ? $origin : 'http://localhost:4200';
         header('Access-Control-Allow-Origin: ' . $defaultOrigin);
         header('Access-Control-Allow-Credentials: true');
+    } else {
+        // En producción, si el origen no está permitido, usar el primero de la lista
+        if (!empty(ALLOWED_ORIGINS)) {
+            header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGINS[0]);
+        }
     }
     
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email, X-Auth-Token, Origin, Accept');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email, X-Auth-Token, Origin, Accept, X-Requested-With');
     header('Access-Control-Max-Age: 86400'); // Cache preflight por 24 horas
+    
+    // Manejar OPTIONS (preflight) inmediatamente
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(204);
+        exit();
+    }
 }
 
 /**

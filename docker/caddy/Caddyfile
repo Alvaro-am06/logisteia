@@ -1,9 +1,9 @@
 {
-    email admin@logisteia.com
+    email admin@logisteia.es
 }
 
 # --- API Backend (para el frontend) ---
-api.logisteia.com {
+api.logisteia.es {
     root * /var/www/html
     
     # Manejar OPTIONS directamente (dejar pasar al PHP)
@@ -24,7 +24,7 @@ api.logisteia.com {
 }
 
 # --- Tu web principal (Angular + PHP) ---
-logisteia.com, www.logisteia.com {
+logisteia.es, www.logisteia.es {
     root * /srv
     encode gzip
     
@@ -37,7 +37,7 @@ logisteia.com, www.logisteia.com {
 }
 
 # --- phpMyAdmin ---
-pma.logisteia.com {
+pma.logisteia.es {
     # Redirige el tráfico al contenedor de phpmyadmin en su puerto interno (80)
     reverse_proxy phpmyadmin:80
 }

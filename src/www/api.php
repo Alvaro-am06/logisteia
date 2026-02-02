@@ -4,15 +4,13 @@
  * Maneja todas las peticiones desde el frontend
  */
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Content-Type: application/json');
+// Cargar configuración centralizada (incluye CORS)
+require_once __DIR__ . '/config/config.php';
 
-// Manejar preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+// Configurar CORS de forma segura basado en .env
+setupCors();
+
+header('Content-Type: application/json');
 
 require_once 'controladores/UsuarioControlador.php';
 require_once 'controladores/ControladorCliente.php';
