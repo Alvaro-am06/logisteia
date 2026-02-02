@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `nombre` VARCHAR(255) NOT NULL,
   `contrase` VARCHAR(255) NOT NULL,
   `rol` ENUM('jefe_equipo', 'trabajador', 'moderador') NOT NULL DEFAULT 'trabajador',
+  `estado` ENUM('activo', 'suspendido', 'eliminado') NOT NULL DEFAULT 'activo',
   `telefono` VARCHAR(20) NULL,
   `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY(`dni`),
