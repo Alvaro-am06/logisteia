@@ -64,6 +64,7 @@ services:
 
 volumes:
   db_data:
+  docker_caddy_data:
 
 networks:
   logisteia_network:
