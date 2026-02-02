@@ -9,13 +9,12 @@ RUN npm install
 COPY src/frontend/ ./
 RUN npm run build --configuration production
 
-# Etapa 2: Servir con Caddy
-FROM caddy:alpine
+# Etapa 2: Servir con Nginx
+FROM nginx:alpine
 
-COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
-COPY --from=build /app/dist/frontend/browser /srv
+COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 
 # Si Angular genera index.csr.html, copiarlo como index.html
-RUN if [ -f /srv/index.csr.html ]; then cp /srv/index.csr.html /srv/index.html; fi
+RUN if [ -f /usr/share/nginx/html/index.csr.html ]; then cp /usr/share/nginx/html/index.csr.html /usr/share/nginx/html/index.html; fi
 
-EXPOSE 80 443
+EXPOSE 80
