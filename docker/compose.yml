@@ -57,6 +57,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - docker_caddy_data:/data
     networks:
       - logisteia_network
 
