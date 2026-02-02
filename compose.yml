@@ -11,23 +11,6 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: Logisteia
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - logisteia_network
-
-  # phpMyAdmin
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: logisteia_pma
-    restart: always
-    environment:
-      PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-    depends_on:
-      - db
     networks:
       - logisteia_network
 
