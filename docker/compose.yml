@@ -4,13 +4,14 @@ services:
     image: mysql:8.0
     container_name: logisteia_db
     restart: always
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     environment:
       MYSQL_DATABASE: Logisteia
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_HOST: '%'
     volumes:
       - db_data:/var/lib/mysql
       - ../src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
-      - ../docker/sql/allow_root_remote.sql:/docker-entrypoint-initdb.d/allow_root_remote.sql
     networks:
       - logisteia_network
 
