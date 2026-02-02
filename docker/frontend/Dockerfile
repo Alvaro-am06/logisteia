@@ -21,9 +21,9 @@ RUN if [ -f /usr/share/caddy/index.csr.html ]; then cp /usr/share/caddy/index.cs
 RUN printf 'logisteia.com {\n\
     root * /usr/share/caddy\n\
     try_files {path} {path}/ /index.html\n\
-    reverse_proxy /api/* logisteia_backend:80\n\
+    reverse_proxy /api/* 172.24.0.4:80\n\
 }\n\
 \n\
 pma.logisteia.com {\n\
-    reverse_proxy logisteia_pma:80\n\
+    reverse_proxy 172.24.0.3:80\n\
 }\n' > /etc/caddy/Caddyfile
