@@ -14,7 +14,7 @@ services:
       - ../src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       logisteia_network:
-        ipv4_address: 172.27.0.2
+          ipv4_address: 10.0.0.2
 
   # Backend PHP con Apache
   backend:
@@ -32,7 +32,7 @@ services:
       DB_PASS: ${DB_PASS}
     networks:
       logisteia_network:
-        ipv4_address: 172.27.0.4
+          ipv4_address: 10.0.0.4
 
   # phpMyAdmin
   phpmyadmin:
@@ -48,7 +48,7 @@ services:
       - db
     networks:
       logisteia_network:
-        ipv4_address: 172.27.0.3
+          ipv4_address: 10.0.0.3
 
   # Frontend Angular + Caddy
   web:
