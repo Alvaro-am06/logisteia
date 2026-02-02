@@ -10,6 +10,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ../src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../docker/sql/allow_root_remote.sql:/docker-entrypoint-initdb.d/allow_root_remote.sql
     networks:
       - logisteia_network
 
