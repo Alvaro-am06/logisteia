@@ -22,12 +22,10 @@ RUN printf 'logisteia.com {\n\
     root * /usr/share/caddy\n\
     try_files {path} {path}/ /index.html\n\
     reverse_proxy /api/* 172.24.0.4:80\n\
-    header Cross-Origin-Opener-Policy "unsafe-none"\n\
 }\n\
 \n\
 api.logisteia.com {\n\
     reverse_proxy 172.24.0.4:80\n\
-    header Cross-Origin-Opener-Policy "unsafe-none"\n\
 }\n\
 \n\
 pma.logisteia.com {\n\
