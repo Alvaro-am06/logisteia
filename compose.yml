@@ -1,4 +1,3 @@
-# Archivo compose principal - Orquesta todos los servicios
 include:
   - docker/compose.backend.yml
   - docker/compose.frontend.yml
