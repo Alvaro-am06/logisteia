@@ -50,24 +50,23 @@ services:
       logisteia_network:
         ipv4_address: 172.24.0.3
 
-configs:
-  caddy_config:
-    content: |
-      logisteia.com {
-        root * /usr/share/caddy
-        try_files {path} {path}/ /index.html
-        reverse_proxy /api/* logisteia_backend:80
-      }
-      pma.logisteia.com {
-        reverse_proxy logisteia_pma:80
-      }
+  # Frontend Angular + Caddy
+  web:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+    container_name: logisteia_web
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - logisteia_network
 
 volumes:
   db_data:
 
 networks:
   logisteia_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.24.0.0/16
+    external: true
+    name: docker_logisteia_network
