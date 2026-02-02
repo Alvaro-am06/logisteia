@@ -24,6 +24,10 @@ RUN printf 'logisteia.com {\n\
     reverse_proxy /api/* 172.24.0.4:80\n\
 }\n\
 \n\
+api.logisteia.com {\n\
+    reverse_proxy 172.24.0.4:80\n\
+}\n\
+\n\
 pma.logisteia.com {\n\
     reverse_proxy 172.24.0.3:80\n\
 }\n' > /etc/caddy/Caddyfile
