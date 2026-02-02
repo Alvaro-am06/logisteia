@@ -18,11 +18,12 @@ COPY --from=build /app/dist/frontend/browser /usr/share/caddy
 RUN if [ -f /usr/share/caddy/index.csr.html ]; then cp /usr/share/caddy/index.csr.html /usr/share/caddy/index.html; fi
 
 # Configurar Caddy
-RUN echo 'logisteia.com { \
-    root * /usr/share/caddy \
-    try_files {path} {path}/ /index.html \
-    reverse_proxy /api/* logisteia_backend:80 \
-} \
-pma.logisteia.com { \
-    reverse_proxy logisteia_pma:80 \
-}' > /etc/caddy/Caddyfile
+RUN printf 'logisteia.com {\n\
+    root * /usr/share/caddy\n\
+    try_files {path} {path}/ /index.html\n\
+    reverse_proxy /api/* logisteia_backend:80\n\
+}\n\
+\n\
+pma.logisteia.com {\n\
+    reverse_proxy logisteia_pma:80\n\
+}\n' > /etc/caddy/Caddyfile
