@@ -9,14 +9,14 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
-      - ./src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../src/sql/bbdd.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - logisteia_network
 
   # Backend PHP con Apache
   backend:
     build:
-      context: .
+      context: ..
       dockerfile: docker/backend/Dockerfile
     container_name: logisteia_backend
     restart: always
@@ -33,7 +33,7 @@ services:
   # Frontend Angular + Caddy
   web:
     build:
-      context: .
+      context: ..
       dockerfile: docker/frontend/Dockerfile
     container_name: logisteia_web
     restart: always
