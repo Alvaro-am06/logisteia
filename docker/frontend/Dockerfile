@@ -7,7 +7,7 @@ COPY src/frontend/package*.json ./
 RUN npm install
 
 COPY src/frontend/ ./
-RUN npm run build --configuration production
+RUN npm run build -- --configuration production
 
 # Etapa 2: Servir con Nginx
 FROM nginx:alpine
