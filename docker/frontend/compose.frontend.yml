@@ -2,7 +2,7 @@
 services:
   frontend:
     build:
-      context: ..
+      context: ../..
       dockerfile: docker/frontend/Dockerfile
     container_name: logisteia_frontend
     restart: always

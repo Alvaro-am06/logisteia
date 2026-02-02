@@ -10,8 +10,8 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ../src/www:/var/www/html
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ../../src/www:/var/www/html
     depends_on:
       - backend
       - frontend

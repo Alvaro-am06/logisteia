@@ -1,7 +1,7 @@
 include:
-  - docker/compose.backend.yml
-  - docker/compose.frontend.yml
-  - docker/compose.caddy.yml
+  - docker/backend/compose.backend.yml
+  - docker/frontend/compose.frontend.yml
+  - docker/caddy/compose.caddy.yml
 
 services:
   # Base de datos MySQL
