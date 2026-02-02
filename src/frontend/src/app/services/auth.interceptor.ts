@@ -19,7 +19,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }
         });
       } catch (error) {
-        console.error('Error parsing usuario data:', error);
       }
     }
   }

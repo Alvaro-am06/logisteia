@@ -12,6 +12,27 @@ CREATE DATABASE IF NOT EXISTS `Logisteia`
 USE `Logisteia`;
 
 -- =====================================================================
+-- LIMPIEZA PREVIA (Evita conflictos con claves foráneas)
+-- =====================================================================
+SET FOREIGN_KEY_CHECKS = 0;
+-- Orden inverso: tablas dependientes primero
+DROP TABLE IF EXISTS asignaciones_proyecto;
+DROP TABLE IF EXISTS acciones_administrativas;
+DROP TABLE IF EXISTS pagos;
+DROP TABLE IF EXISTS facturas;
+DROP TABLE IF EXISTS servicios_informatica;
+DROP TABLE IF EXISTS servicios;
+DROP TABLE IF EXISTS detalle_presupuesto;
+DROP TABLE IF EXISTS presupuestos;
+DROP TABLE IF EXISTS tareas;
+DROP TABLE IF EXISTS proyectos;
+DROP TABLE IF EXISTS clientes;
+DROP TABLE IF EXISTS miembros_equipo;
+DROP TABLE IF EXISTS equipos;
+DROP TABLE IF EXISTS usuarios;
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =====================================================================
 -- 1. TABLA USUARIOS
 -- =====================================================================
 CREATE TABLE IF NOT EXISTS `usuarios` (
@@ -20,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
   `nombre` VARCHAR(255) NOT NULL,
   `contrase` VARCHAR(255) NOT NULL,
   `rol` ENUM('jefe_equipo', 'trabajador', 'moderador') NOT NULL DEFAULT 'trabajador',
+  `estado` ENUM('activo', 'suspendido', 'eliminado') NOT NULL DEFAULT 'activo',
   `telefono` VARCHAR(20) NULL,
   `fecha_registro` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY(`dni`),

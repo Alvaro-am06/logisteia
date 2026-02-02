@@ -124,23 +124,18 @@ export class Login implements AfterViewInit {
     })
     .subscribe({
       next: (res: any) => {
-        console.log('Respuesta del backend:', res);
         if (res.success && res.data && res.data.exists === true) {
           // Usuario ya existe - login directo
           this.message = 'Login con Google exitoso';
-          console.log('Usuario encontrado:', res.data.usuario);
           if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
-            console.log('Usuario guardado en localStorage');
             // Dar tiempo para que se guarde en localStorage antes de redirigir
             setTimeout(() => {
-              console.log('Redirigiendo a rol:', res.data.usuario.rol);
               this.redirectByRole(res.data.usuario.rol);
             }, 100);
           }
         } else if (res.success && res.data && res.data.exists === false) {
           // Usuario nuevo - redirigir a completar registro
-          console.log('Usuario NO existe, redirigiendo a completar-registro');
           if (isPlatformBrowser(this.platformId)) {
             sessionStorage.setItem('google_temp_data', JSON.stringify({
               email: payload.email,
@@ -148,10 +143,8 @@ export class Login implements AfterViewInit {
               picture: payload.picture,
               googleToken: response.credential
             }));
-            console.log('Datos temporales guardados en sessionStorage');
             // Forzar navegación en el navegador
             setTimeout(() => {
-              console.log('Navegando a completar-registro');
               this.router.navigate(['/completar-registro']);
             }, 100);
           }

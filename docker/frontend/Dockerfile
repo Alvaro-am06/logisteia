@@ -1,30 +1,33 @@
-# --- Etapa 1: Compilar Angular ---
-FROM node:20 as build-step
+# Etapa 1: Compilar Angular
+FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Copiamos dependencias
-COPY src/frontend/package.json src/frontend/package-lock.json ./
+COPY src/frontend/package*.json ./
 RUN npm install
 
-# Copiamos el código y compilamos
-COPY src/frontend/ .
+COPY src/frontend/ ./
 RUN npm run build -- --configuration production
 
-# --- Etapa 2: Servidor Caddy ---
+# Etapa 2: Servir con Caddy
 FROM caddy:alpine
 
-# Copiamos la configuración de Caddy
-COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/dist/frontend/browser /usr/share/caddy
 
-# Copiamos la aplicación compilada
-COPY --from=build-step /app/dist/frontend/browser /srv
+# Si Angular genera index.csr.html, copiarlo como index.html
+RUN if [ -f /usr/share/caddy/index.csr.html ]; then cp /usr/share/caddy/index.csr.html /usr/share/caddy/index.html; fi
 
-# --- ARREGLO CRÍTICO ---
-# Angular 17+ SSR genera 'index.csr.html' en lugar de 'index.html'.
-# Lo renombramos para que Caddy lo reconozca como la página principal.
-RUN cp /srv/index.csr.html /srv/index.html
-
-# Exponemos puertos
-EXPOSE 80
-EXPOSE 443
+# Configurar Caddy
+RUN printf 'logisteia.com {\n\
+    root * /usr/share/caddy\n\
+    try_files {path} {path}/ /index.html\n\
+    reverse_proxy /api/* logisteia_backend:80\n\
+}\n\
+\n\
+api.logisteia.com {\n\
+    reverse_proxy logisteia_backend:80\n\
+}\n\
+\n\
+pma.logisteia.com {\n\
+    reverse_proxy logisteia_pma:80\n\
+}\n' > /etc/caddy/Caddyfile

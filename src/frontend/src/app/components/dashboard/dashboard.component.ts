@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
           this.stats.usuarios = response.data.length;
         }
       },
-      error: (err) => console.error('Error cargando usuarios:', err)
+      error: (err) => {}
     });
 
     // Cargar estadísticas de clientes
@@ -50,7 +50,6 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error cargando clientes:', err);
         this.loading = false;
       }
     });
@@ -63,7 +62,6 @@ export class DashboardComponent implements OnInit {
         window.location.href = '/login';
       },
       error: (err) => {
-        console.error('Error en logout:', err);
         // Forzar logout del lado cliente
         this.authService.clearSession();
         window.location.href = '/login';

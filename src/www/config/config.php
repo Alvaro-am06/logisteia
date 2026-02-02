@@ -40,7 +40,6 @@ try {
     $dotenv->load();
 } catch (Exception $e) {
     // Si falla, usar valores por defecto
-    error_log('Error cargando .env: ' . $e->getMessage());
 }
 
 require_once __DIR__ . '/helpers.php';
@@ -179,13 +178,7 @@ function verificarAutenticacion() {
         return null;
     }
     
-    error_log(' HTTP_X_USER_DNI desde $_SERVER: ' . $userDni);
-    error_log(' Todos los headers HTTP: ' . json_encode(array_filter($_SERVER, function($key) {
-        return strpos($key, 'HTTP_') === 0;
-    }, ARRAY_FILTER_USE_KEY)));
-    
     if (empty($userDni)) {
-        error_log(' X-User-Dni está vacío');
         return null;
     }
     
@@ -207,7 +200,6 @@ function verificarAutenticacion() {
             'email' => $usuario['email']
         ];
     } catch (Exception $e) {
-        error_log('Error en verificarAutenticacion: ' . $e->getMessage());
         return null;
     }
 }

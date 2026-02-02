@@ -72,7 +72,6 @@ export class PresupuestosComponent implements OnInit {
         error: (err) => {
           this.loading = false;
           this.error = 'Error de conexión al cargar presupuestos';
-          console.error('Error:', err);
         }
       });
   }
@@ -114,14 +113,13 @@ export class PresupuestosComponent implements OnInit {
     }).subscribe({
       next: (response: any) => {
         if (response.success) {
-          alert(`✅ Presupuesto enviado correctamente`);
+          alert(`Presupuesto enviado correctamente`);
         } else {
-          alert('❌ Error al enviar: ' + (response.error || 'Error desconocido'));
+          alert('Error al enviar: ' + (response.error || 'Error desconocido'));
         }
       },
       error: (err) => {
-        alert('❌ Error de conexión al enviar presupuesto');
-        console.error('Error:', err);
+        alert('Error de conexión al enviar presupuesto');
       }
     });
   }
@@ -146,7 +144,6 @@ export class PresupuestosComponent implements OnInit {
       },
       error: (err) => {
         alert('Error de conexión al eliminar presupuesto');
-        console.error('Error:', err);
       }
     });
   }

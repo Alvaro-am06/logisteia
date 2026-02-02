@@ -1,26 +1,15 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# Instalar dependencias del sistema y extensiones PHP
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql zip
+# Instalar extensiones PHP necesarias
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copiar composer.json y composer.lock a /app
-WORKDIR /app
-COPY composer.json composer.lock .env* ./
-
-# Instalar dependencias de PHP (genera /app/vendor)
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# Habilitar mod_rewrite de Apache
+RUN a2enmod rewrite
 
 # Copiar código fuente
 COPY src/www /var/www/html
 
 # Ajustar permisos
-RUN chown -R www-data:www-data /var/www/html /app
+RUN chown -R www-data:www-data /var/www/html
 
-WORKDIR /var/www/html
+EXPOSE 80

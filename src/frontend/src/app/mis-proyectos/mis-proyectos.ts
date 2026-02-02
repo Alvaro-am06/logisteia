@@ -129,7 +129,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        console.error('Error cargando proyectos:', error);
         this.message = 'Error de conexión al cargar proyectos';
         this.proyectos = [];
       }
@@ -145,7 +144,6 @@ export class MisProyectos implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error cargando clientes:', error);
         this.clientes = [];
       }
     });
@@ -158,7 +156,6 @@ export class MisProyectos implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error cargando equipos:', error);
         this.equipos = [];
       }
     });
@@ -205,7 +202,6 @@ export class MisProyectos implements OnInit {
       },
       error: (error: any) => {
         this.cargandoMiembros = false;
-        console.error('Error cargando miembros:', error);
       }
     });
   }
@@ -240,15 +236,15 @@ export class MisProyectos implements OnInit {
     this.proyectoService.crearProyecto(proyectoData).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto creado exitosamente';
+          this.message = 'Proyecto creado exitosamente';
           this.cerrarModalCrear();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al crear proyecto';
+          this.message = 'Error al crear proyecto';
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al crear proyecto';
+        this.message = 'Error de conexión al crear proyecto';
       }
     });
   }
@@ -257,7 +253,7 @@ export class MisProyectos implements OnInit {
   verDetalleProyecto(proyecto: Proyecto) {
     this.proyectoSeleccionado = proyecto;
     this.mostrarModalDetalle = true;
-    this.trabajadoresProyecto = []; // Inicializar como array vacío
+    this.trabajadoresProyecto = [];
     this.mostrarAsignarTrabajadores = false;
     this.miembrosDisponiblesDetalle = [];
 
@@ -267,29 +263,26 @@ export class MisProyectos implements OnInit {
         if (response.success) {
           this.trabajadoresProyecto = response.trabajadores || [];
         }
+        
+        // Cargar miembros disponibles después de tener los trabajadores asignados
+        if (proyecto.equipo_id) {
+          this.equipoService.getMiembrosEquipo().subscribe({
+            next: (response) => {
+              if (response.success && response.data) {
+                const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
+                this.miembrosDisponiblesDetalle = (response.data.miembros || [])
+                  .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
+              }
+            },
+            error: (error) => {
+            }
+          });
+        }
       },
       error: (error) => {
-        console.error('Error cargando trabajadores:', error);
-        this.trabajadoresProyecto = []; // Asegurar array vacío en error
+        this.trabajadoresProyecto = [];
       }
     });
-
-    // Cargar miembros del equipo disponibles si el proyecto tiene equipo_id
-    if (proyecto.equipo_id) {
-      this.equipoService.getMiembrosEquipo().subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            // Filtrar miembros que ya están asignados (sin importar estado_invitacion)
-            const trabajadoresDnis = this.trabajadoresProyecto.map((t: any) => t.dni);
-            this.miembrosDisponiblesDetalle = (response.data.miembros || [])
-              .filter((m: any) => !trabajadoresDnis.includes(m.dni)) as any[];
-          }
-        },
-        error: (error) => {
-          console.error('Error cargando miembros del equipo:', error);
-        }
-      });
-    }
   }
 
   agregarTrabajadorDetalle(miembro: any) {
@@ -303,16 +296,37 @@ export class MisProyectos implements OnInit {
     }]).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = `✅ ${miembro.nombre} agregado al proyecto`;
-          // Recargar trabajadores del proyecto
+          this.message = `${miembro.nombre} agregado al proyecto`;
+          this.mostrarAsignarTrabajadores = false;
           this.verDetalleProyecto(this.proyectoSeleccionado!);
         } else {
-          this.message = '❌ Error al agregar trabajador: ' + (response.message || 'Error desconocido');
+          this.message = 'Error al agregar trabajador: ' + (response.message || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al agregar trabajador';
-        console.error('Error:', error);
+        this.message = 'Error de conexión al agregar trabajador';
+      }
+    });
+  }
+
+  removerTrabajadorDetalle(trabajador: any) {
+    if (!this.proyectoSeleccionado) return;
+
+    if (!confirm(`¿Estás seguro de remover a ${trabajador.nombre} del proyecto?`)) {
+      return;
+    }
+
+    this.proyectoService.removerAsignacion(this.proyectoSeleccionado.id, trabajador.dni).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.message = `${trabajador.nombre} removido del proyecto`;
+          this.verDetalleProyecto(this.proyectoSeleccionado!);
+        } else {
+          this.message = 'Error al remover trabajador';
+        }
+      },
+      error: (error) => {
+        this.message = 'Error de conexión al remover trabajador';
       }
     });
   }
@@ -336,16 +350,15 @@ export class MisProyectos implements OnInit {
     this.proyectoService.eliminarProyecto(proyecto.id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto eliminado correctamente';
+          this.message = 'Proyecto eliminado correctamente';
           this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al eliminar proyecto: ' + (response.error || 'Error desconocido');
+          this.message = 'Error al eliminar proyecto: ' + (response.error || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al eliminar proyecto';
-        console.error('Error:', error);
+        this.message = 'Error de conexión al eliminar proyecto';
       }
     });
   }
@@ -369,7 +382,7 @@ export class MisProyectos implements OnInit {
     this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
       next: (response) => {
         if (response.success) {
-          this.message = '✅ Proyecto finalizado correctamente.';
+          this.message = 'Proyecto finalizado correctamente.';
           if (this.proyectoSeleccionado) {
             this.proyectoSeleccionado.estado = 'finalizado';
           }
@@ -384,12 +397,11 @@ export class MisProyectos implements OnInit {
           this.cerrarModalDetalle();
           this.cargarProyectos();
         } else {
-          this.message = '❌ Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
+          this.message = 'Error al finalizar proyecto: ' + (response.error || 'Error desconocido');
         }
       },
       error: (error) => {
-        this.message = '❌ Error de conexión al finalizar proyecto';
-        console.error('Error:', error);
+        this.message = 'Error de conexión al finalizar proyecto';
       }
     });
   }
