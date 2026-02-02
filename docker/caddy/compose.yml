@@ -2,7 +2,7 @@ services:
   # Frontend Angular + Caddy
   web:
     build:
-      context: ..
+      context: ../..
       dockerfile: docker/frontend/Dockerfile
     container_name: logisteia_web
     restart: always
