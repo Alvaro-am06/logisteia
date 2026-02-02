@@ -1,18 +1,26 @@
-# Usamos la imagen oficial de PHP con Apache integrado
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Instalamos las extensiones para conectar con MySQL (mysqli y pdo)
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Instalar dependencias del sistema y extensiones PHP
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# Activamos mod_rewrite por si usas rutas amigables en tu API
-RUN a2enmod rewrite
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiamos tu código PHP al directorio público de Apache
-COPY . /var/www/html/
+# Copiar composer.json y composer.lock a /app
+WORKDIR /app
+COPY composer.json composer.lock .env* ./
 
-# Ajustamos permisos para que Apache pueda leer los archivos
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Instalar dependencias de PHP (genera /app/vendor)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Apache expone el puerto 80 por defecto
-EXPOSE 80
+# Copiar código fuente
+COPY src/www /var/www/html
+
+# Ajustar permisos
+RUN chown -R www-data:www-data /var/www/html /app
+
+WORKDIR /var/www/html

@@ -1,21 +1,30 @@
-# --- ETAPA 1: CONSTRUCCIÓN (Node.js) ---
-FROM node:18-alpine AS build
+# --- Etapa 1: Compilar Angular ---
+FROM node:20 as build-step
+
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-# Compila para producción
+
+# Copiamos dependencias
+COPY src/frontend/package.json src/frontend/package-lock.json ./
+RUN npm install
+
+# Copiamos el código y compilamos
+COPY src/frontend/ .
 RUN npm run build -- --configuration production
 
-# --- ETAPA 2: SERVIDOR (Nginx) ---
-FROM nginx:alpine
-# Copiamos la configuración de Nginx (paso 3)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# --- Etapa 2: Servidor Caddy ---
+FROM caddy:alpine
 
-# ¡OJO AQUÍ! Revisa el nombre de tu carpeta en dist/
-# Si en tu angular.json el outputPath es "dist/logisteia", usa esto:
-COPY --from=build /app/dist/logisteia /usr/share/nginx/html
-# Si no estás seguro, entra en el contenedor luego y lo miramos.
+# Copiamos la configuración de Caddy
+COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
 
+# Copiamos la aplicación compilada
+COPY --from=build-step /app/dist/frontend/browser /srv
+
+# --- ARREGLO CRÍTICO ---
+# Angular 17+ SSR genera 'index.csr.html' en lugar de 'index.html'.
+# Lo renombramos para que Caddy lo reconozca como la página principal.
+RUN cp /srv/index.csr.html /srv/index.html
+
+# Exponemos puertos
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 443
