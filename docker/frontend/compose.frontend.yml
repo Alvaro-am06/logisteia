@@ -1,0 +1,12 @@
+# Docker Compose para el Frontend Angular
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+    container_name: logisteia_frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - logisteia_network

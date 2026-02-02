@@ -8,5 +8,3 @@ logs/
 *.log
 .cache/
 .idea/
-compose.yml
-docker/

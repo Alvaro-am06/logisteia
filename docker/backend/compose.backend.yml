@@ -1,0 +1,17 @@
+# Docker Compose para el Backend PHP
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: logisteia_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: Logisteia
+      DB_USER: root
+      DB_PASS: ${DB_PASS}
+    networks:
+      - logisteia_network
