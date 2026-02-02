@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: ../..
-      dockerfile: docker/backend/Dockerfile
+      dockerfile: Dockerfile
     container_name: logisteia_backend
     restart: always
     depends_on:
