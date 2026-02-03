@@ -88,4 +88,10 @@ export class SidebarComponent implements OnInit {
         return [];
     }
   }
+
+  navigateTo(route: string, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.router.navigate([route]);
+  }
 }

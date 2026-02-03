@@ -13,6 +13,7 @@
           [routerLink]="item.route" 
           routerLinkActive="active-nav-item"
           [routerLinkActiveOptions]="{exact: item.route === '/panel-jefe-equipo' || item.route === '/panel-registrado' || item.route === '/panel-moderador' || item.route === '/panel-admin'}"
+          (click)="navigateTo(item.route, $event)"
           class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 cursor-pointer transition group"
           [title]="isCollapsed ? item.label : ''">
           <img 
@@ -36,6 +37,7 @@
         [routerLink]="item.route" 
         routerLinkActive="text-[#102a41] bg-blue-50"
         [routerLinkActiveOptions]="{exact: item.route === '/panel-jefe-equipo' || item.route === '/panel-registrado' || item.route === '/panel-moderador' || item.route === '/panel-admin'}"
+        (click)="navigateTo(item.route, $event)"
         class="flex flex-col items-center justify-center h-full text-gray-600 hover:text-[#102a41] hover:bg-gray-50 transition py-2">
         <img 
           [src]="item.icon" 
