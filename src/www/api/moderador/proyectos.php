@@ -28,6 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     $db = ConexionBBDD::obtener();
     
+    // Verificar si la tabla proyectos existe
+    try {
+        $checkTable = $db->query("SHOW TABLES LIKE 'proyectos'");
+        $tableExists = $checkTable->rowCount() > 0;
+    } catch (Exception $e) {
+        $tableExists = false;
+    }
+    
+    if (!$tableExists) {
+        // Si la tabla no existe, devolver array vacío
+        sendJsonSuccess([]);
+        exit();
+    }
+    
     // Consulta para obtener todos los proyectos con información del jefe y cliente
     $query = "SELECT 
                 p.id,
