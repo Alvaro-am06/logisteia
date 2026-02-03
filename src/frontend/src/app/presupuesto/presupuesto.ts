@@ -97,7 +97,7 @@ export class Presupuesto implements OnInit {
       'X-User-DNI': this.usuarioDni
     };
     
-    this.http.get<any>(`${environment.apiUrl}/api/clientes.php`, { headers })
+    this.http.get<any>(`${environment.apiUrl}/api/clientes/clientes.php`, { headers })
       .subscribe({
         next: (response) => {
           if (response.clientes && Array.isArray(response.clientes)) {
@@ -120,7 +120,7 @@ export class Presupuesto implements OnInit {
 
   cargarServicios() {
     this.loading = true;
-    this.http.get('/api/servicios.php')
+    this.http.get('/api/servicios/servicios.php')
       .subscribe({
         next: (response: any) => {
           this.loading = false;
@@ -230,7 +230,7 @@ export class Presupuesto implements OnInit {
       detalles: detalles
     };
 
-    this.http.post('/api/presupuestos.php', datosPresupuesto)
+    this.http.post('/api/presupuestos/presupuestos.php', datosPresupuesto)
       .subscribe({
         next: (response: any) => {
           this.guardando = false;

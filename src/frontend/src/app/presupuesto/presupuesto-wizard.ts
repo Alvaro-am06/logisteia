@@ -134,7 +134,7 @@ export class PresupuestoWizard implements OnInit {
       'X-User-DNI': this.usuarioDni
     };
     
-    this.http.get<any>(`${environment.apiUrl}/api/clientes.php`, { headers })
+    this.http.get<any>(`${environment.apiUrl}/api/clientes/clientes.php`, { headers })
       .subscribe({
         next: (response) => {
           if (response.clientes && Array.isArray(response.clientes)) {
@@ -319,7 +319,7 @@ export class PresupuestoWizard implements OnInit {
     this.message = 'Guardando proyecto y presupuesto...';
     this.loading = true;
 
-    this.http.post(`${environment.apiUrl}/api/proyectos.php`, datosCompletos)
+    this.http.post(`${environment.apiUrl}/api/proyectos/proyectos.php`, datosCompletos)
       .subscribe({
         next: (response: any) => {
           this.loading = false;

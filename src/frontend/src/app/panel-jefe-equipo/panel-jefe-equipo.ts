@@ -88,7 +88,7 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
       'X-User-DNI': this.usuarioDni
     };
     
-    this.http.get<any>(`${environment.apiUrl}/api/proyectos.php`, { headers })
+    this.http.get<any>(`${environment.apiUrl}/api/proyectos/proyectos.php`, { headers })
       .subscribe({
         next: (response) => {
           if (response && response.proyectos && Array.isArray(response.proyectos)) {
@@ -117,7 +117,7 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
       'X-User-DNI': this.usuarioDni
     };
     
-    this.http.get<any>(`${environment.apiUrl}/api/clientes.php`, { headers })
+    this.http.get<any>(`${environment.apiUrl}/api/clientes/clientes.php`, { headers })
       .subscribe({
         next: (response) => {
           if (response.clientes && Array.isArray(response.clientes)) {

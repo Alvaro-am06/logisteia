@@ -77,7 +77,7 @@ export class RegistrarClienteComponent implements OnInit {
       'X-User-DNI': this.usuarioDni
     };
 
-    this.http.post(`${environment.apiUrl}/api/clientes.php`, {
+    this.http.post(`${environment.apiUrl}/api/clientes/clientes.php`, {
       nombre: this.cliente.nombre,
       email: this.cliente.email,
       empresa: this.cliente.empresa || null,

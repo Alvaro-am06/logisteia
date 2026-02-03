@@ -128,7 +128,7 @@ export class PerfilComponent implements OnInit {
       datosActualizar.password = this.nuevaPassword;
     }
 
-    this.http.put(`${environment.apiUrl}/api/perfil.php`, datosActualizar)
+    this.http.put(`${environment.apiUrl}/api/usuarios/perfil.php`, datosActualizar)
       .subscribe({
         next: (response: any) => {
           this.guardando = false;

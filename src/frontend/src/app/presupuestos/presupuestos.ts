@@ -62,7 +62,7 @@ export class PresupuestosComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.http.get<any>(`${environment.apiUrl}/api/mis-presupuestos.php?dni=${this.usuarioDni}`)
+    this.http.get<any>(`${environment.apiUrl}/api/presupuestos/mis-presupuestos.php?dni=${this.usuarioDni}`)
       .subscribe({
         next: (response) => {
           this.loading = false;
@@ -141,7 +141,7 @@ export class PresupuestosComponent implements OnInit {
     }
     
     console.log('Enviando petición de eliminación...');
-    this.http.post(`${environment.apiUrl}/api/eliminar-presupuesto.php`, {
+    this.http.post(`${environment.apiUrl}/api/presupuestos/eliminar-presupuesto.php`, {
       numero_presupuesto: presupuesto.numero_presupuesto
     }).subscribe({
       next: (response: any) => {

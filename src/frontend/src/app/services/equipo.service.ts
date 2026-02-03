@@ -51,7 +51,7 @@ export interface ApiResponse<T> {
 export class EquipoService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = `${environment.apiUrl}/api/equipo.php`;
+  private apiUrl = `${environment.apiUrl}/api/equipos/equipo.php`;
 
   /**
    * Obtener los miembros del equipo del jefe de equipo autenticado
@@ -66,7 +66,7 @@ export class EquipoService {
    */
   getEquiposJefe(dniJefe: string): Observable<{success: boolean, equipos: Equipo[]}> {
     const headers = this.getAuthHeaders();
-    return this.http.get<{success: boolean, equipos: Equipo[]}>(`${environment.apiUrl}/api/equipo.php?jefe=${dniJefe}`, { headers });
+    return this.http.get<{success: boolean, equipos: Equipo[]}>(`${environment.apiUrl}/api/equipos/equipo.php?jefe=${dniJefe}`, { headers });
   }
 
   /**

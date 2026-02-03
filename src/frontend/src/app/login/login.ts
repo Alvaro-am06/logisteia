@@ -115,7 +115,7 @@ export class Login implements AfterViewInit {
     const payload = this.decodeJWT(response.credential);
     
     // Enviar datos de Google al backend para verificar si existe el usuario
-    this.http.post(`${environment.apiUrl}/api/login-google.php`, {
+    this.http.post(`${environment.apiUrl}/api/autenticacion/login-google.php`, {
       googleToken: response.credential,
       email: payload.email,
       nombre: payload.name,
@@ -196,7 +196,7 @@ export class Login implements AfterViewInit {
       return;
     }
     
-    this.http.post(`${environment.apiUrl}/api/login.php`, { email: this.email, password: this.password })
+    this.http.post(`${environment.apiUrl}/api/autenticacion/login.php`, { email: this.email, password: this.password })
       .subscribe({
         next: (response: any) => {
           if (response.success) {
@@ -222,7 +222,7 @@ export class Login implements AfterViewInit {
     const emailGuardado = this.email;
     const passwordGuardado = this.password;
 
-    this.http.post(`${environment.apiUrl}/api/RegistroUsuario.php`, {
+    this.http.post(`${environment.apiUrl}/api/autenticacion/RegistroUsuario.php`, {
       dni: this.dni,
       nombre: this.nombre,
       telefono: this.telefono,

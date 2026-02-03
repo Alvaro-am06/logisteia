@@ -39,7 +39,7 @@ export class ClienteService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  private apiUrl = `${environment.apiUrl}/api/clientes.php`;
+  private apiUrl = `${environment.apiUrl}/api/clientes/clientes.php`;
 
   // Obtener todos los clientes
   getClientes(): Observable<ApiResponse<Cliente[]>> {

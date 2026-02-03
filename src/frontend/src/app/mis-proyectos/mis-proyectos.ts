@@ -139,7 +139,7 @@ export class MisProyectos implements OnInit {
 
   cargarDatosCreacion() {
     // Cargar clientes
-    this.http.get(`${environment.apiUrl}/api/clientes.php`).subscribe({
+    this.http.get(`${environment.apiUrl}/api/clientes/clientes.php`).subscribe({
       next: (response: any) => {
         if (response && response.success) {
           this.clientes = response.clientes || [];

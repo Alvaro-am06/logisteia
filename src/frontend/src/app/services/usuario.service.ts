@@ -40,8 +40,8 @@ export class UsuarioService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  private apiUrl = `${environment.apiUrl}/api/usuarios.php`;
-  private historialUrl = `${environment.apiUrl}/api/historial.php`;
+  private apiUrl = `${environment.apiUrl}/api/usuarios/usuarios.php`;
+  private historialUrl = `${environment.apiUrl}/api/usuarios/historial.php`;
 
   // Obtener todos los usuarios
   getUsuarios(): Observable<ApiResponse<Usuario[]>> {

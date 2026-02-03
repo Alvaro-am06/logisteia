@@ -55,45 +55,45 @@ export class ProyectoService {
 
   // Obtener proyectos del usuario actual
   getProyectos(): Observable<{success: boolean, proyectos: Proyecto[]}> {
-    return this.http.get<{success: boolean, proyectos: Proyecto[]}>(`${environment.apiUrl}/api/proyectos.php`);
+    return this.http.get<{success: boolean, proyectos: Proyecto[]}>(`${environment.apiUrl}/api/proyectos/proyectos.php`);
   }
 
   // Crear nuevo proyecto
   crearProyecto(proyecto: Partial<Proyecto> & {trabajadores?: Trabajador[]}): Observable<{success: boolean, proyecto_id?: number}> {
-    return this.http.post<{success: boolean, proyecto_id?: number}>(`${environment.apiUrl}/api/proyectos.php`, proyecto);
+    return this.http.post<{success: boolean, proyecto_id?: number}>(`${environment.apiUrl}/api/proyectos/proyectos.php`, proyecto);
   }
 
   // Obtener trabajadores asignados a un proyecto
   getTrabajadoresProyecto(proyectoId: number): Observable<{success: boolean, trabajadores: Trabajador[]}> {
-    return this.http.get<{success: boolean, trabajadores: Trabajador[]}>(`${environment.apiUrl}/api/proyectos.php/${proyectoId}/trabajadores`);
+    return this.http.get<{success: boolean, trabajadores: Trabajador[]}>(`${environment.apiUrl}/api/proyectos/proyectos.php/${proyectoId}/trabajadores`);
   }
 
   // Asignar trabajadores a un proyecto
   asignarTrabajadores(proyectoId: number, trabajadores: Trabajador[]): Observable<{success: boolean, message: string}> {
-    return this.http.post<{success: boolean, message: string}>(`${environment.apiUrl}/api/proyectos.php/${proyectoId}/trabajadores`, {trabajadores});
+    return this.http.post<{success: boolean, message: string}>(`${environment.apiUrl}/api/proyectos/proyectos.php/${proyectoId}/trabajadores`, {trabajadores});
   }
 
   // Remover asignación de trabajador
   removerAsignacion(proyectoId: number, trabajadorDni: string): Observable<{success: boolean, message: string}> {
-    return this.http.delete<{success: boolean, message: string}>(`${environment.apiUrl}/api/proyectos.php/${proyectoId}/trabajadores/${trabajadorDni}`);
+    return this.http.delete<{success: boolean, message: string}>(`${environment.apiUrl}/api/proyectos/proyectos.php/${proyectoId}/trabajadores/${trabajadorDni}`);
   }
 
   // Obtener miembros disponibles de un equipo
   getMiembrosDisponibles(equipoId: number, proyectoId?: number): Observable<{success: boolean, miembros: MiembroEquipo[]}> {
     const params = proyectoId ? `?proyecto_id=${proyectoId}` : '';
-    return this.http.get<{success: boolean, miembros: MiembroEquipo[]}>(`${environment.apiUrl}/api/proyectos.php/miembros-disponibles/${equipoId}${params}`);
+    return this.http.get<{success: boolean, miembros: MiembroEquipo[]}>(`${environment.apiUrl}/api/proyectos/proyectos.php/miembros-disponibles/${equipoId}${params}`);
   }
 
   // Eliminar proyecto
   eliminarProyecto(proyectoId: number): Observable<{success: boolean, error?: string}> {
-    return this.http.request<{success: boolean, error?: string}>('DELETE', `${environment.apiUrl}/api/proyectos.php`, {
+    return this.http.request<{success: boolean, error?: string}>('DELETE', `${environment.apiUrl}/api/proyectos/proyectos.php`, {
       body: { id: proyectoId }
     });
   }
 
   // Cambiar estado del proyecto
   cambiarEstadoProyecto(proyectoId: number, nuevoEstado: string): Observable<{success: boolean, error?: string, presupuesto_total?: number}> {
-    return this.http.request<{success: boolean, error?: string, presupuesto_total?: number}>('PUT', `${environment.apiUrl}/api/proyectos.php`, {
+    return this.http.request<{success: boolean, error?: string, presupuesto_total?: number}>('PUT', `${environment.apiUrl}/api/proyectos/proyectos.php`, {
       body: { id: proyectoId, estado: nuevoEstado }
     });
   }

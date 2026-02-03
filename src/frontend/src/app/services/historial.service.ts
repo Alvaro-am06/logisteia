@@ -25,7 +25,7 @@ export class HistorialService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  private apiUrl = `${environment.apiUrl}/api/historial.php`;
+  private apiUrl = `${environment.apiUrl}/api/usuarios/historial.php`;
 
   // Obtener todo el historial administrativo
   getHistorial(): Observable<ApiResponse<HistorialItem[]>> {
