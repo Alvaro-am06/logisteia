@@ -6,17 +6,19 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Configurar CORS antes de cualquier salida
+require_once __DIR__ . '/../../config/config.php';
+setupCors();
+if (handlePreflight()) {
+    exit();
+}
+
+header('Content-Type: text/plain; charset=UTF-8');
+
 echo "=== DEBUG PROYECTOS ===\n\n";
 
 // 1. Test config.php
-echo "1. Cargando config.php...\n";
-try {
-    require_once __DIR__ . '/../../config/config.php';
-    echo "   ✓ config.php cargado\n";
-} catch (Exception $e) {
-    echo "   ✗ Error: " . $e->getMessage() . "\n";
-    exit(1);
-}
+echo "1. Config.php cargado correctamente\n";
 
 // 2. Test conexión BD
 echo "\n2. Probando conexión BD...\n";

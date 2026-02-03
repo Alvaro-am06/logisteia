@@ -58,10 +58,9 @@ try {
     
     $codigoField = $hasCodigoCol ? 'p.codigo' : 'CONCAT("PROY-", p.id) as codigo';
     $fechaFinField = $hasFechaFinReal ? 'p.fecha_fin_real as fecha_fin' : 'NULL as fecha_fin';
-    $precioField = $hasPrecioTotal ? 'COALESCE(p.precio_total, 0) as precio_estimado' : '0 as precio_estimado';
     $orderBy = $hasFechaCreacion ? 'p.fecha_creacion DESC' : 'p.id DESC';
     
-    // Consulta para obtener todos los proyectos con información del jefe y cliente
+    // Consulta para obtener todos los proyectos con el precio del presupuesto
     $query = "SELECT 
                 p.id,
                 $codigoField,
@@ -72,11 +71,11 @@ try {
                 p.estado,
                 p.fecha_inicio,
                 $fechaFinField,
-                COALESCE(p.horas_estimadas, 0) as horas_estimadas,
-                $precioField
+                COALESCE(pr.total, p.precio_total, 0) as precio_total
               FROM proyectos p
               LEFT JOIN usuarios u ON p.jefe_dni = u.dni
               LEFT JOIN clientes c ON p.cliente_id = c.id
+              LEFT JOIN presupuestos pr ON p.presupuesto_numero = pr.numero_presupuesto
               ORDER BY $orderBy";
     
     $stmt = $db->query($query);

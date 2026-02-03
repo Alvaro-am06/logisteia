@@ -13,8 +13,13 @@ require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y headers
 setupCors();
+
+// Manejar preflight OPTIONS
+if (handlePreflight()) {
+    exit();
+}
+
 header('Content-Type: application/json; charset=UTF-8');
-handlePreflight();
 
 // Cargar dependencias
 require_once __DIR__ . '/../../modelos/ConexionBBDD.php';

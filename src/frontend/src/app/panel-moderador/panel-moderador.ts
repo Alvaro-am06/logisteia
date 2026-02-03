@@ -45,8 +45,7 @@ interface ProyectoResumen {
   estado: string;
   fecha_inicio: string;
   fecha_fin: string | null;
-  horas_estimadas: number;
-  precio_estimado: number;
+  precio_total: number;
 }
 
 @Component({
