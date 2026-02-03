@@ -76,8 +76,27 @@ switch ($method) {
             exit();
         }
 
-        // Ruta por defecto: Listar proyectos del jefe autenticado
-        $proyectos = $proyecto->obtenerProyectosPorJefe($jefe_dni);
+        // Ruta por defecto: Listar proyectos del usuario autenticado
+        // Determinar si es jefe de equipo o trabajador consultando la tabla usuarios
+        $queryRol = "SELECT rol FROM usuarios WHERE dni = :dni LIMIT 1";
+        $stmtRol = $db->prepare($queryRol);
+        $stmtRol->execute([':dni' => $jefe_dni]);
+        $usuario = $stmtRol->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$usuario) {
+            ob_end_clean();
+            http_response_code(404);
+            echo json_encode(['error' => 'Usuario no encontrado']);
+            exit();
+        }
+        
+        // Si es trabajador, obtener proyectos asignados; si es jefe, obtener proyectos creados
+        if ($usuario['rol'] === 'trabajador') {
+            $proyectos = $proyecto->obtenerProyectosPorTrabajador($jefe_dni);
+        } else {
+            $proyectos = $proyecto->obtenerProyectosPorJefe($jefe_dni);
+        }
+        
         if ($proyectos !== false) {
             echo json_encode([
                 'success' => true,

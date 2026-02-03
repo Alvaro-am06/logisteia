@@ -142,7 +142,7 @@ try {
                             </p>
                             
                             <div style='text-align: center; margin: 30px 0;'>
-                                <a href='https://logisteia.com/login' style='display: inline-block; background: #102a41; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; font-size: 16px;'>
+                                <a href='https://logisteia.es/login' style='display: inline-block; background: #102a41; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; font-size: 16px;'>
                                     Iniciar Sesión
                                 </a>
                             </div>

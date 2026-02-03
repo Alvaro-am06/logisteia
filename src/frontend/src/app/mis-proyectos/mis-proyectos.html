@@ -29,7 +29,7 @@
             {{ usuarioRol === 'jefe_equipo' ? 'Gestiona los proyectos que has creado y asigna trabajadores' : 'Visualiza los proyectos en los que estás asignado' }}
           </p>
         </div>
-        <button (click)="crearNuevo()" class="w-full sm:w-auto px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
+        <button *ngIf="usuarioRol === 'jefe_equipo'" (click)="crearNuevo()" class="w-full sm:w-auto px-6 py-3 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition font-semibold shadow-md">
           + Crear Nuevo
         </button>
       </div>

@@ -62,7 +62,7 @@ try {
             <p>Ya puedes iniciar sesión en la plataforma con tus credenciales.</p>
             <br>
             <p><strong>Accede a la plataforma:</strong></p>
-            <p><a href='https://logisteia.com' style='background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Iniciar Sesión</a></p>
+            <p><a href='https://logisteia.es' style='background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Iniciar Sesión</a></p>
             <br>
             <p>Si tienes alguna pregunta o problema, no dudes en contactarnos.</p>
             <br>

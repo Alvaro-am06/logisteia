@@ -115,7 +115,8 @@ export class PresupuestosComponent implements OnInit {
       next: (response: any) => {
         console.log('Respuesta recibida:', response);
         if (response.success) {
-          alert(`Presupuesto enviado correctamente`);
+          const destinatarios = response.destinatarios?.join(', ') || 'destinatarios';
+          alert(`Email enviado correctamente\n\nPresupuesto: ${presupuesto.numero_presupuesto}\nEnviado a: ${destinatarios}`);
         } else {
           alert('Error al enviar: ' + (response.error || 'Error desconocido'));
         }
@@ -141,7 +142,7 @@ export class PresupuestosComponent implements OnInit {
       next: (response: any) => {
         console.log('Respuesta eliminación:', response);
         if (response.success) {
-          alert('Presupuesto eliminado correctamente');
+          alert(`Presupuesto ${presupuesto.numero_presupuesto} eliminado correctamente`);
           this.cerrarModalDetalle();
           this.cargarPresupuestos();
         } else {

@@ -60,15 +60,12 @@ export class PanelRegistrado implements OnInit {
   }
 
   cerrarSesion() {
-    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-      // Solo ejecutar en el navegador
-      if (isPlatformBrowser(this.platformId)) {
-        // Limpiar datos de sesión
-        localStorage.removeItem('usuario');
-        localStorage.removeItem('token');
-      }
-      this.router.navigate(['/login']);
+    // Limpiar datos de sesión
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('usuario');
+      localStorage.removeItem('token');
     }
+    this.router.navigate(['/login']);
   }
 
   private validarRol(rol: any): 'jefe_equipo' | 'trabajador' | 'moderador' | 'admin' {
