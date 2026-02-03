@@ -226,6 +226,11 @@ export class PanelModeradorComponent implements OnInit {
           this.cargando = false;
           if (response.success) {
             this.usuarios = response.data || [];
+            console.log('👥 Usuarios cargados:', this.usuarios);
+            // Debug: verificar estado de cada usuario
+            this.usuarios.forEach(u => {
+              console.log(`Usuario ${u.nombre}: estado="${u.estado}" (tipo: ${typeof u.estado})`);
+            });
           }
           this.cdr.markForCheck();
         },
