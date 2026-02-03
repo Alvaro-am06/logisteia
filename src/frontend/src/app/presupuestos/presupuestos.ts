@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -26,6 +26,7 @@ export class PresupuestosComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
   
   presupuestos: Presupuesto[] = [];
   loading = false;
@@ -61,27 +62,23 @@ export class PresupuestosComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    setTimeout(() => {
-      this.http.get<any>(`${environment.apiUrl}/api/mis-presupuestos.php?dni=${this.usuarioDni}`)
-        .subscribe({
-          next: (response) => {
-            setTimeout(() => {
-              this.loading = false;
-              if (response && response.success) {
-                this.presupuestos = response.data || [];
-              } else {
-                this.error = response.error || 'Error al cargar presupuestos';
-              }
-            }, 0);
-          },
-          error: (err) => {
-            setTimeout(() => {
-              this.loading = false;
-              this.error = 'Error de conexión al cargar presupuestos';
-            }, 0);
+    this.http.get<any>(`${environment.apiUrl}/api/mis-presupuestos.php?dni=${this.usuarioDni}`)
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          if (response && response.success) {
+            this.presupuestos = response.data || [];
+          } else {
+            this.error = response.error || 'Error al cargar presupuestos';
           }
-        });
-    }, 0);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = 'Error de conexión al cargar presupuestos';
+          this.cdr.markForCheck();
+        }
+      });
   }
 
   formatearRol(rol: string): string {

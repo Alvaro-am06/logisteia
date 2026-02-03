@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { EquipoService, MiembroEquipo, Equipo, AgregarMiembroRequest } from '../services/equipo.service';
@@ -16,6 +16,7 @@ export class MiEquipo implements OnInit {
   private router = inject(Router);
   private equipoService = inject(EquipoService);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   // Datos del equipo
   equipo: Equipo | null = null;
@@ -71,11 +72,13 @@ export class MiEquipo implements OnInit {
           this.error = response.error || 'Error al cargar los miembros del equipo';
           this.miembros = []; // Resetear a array vacío en caso de error
         }
+        this.cdr.markForCheck();
       },
       error: (error) => {
         this.loading = false;
         this.miembros = []; // Resetear a array vacío en caso de error
         this.error = 'Error de conexión al cargar los miembros del equipo';
+        this.cdr.markForCheck();
       }
     });
   }

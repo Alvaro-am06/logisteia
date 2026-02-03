@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -26,6 +26,7 @@ export class MisProyectos implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
   private proyectoService = inject(ProyectoService);
   private equipoService = inject(EquipoService);
 
@@ -114,30 +115,26 @@ export class MisProyectos implements OnInit {
   cargarProyectos() {
     this.loading = true;
 
-    setTimeout(() => {
-      this.proyectoService.getProyectos().subscribe({
-        next: (response) => {
-          setTimeout(() => {
-            this.loading = false;
-            if (response && response.success) {
-              this.proyectos = response.proyectos || [];
-              // Actualizar localStorage para el panel
-              localStorage.setItem('proyectosTotal', this.proyectos.length.toString());
-            } else {
-              this.message = 'Error al cargar proyectos';
-              this.proyectos = [];
-            }
-          }, 0);
-        },
-        error: (error) => {
-          setTimeout(() => {
-            this.loading = false;
-            this.message = 'Error de conexión al cargar proyectos';
-            this.proyectos = [];
-          }, 0);
+    this.proyectoService.getProyectos().subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response && response.success) {
+          this.proyectos = response.proyectos || [];
+          // Actualizar localStorage para el panel
+          localStorage.setItem('proyectosTotal', this.proyectos.length.toString());
+        } else {
+          this.message = 'Error al cargar proyectos';
+          this.proyectos = [];
         }
-      });
-    }, 0);
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.loading = false;
+        this.message = 'Error de conexión al cargar proyectos';
+        this.proyectos = [];
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   cargarDatosCreacion() {
@@ -199,23 +196,19 @@ export class MisProyectos implements OnInit {
 
     this.cargandoMiembros = true;
 
-    setTimeout(() => {
-      this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id!).subscribe({
-        next: (response) => {
-          setTimeout(() => {
-            this.cargandoMiembros = false;
-            if (response.success) {
-              this.miembrosDisponibles = response.miembros;
-            }
-          }, 0);
-        },
-        error: (error: any) => {
-          setTimeout(() => {
-            this.cargandoMiembros = false;
-          }, 0);
+    this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id!).subscribe({
+      next: (response) => {
+        this.cargandoMiembros = false;
+        if (response.success) {
+          this.miembrosDisponibles = response.miembros;
         }
-      });
-    }, 0);
+        this.cdr.markForCheck();
+      },
+      error: (error: any) => {
+        this.cargandoMiembros = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   agregarTrabajador(trabajador: MiembroEquipo) {

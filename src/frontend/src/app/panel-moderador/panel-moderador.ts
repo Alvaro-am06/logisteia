@@ -1,4 +1,4 @@
-import { Component, inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, inject, PLATFORM_ID, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -60,6 +60,7 @@ export class PanelModeradorComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   moderador: any = null;
   usuarioRol = '';
@@ -164,10 +165,12 @@ export class PanelModeradorComponent implements OnInit {
           if (response.success) {
             this.historialBaneos = response.data || [];
           }
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.cargando = false;
           this.historialBaneos = [];
+          this.cdr.markForCheck();
         }
       });
   }
@@ -181,10 +184,12 @@ export class PanelModeradorComponent implements OnInit {
           if (response.success) {
             this.proyectos = response.data || [];
           }
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.cargando = false;
           this.proyectos = [];
+          this.cdr.markForCheck();
         }
       });
   }
