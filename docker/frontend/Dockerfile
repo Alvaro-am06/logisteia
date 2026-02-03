@@ -23,7 +23,7 @@ COPY --from=build-step /app/dist/frontend/browser /srv
 # --- ARREGLO CRÍTICO ---
 # Angular 17+ SSR genera 'index.csr.html' en lugar de 'index.html'.
 # Lo renombramos para que Caddy lo reconozca como la página principal.
-RUN cp /srv/index.csr.html /srv/index.html
+COPY --from=build-step /app/dist/frontend/browser/index.html /srv/index.html
 
 # Exponemos puertos
 EXPOSE 80
