@@ -463,14 +463,14 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
-                // Si se finalizó el proyecto, obtener presupuesto_total para el dashboard
+                // Si se finalizó el proyecto, obtener precio_total para el dashboard
                 $presupuesto_total = 0;
                 if ($input['estado'] === 'finalizado') {
-                    $sqlPresupuesto = "SELECT presupuesto_total FROM proyectos WHERE id = :id";
+                    $sqlPresupuesto = "SELECT precio_total FROM proyectos WHERE id = :id";
                     $stmtPresupuesto = $db->prepare($sqlPresupuesto);
                     $stmtPresupuesto->execute([':id' => $proyectoId]);
-                    $proyecto = $stmtPresupuesto->fetch(PDO::FETCH_ASSOC);
-                    $presupuesto_total = $proyecto['presupuesto_total'] ?? 0;
+                    $proyectoData = $stmtPresupuesto->fetch(PDO::FETCH_ASSOC);
+                    $presupuesto_total = $proyectoData['precio_total'] ?? 0;
                 }
                 
                 echo json_encode([

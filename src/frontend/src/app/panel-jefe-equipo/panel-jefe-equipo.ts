@@ -70,6 +70,9 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
     // Cargar proyectos desde servidor
     this.cargarProyectosCount();
     
+    // Cargar total facturado desde servidor
+    this.cargarTotalFacturado();
+    
     // Escuchar cambios en localStorage
     window.addEventListener('storage', (event) => {
       if (event.key === 'proyectosTotal') {
@@ -78,6 +81,10 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
       }
       if (event.key === 'clientesCount') {
         this.clientesCount = parseInt(event.newValue || '0', 10);
+      }
+      if (event.key === 'totalFacturado') {
+        this.totalFacturado = parseFloat(event.newValue || '0');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -95,6 +102,7 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
             this.proyectosTotal = response.proyectos.length;
             // Guardar en localStorage para persistencia
             localStorage.setItem('proyectosTotal', this.proyectosTotal.toString());
+            this.cdr.detectChanges();
           } else {
             this.proyectosTotal = 0;
           }
@@ -111,8 +119,44 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
       });
   }
 
+  cargarTotalFacturado() {
+    // Calcular total facturado desde proyectos finalizados
+    if (!this.usuarioDni) return;
+    
+    const headers = {
+      'X-User-DNI': this.usuarioDni
+    };
+    
+    this.http.get<any>(`${environment.apiUrl}/api/proyectos/proyectos.php`, { headers })
+      .subscribe({
+        next: (response) => {
+          if (response && response.proyectos && Array.isArray(response.proyectos)) {
+            // Sumar precio_total de proyectos finalizados
+            this.totalFacturado = response.proyectos
+              .filter((p: any) => p.estado === 'finalizado')
+              .reduce((sum: number, p: any) => sum + (parseFloat(p.precio_total) || 0), 0);
+            
+            // Guardar en localStorage para persistencia
+            localStorage.setItem('totalFacturado', this.totalFacturado.toString());
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          // Si falla, intenta usar el valor guardado en localStorage
+          const totalFacturadoStored = localStorage.getItem('totalFacturado');
+          if (totalFacturadoStored) {
+            this.totalFacturado = parseFloat(totalFacturadoStored);
+          } else {
+            this.totalFacturado = 0;
+          }
+        }
+      });
+  }
+
   cargarClientesCount() {
     // Obtener conteo de clientes del servidor
+    if (!this.usuarioDni) return;
+    
     const headers = {
       'X-User-DNI': this.usuarioDni
     };
@@ -124,6 +168,7 @@ export class PanelJefeEquipo implements OnInit, OnDestroy {
             this.clientesCount = response.clientes.length;
             // Guardar en localStorage para persistencia
             localStorage.setItem('clientesCount', this.clientesCount.toString());
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {
