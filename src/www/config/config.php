@@ -131,34 +131,42 @@ function setupCors() {
         header('Access-Control-Allow-Origin: ' . $defaultOrigin);
         header('Access-Control-Allow-Credentials: true');
     } else {
-        // En producción, si el origen no está permitido, usar el primero de la lista
-        if (!empty(ALLOWED_ORIGINS)) {
-            header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGINS[0]);
+        // En producción, SIEMPRE enviar headers CORS aunque el origen no esté en la lista
+        // Esto es crítico para que el navegador no bloquee la respuesta
+        if (!empty($origin)) {
+            // Si hay origin, verificar si está permitido
+            if (in_array($origin, ALLOWED_ORIGINS)) {
+                header('Access-Control-Allow-Origin: ' . $origin);
+            } else {
+                // Si no está permitido, usar el primero de la lista pero SIEMPRE enviar algo
+                header('Access-Control-Allow-Origin: ' . (!empty(ALLOWED_ORIGINS) ? ALLOWED_ORIGINS[0] : $origin));
+            }
+        } else {
+            // Si no hay origin, usar el primero de la lista
+            if (!empty(ALLOWED_ORIGINS)) {
+                header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGINS[0]);
+            }
         }
+        header('Access-Control-Allow-Credentials: true');
     }
     
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH');
     header('Access-Control-Allow-Headers: Content-Type, Authorization, X-User-DNI, X-User-Rol, X-User-Nombre, X-User-Email, X-Auth-Token, Origin, Accept, X-Requested-With');
     header('Access-Control-Max-Age: 86400'); // Cache preflight por 24 horas
-    
-    // Manejar OPTIONS (preflight) inmediatamente
-    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        http_response_code(204);
-        exit();
-    }
 }
 
 /**
  * Maneja peticiones OPTIONS (preflight)
  * Debe llamarse DESPUÉS de setupCors()
  * 
- * @return void
+ * @return bool True si es preflight y se manejó, false en caso contrario
  */
 function handlePreflight() {
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(204); // No Content es más apropiado para OPTIONS
-        exit();
+        return true;
     }
+    return false;
 }
 
 // La función logError está definida en helpers.php - no duplicar aquí
