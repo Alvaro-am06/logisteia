@@ -95,9 +95,9 @@ try {
     // Extraer email del cliente de las notas si existe
     $emailCliente = null;
     $nombreCliente = null;
-    if (isset($presupuesto['notas']) && strpos($presupuesto['notas'], 'Email Cliente:') !== false) {
-        // Es presupuesto del wizard con email del cliente
-        if (preg_match('/Email Cliente:\s*([^\n]+)/', $presupuesto['notas'], $matches)) {
+    if (isset($presupuesto['notas'])) {
+        // Buscar tanto 'Email Cliente:' como 'Email:'
+        if (preg_match('/Email(?: Cliente)?:\s*([^\n]+)/', $presupuesto['notas'], $matches)) {
             $emailCliente = trim($matches[1]);
         }
         if (preg_match('/Cliente:\s*([^\n]+)/', $presupuesto['notas'], $matches)) {
