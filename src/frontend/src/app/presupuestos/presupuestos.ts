@@ -101,6 +101,7 @@ export class PresupuestosComponent implements OnInit {
   }
 
   enviarPDFPresupuesto(presupuesto: Presupuesto | null) {
+    console.log('CLICK enviarPDFPresupuesto', presupuesto);
     if (!presupuesto) return;
     
     if (!confirm(`¿Enviar el presupuesto ${presupuesto.numero_presupuesto} por email al cliente ${presupuesto.cliente_nombre}?`)) {
