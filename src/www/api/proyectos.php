@@ -538,26 +538,16 @@ switch ($method) {
         $proyectoId = $input['id'];
 
         try {
-            // Obtener numero_presupuesto antes de eliminar el proyecto
-            $sqlGetPresupuesto = "SELECT numero_presupuesto FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
-            $stmtGet = $db->prepare($sqlGetPresupuesto);
-            $stmtGet->execute([
-                ':id' => $proyectoId,
-                ':jefe_dni' => $jefe_dni
-            ]);
-            $proyecto_data = $stmtGet->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$proyecto_data) {
-                http_response_code(404);
-                echo json_encode(['error' => 'Proyecto no encontrado o no tienes permisos']);
-                exit();
-            }
-            
-            // Primero eliminar asignaciones de trabajadores (FK constraint)
+            // Eliminar asignaciones de trabajadores (FK constraint)
             $sqlDeleteAsignaciones = "DELETE FROM asignaciones_proyecto WHERE proyecto_id = :proyecto_id";
             $stmtDeleteAsig = $db->prepare($sqlDeleteAsignaciones);
             $stmtDeleteAsig->execute([':proyecto_id' => $proyectoId]);
-            
+
+            // Eliminar presupuestos asociados a este proyecto
+            $sqlDeletePresupuestos = "DELETE FROM presupuestos WHERE proyecto_id = :proyecto_id";
+            $stmtDeletePresupuestos = $db->prepare($sqlDeletePresupuestos);
+            $stmtDeletePresupuestos->execute([':proyecto_id' => $proyectoId]);
+
             // Eliminar proyecto
             $sql = "DELETE FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
             $stmt = $db->prepare($sql);
@@ -567,16 +557,6 @@ switch ($method) {
             ]);
 
             if ($stmt->rowCount() > 0) {
-                // Si el proyecto tenía un presupuesto asociado, eliminarlo
-                if ($proyecto_data && !empty($proyecto_data['numero_presupuesto'])) {
-                    try {
-                        $sqlDeletePresupuesto = "DELETE FROM presupuestos WHERE numero_presupuesto = :numero";
-                        $stmtDeletePresupuesto = $db->prepare($sqlDeletePresupuesto);
-                        $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['numero_presupuesto']]);
-                    } catch (Exception $presupuestoError) {
-                    }
-                }
-                
                 echo json_encode(['success' => true, 'message' => 'Proyecto eliminado correctamente']);
             } else {
                 ob_end_clean();
