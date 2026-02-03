@@ -11,9 +11,9 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
-require_once __DIR__ . '/../config/helpers.php';
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../modelos/Presupuesto.php';
+require_once __DIR__ . '/../../config/helpers.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/Presupuesto.php';
 
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

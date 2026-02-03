@@ -8,8 +8,8 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/jwt.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -17,9 +17,9 @@ header('Content-Type: application/json');
 handlePreflight();
 
 // Cargar modelos
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../modelos/Usuarios.php';
-require_once __DIR__ . '/../modelos/AccionesAdministrativas.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/Usuarios.php';
+require_once __DIR__ . '/../../modelos/AccionesAdministrativas.php';
 
 // Iniciar sesión
 if (session_status() === PHP_SESSION_NONE) {

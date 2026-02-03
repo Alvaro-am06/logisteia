@@ -1,14 +1,14 @@
 <?php
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/jwt.php';
 
 // Configurar CORS de forma segura basado en .env
 setupCors();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
 
 try {
     // Obtener datos JSON

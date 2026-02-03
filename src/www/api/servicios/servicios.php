@@ -6,7 +6,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -14,8 +14,8 @@ header('Content-Type: application/json');
 handlePreflight();
 
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-    require_once __DIR__ . '/../modelos/Servicio.php';
+    require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+    require_once __DIR__ . '/../../modelos/Servicio.php';
     
     // Solo permitir GET
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

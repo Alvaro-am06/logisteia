@@ -6,7 +6,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 // Cargar modelos
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../modelos/AccionesAdministrativas.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/AccionesAdministrativas.php';
 
 // Iniciar sesión
 if (session_status() === PHP_SESSION_NONE) {

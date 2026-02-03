@@ -4,15 +4,15 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/jwt.php';
 
 // Configurar CORS y headers
 setupCors();
 header('Content-Type: application/json');
 handlePreflight();
 
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
 
 // Función para obtener conexión a la base de datos
 function getConexion() {
@@ -28,7 +28,7 @@ function getConexion() {
 // Función para enviar email de bienvenida a equipo con enlace de confirmación
 function enviarEmailBienvenida($emailDestinatario, $nombreDestinatario, $nombreEquipo, $jefeNombre, $jefeEmail, $token_invitacion) {
     try {
-        require_once __DIR__ . '/../config/email.php';
+        require_once __DIR__ . '/../../config/email.php';
 
         $asunto = "Invitación al equipo $nombreEquipo - Logisteia";
         $enlaceConfirmacion = "https://api.logisteia.es/api/confirmar-invitacion.php?token=$token_invitacion";

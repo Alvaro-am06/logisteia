@@ -1,6 +1,6 @@
 <?php
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y manejar preflight
 setupCors();
@@ -8,8 +8,8 @@ handlePreflight();
 
 header('Content-Type: application/json; charset=UTF-8');
 
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../config/jwt.php';
 
 try {
     // Obtener datos JSON
@@ -113,7 +113,7 @@ try {
     
     // Enviar email de bienvenida
     try {
-        require_once __DIR__ . '/../config/email.php';
+        require_once __DIR__ . '/../../config/email.php';
         
         $asunto = "Bienvenido a Logisteia";
         $mensajeHTML = "<!DOCTYPE html>

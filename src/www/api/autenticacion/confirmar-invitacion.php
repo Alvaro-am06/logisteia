@@ -8,7 +8,7 @@ exit('Esta funcionalidad ya no está disponible');
 /*
 header('Content-Type: text/html; charset=UTF-8');
 
-require_once '../config/config.php';
+require_once '../../config/config.php';
 
 // Función para obtener conexión a la base de datos
 function getConexion() {

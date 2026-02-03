@@ -11,7 +11,7 @@ echo "=== DEBUG PROYECTOS ===\n\n";
 // 1. Test config.php
 echo "1. Cargando config.php...\n";
 try {
-    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../../config/config.php';
     echo "   ✓ config.php cargado\n";
 } catch (Exception $e) {
     echo "   ✗ Error: " . $e->getMessage() . "\n";
@@ -21,7 +21,7 @@ try {
 // 2. Test conexión BD
 echo "\n2. Probando conexión BD...\n";
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+    require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
     $conn = ConexionBBDD::obtener();
     echo "   ✓ Conexión BD exitosa\n";
 } catch (Exception $e) {
@@ -32,7 +32,7 @@ try {
 // 3. Test modelo Proyecto
 echo "\n3. Cargando modelo Proyecto...\n";
 try {
-    require_once __DIR__ . '/../modelos/Proyecto.php';
+    require_once __DIR__ . '/../../modelos/Proyecto.php';
     $proyecto = new Proyecto($conn);
     echo "   ✓ Modelo Proyecto cargado\n";
 } catch (Exception $e) {

@@ -7,7 +7,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 handlePreflight();
 
 try {
-    require_once __DIR__ . '/../controladores/ControladorDeAutenticacion.php';
+    require_once __DIR__ . '/../../controladores/ControladorDeAutenticacion.php';
     
     $controller = new ControladorDeAutenticacion(); 
     $controller->apiLogin();

@@ -6,12 +6,12 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Cargar dependencias
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../modelos/Cliente.php';
-require_once __DIR__ . '/../controladores/ControladorDeAutenticacion.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/Cliente.php';
+require_once __DIR__ . '/../../controladores/ControladorDeAutenticacion.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -92,7 +92,7 @@ try {
     if ($result['success']) {
         // Intentar enviar email de bienvenida (no bloquear si falla)
         try {
-            require_once __DIR__ . '/../config/email.php';
+            require_once __DIR__ . '/../../config/email.php';
             
             $asunto = "Bienvenido a Logisteia";
             $mensajeHTML = "<!DOCTYPE html>

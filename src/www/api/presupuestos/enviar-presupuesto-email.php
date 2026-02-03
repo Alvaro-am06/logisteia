@@ -10,7 +10,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Iniciar output buffering para evitar output accidental
 ob_start();
@@ -27,11 +27,11 @@ if (handlePreflight()) {
 header('Content-Type: application/json');
 
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-    require_once __DIR__ . '/../modelos/Presupuesto.php';
-    require_once __DIR__ . '/../modelos/Usuarios.php';
-    require_once __DIR__ . '/../config/email.php';
-    require_once __DIR__ . '/../config/helpers.php';
+    require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+    require_once __DIR__ . '/../../modelos/Presupuesto.php';
+    require_once __DIR__ . '/../../modelos/Usuarios.php';
+    require_once __DIR__ . '/../../config/email.php';
+    require_once __DIR__ . '/../../config/helpers.php';
     
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         ob_end_clean();

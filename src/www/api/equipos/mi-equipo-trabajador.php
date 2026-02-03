@@ -1,6 +1,6 @@
 <?php
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y manejar preflight
 setupCors();
@@ -8,7 +8,7 @@ handlePreflight();
 
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
 
 // Verificar autenticación
 $usuario = verificarAutenticacion();

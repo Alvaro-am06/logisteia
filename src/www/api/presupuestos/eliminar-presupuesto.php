@@ -8,7 +8,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS
 setupCors();
@@ -21,8 +21,8 @@ if (handlePreflight()) {
 header('Content-Type: application/json');
 
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-    require_once __DIR__ . '/../modelos/Presupuesto.php';
+    require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+    require_once __DIR__ . '/../../modelos/Presupuesto.php';
     
     if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'DELETE') {
         http_response_code(405);

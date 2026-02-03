@@ -9,7 +9,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y headers
 setupCors();
@@ -17,9 +17,9 @@ header('Content-Type: application/json; charset=UTF-8');
 handlePreflight();
 
 // Cargar dependencias
-require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-require_once __DIR__ . '/../modelos/Cliente.php';
-require_once __DIR__ . '/../modelos/AccionesAdministrativas.php';
+require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+require_once __DIR__ . '/../../modelos/Cliente.php';
+require_once __DIR__ . '/../../modelos/AccionesAdministrativas.php';
 
 // Inicializar conexión
 try {

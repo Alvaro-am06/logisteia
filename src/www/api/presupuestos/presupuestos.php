@@ -20,7 +20,7 @@
  */
 
 // Cargar configuración centralizada
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 
 // Configurar CORS y manejar preflight
 setupCors();
@@ -29,8 +29,8 @@ handlePreflight();
 header('Content-Type: application/json');
 
 try {
-    require_once __DIR__ . '/../modelos/ConexionBBDD.php';
-    require_once __DIR__ . '/../modelos/Presupuesto.php';
+    require_once __DIR__ . '/../../modelos/ConexionBBDD.php';
+    require_once __DIR__ . '/../../modelos/Presupuesto.php';
     
     // Solo permitir POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
