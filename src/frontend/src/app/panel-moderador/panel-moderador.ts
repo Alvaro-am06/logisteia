@@ -270,6 +270,8 @@ export class PanelModeradorComponent implements OnInit {
   }
 
   gestionarUsuario(dni: string, accion: 'banear' | 'suspender' | 'activar' | 'eliminar') {
+    console.log('🔴 CLICK en botón:', accion, 'para DNI:', dni);
+    
     let mensaje = '';
     let motivoRequerido = false;
     
@@ -291,11 +293,17 @@ export class PanelModeradorComponent implements OnInit {
         break;
     }
     
-    if (!confirm(mensaje)) return;
+    console.log('💬 Mostrando confirm:', mensaje);
+    if (!confirm(mensaje)) {
+      console.log('❌ Usuario canceló la acción');
+      return;
+    }
     
     let motivo = '';
     if (motivoRequerido) {
+      console.log('📝 Solicitando motivo...');
       motivo = prompt('Motivo de la acción:') || 'Sin motivo especificado';
+      console.log('📝 Motivo ingresado:', motivo);
     }
     
     const headers = this.getAuthHeaders();
