@@ -24,7 +24,8 @@ class UsuarioControlador {
             $usuarios = [];
             $_SESSION['error'] = 'Error al obtener usuarios: ' . $e->getMessage();
         }
-        include 'vistas/usuarios.php';
+        // Vista PHP eliminada - Angular maneja el frontend
+        // include 'vistas/usuarios.php';
     }
 
     /** Ver detalle y historial de un usuario por DNI */
@@ -36,7 +37,8 @@ class UsuarioControlador {
             $_SESSION['error'] = 'Error al obtener usuario: ' . $e->getMessage();
         }
         $historial = $this->modeloAccion->obtenerPorUsuario($dni);
-        include 'vistas/usuarios.php';
+        // Vista PHP eliminada - Angular maneja el frontend
+        // include 'vistas/usuarios.php';
     }
 
     /**
@@ -67,7 +69,8 @@ class UsuarioControlador {
     /** Mostrar historial completo */
     public function historial() {
         $h = $this->modeloAccion->obtenerTodos();
-        include 'vistas/usuarios.php';
+        // Vista PHP eliminada - Angular maneja el frontend
+        // include 'vistas/usuarios.php';
     }
 
     public function obtenerUsuario($dni) {

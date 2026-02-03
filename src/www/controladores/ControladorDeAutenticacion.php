@@ -78,7 +78,9 @@ class ControladorDeAutenticacion {
                 $_SESSION['admin_nombre'] = $this->administrador->nombre;
                 $_SESSION['admin_email'] = $this->administrador->email;
                 
-                header('Location: vistas/panel_admin.php');
+                // Angular maneja el frontend - Esta ruta ya no existe
+                // header('Location: vistas/panel_admin.php');
+                echo json_encode(['success' => true, 'redirect' => '/dashboard']);
                 exit();
             } else {
                 $_SESSION['error'] = "Credenciales incorrectas";
