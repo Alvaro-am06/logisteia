@@ -538,8 +538,8 @@ switch ($method) {
         $proyectoId = $input['id'];
 
         try {
-            // Obtener presupuesto_numero antes de eliminar el proyecto
-            $sqlGetPresupuesto = "SELECT presupuesto_numero FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
+            // Obtener numero_presupuesto antes de eliminar el proyecto
+            $sqlGetPresupuesto = "SELECT numero_presupuesto FROM proyectos WHERE id = :id AND jefe_dni = :jefe_dni";
             $stmtGet = $db->prepare($sqlGetPresupuesto);
             $stmtGet->execute([
                 ':id' => $proyectoId,
@@ -568,11 +568,11 @@ switch ($method) {
 
             if ($stmt->rowCount() > 0) {
                 // Si el proyecto tenía un presupuesto asociado, eliminarlo
-                if ($proyecto_data && !empty($proyecto_data['presupuesto_numero'])) {
+                if ($proyecto_data && !empty($proyecto_data['numero_presupuesto'])) {
                     try {
                         $sqlDeletePresupuesto = "DELETE FROM presupuestos WHERE numero_presupuesto = :numero";
                         $stmtDeletePresupuesto = $db->prepare($sqlDeletePresupuesto);
-                        $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['presupuesto_numero']]);
+                        $stmtDeletePresupuesto->execute([':numero' => $proyecto_data['numero_presupuesto']]);
                     } catch (Exception $presupuestoError) {
                     }
                 }

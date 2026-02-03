@@ -118,54 +118,67 @@ try {
         exit();
     }
 
-    // Preparar email - enviar al cliente si existe, sino al usuario
+    // Preparar asunto
     $asunto = "Presupuesto #" . $presupuesto['numero_presupuesto'] . " - Logisteia";
-    
+
+    $erroresEnvio = [];
+    $enviados = [];
+
+    // Enviar al cliente si hay email
     if ($emailCliente) {
-        // Enviar al cliente
-        $destinatario = $emailCliente;
-        $nombreDestinatario = $nombreCliente ?: 'Cliente';
-    } else {
-        // Enviar al usuario (comportamiento antiguo)
-        $destinatario = $usuario['email'];
-        $nombreDestinatario = $usuario['nombre'];
+        try {
+            $resultadoCliente = enviarEmail(
+                $emailCliente,
+                $nombreCliente ?: 'Cliente',
+                $asunto,
+                $htmlPresupuesto,
+                'logisteiaa@gmail.com',
+                'Logisteia'
+            );
+            if ($resultadoCliente) {
+                $enviados[] = $emailCliente;
+            } else {
+                $erroresEnvio[] = 'No se pudo enviar al cliente (' . $emailCliente . ')';
+            }
+        } catch (Exception $ex) {
+            $erroresEnvio[] = 'Error al enviar al cliente (' . $emailCliente . '): ' . $ex->getMessage();
+        }
     }
 
-    // Enviar email
-    
+    // Enviar siempre al usuario
     try {
-        $resultado = enviarEmail(
-            $destinatario,
-            $nombreDestinatario,
+        $resultadoUsuario = enviarEmail(
+            $usuario['email'],
+            $usuario['nombre'],
             $asunto,
             $htmlPresupuesto,
             'logisteiaa@gmail.com',
             'Logisteia'
         );
-    } catch (Exception $emailSendError) {
-        ob_end_clean();
-        http_response_code(500);
-        echo json_encode([
-            'error' => 'Error al enviar email',
-            'message' => $emailSendError->getMessage(),
-            'destinatario' => $destinatario
-        ]);
-        exit();
+        if ($resultadoUsuario) {
+            $enviados[] = $usuario['email'];
+        } else {
+            $erroresEnvio[] = 'No se pudo enviar al usuario (' . $usuario['email'] . ')';
+        }
+    } catch (Exception $ex) {
+        $erroresEnvio[] = 'Error al enviar al usuario (' . $usuario['email'] . '): ' . $ex->getMessage();
     }
 
-    if ($resultado) {
+    if (empty($erroresEnvio)) {
         ob_end_clean();
         http_response_code(200);
         echo json_encode([
             'success' => true,
-            'message' => 'Presupuesto enviado por email correctamente a ' . $destinatario
+            'message' => 'Presupuesto enviado correctamente',
+            'destinatarios' => $enviados
         ]);
     } else {
         ob_end_clean();
         http_response_code(500);
         echo json_encode([
-            'error' => 'Error al enviar el email',
-            'destinatario' => $destinatario
+            'error' => 'Error al enviar el presupuesto',
+            'errores' => $erroresEnvio,
+            'enviados' => $enviados
         ]);
     }
     
