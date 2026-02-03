@@ -179,15 +179,15 @@
     <!-- Footer con acciones -->
     <div class="bg-gray-50 px-6 py-4 flex justify-between border-t">
       <div class="flex gap-3">
-        <button (click)="eliminarPresupuesto(presupuestoSeleccionado)"
+        <button (click)="eliminarPresupuesto(presupuestoSeleccionado); $event.stopPropagation()"
                 class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium">
           Eliminar
         </button>
-        <button (click)="enviarPDFPresupuesto(presupuestoSeleccionado)"
+        <button (click)="enviarPDFPresupuesto(presupuestoSeleccionado); $event.stopPropagation()"
                 class="px-6 py-2.5 bg-[#102a41] text-white rounded-lg hover:bg-[#1a3f5e] transition-all font-medium">
           Enviar PDF
         </button>
-        <button (click)="imprimirPDFPresupuesto(presupuestoSeleccionado)"
+        <button (click)="imprimirPDFPresupuesto(presupuestoSeleccionado); $event.stopPropagation()"
                 class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all font-medium">
           Imprimir PDF
         </button>
