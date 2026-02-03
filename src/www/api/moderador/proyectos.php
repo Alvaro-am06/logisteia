@@ -38,20 +38,26 @@ try {
                 c.nombre as cliente_nombre,
                 p.estado,
                 p.fecha_inicio,
-                p.fecha_fin,
+                p.fecha_fin_real as fecha_fin,
                 COALESCE(p.horas_estimadas, 0) as horas_estimadas,
-                COALESCE(p.precio_estimado, 0) as precio_estimado
+                COALESCE(p.precio_total, 0) as precio_estimado
               FROM proyectos p
               LEFT JOIN usuarios u ON p.jefe_dni = u.dni
               LEFT JOIN clientes c ON p.cliente_id = c.id
-              ORDER BY p.fecha_inicio DESC";
+              ORDER BY p.fecha_creacion DESC";
     
     $stmt = $db->query($query);
     $proyectos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Formatear datos
     foreach ($proyectos as &$proyecto) {
-        $proyecto['fecha_inicio'] = date('d/m/Y', strtotime($proyecto['fecha_inicio']));
+        // Formatear fecha_inicio solo si existe
+        if ($proyecto['fecha_inicio']) {
+            $proyecto['fecha_inicio'] = date('d/m/Y', strtotime($proyecto['fecha_inicio']));
+        } else {
+            $proyecto['fecha_inicio'] = 'Sin fecha';
+        }
+        
         $proyecto['precio_estimado'] = floatval($proyecto['precio_estimado']);
         $proyecto['horas_estimadas'] = intval($proyecto['horas_estimadas']);
         $proyecto['id'] = intval($proyecto['id']);
