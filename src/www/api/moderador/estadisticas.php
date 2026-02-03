@@ -63,7 +63,8 @@ try {
         $stmt = $db->query("SELECT COUNT(*) FROM proyectos");
         $estadisticas['proyectos_total'] = (int)$stmt->fetchColumn();
         
-        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'planificacion'");
+        // Estados: creado = planificación
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'creado'");
         $estadisticas['proyectos_planificacion'] = (int)$stmt->fetchColumn();
         
         $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'en_proceso'");
@@ -72,7 +73,8 @@ try {
         $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'finalizado'");
         $estadisticas['proyectos_finalizados'] = (int)$stmt->fetchColumn();
         
-        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'cancelado'");
+        // Cancelados y pausados se cuentan juntos
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado IN ('cancelado', 'pausado')");
         $estadisticas['proyectos_cancelados'] = (int)$stmt->fetchColumn();
     } catch (PDOException $e) {
         // Si no existe la tabla proyectos, usar valores 0
