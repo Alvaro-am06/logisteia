@@ -166,9 +166,9 @@ export class PanelModeradorComponent implements OnInit {
     if (vista === 'baneos' && this.historialBaneos.length === 0) {
       this.cargarHistorialBaneos();
     } else if (vista === 'proyectos' && this.proyectos.length === 0) {
-      else if (vista === 'usuarios' && this.usuarios.length === 0) {
+      this.cargarProyectos();
+    } else if (vista === 'usuarios' && this.usuarios.length === 0) {
       this.cargarUsuarios();
-    } this.cargarProyectos();
     }
   }
 
@@ -208,6 +208,8 @@ export class PanelModeradorComponent implements OnInit {
           this.cdr.markForCheck();
         }
       });
+  }
+
   cargarUsuarios() {
     this.cargando = true;
     this.http.get<any>(`${environment.apiUrl}/api/moderador/usuarios.php`)
@@ -225,8 +227,6 @@ export class PanelModeradorComponent implements OnInit {
           this.cdr.markForCheck();
         }
       });
-  }
-
   }
 
   desbanearUsuario(baneoId: number) {
