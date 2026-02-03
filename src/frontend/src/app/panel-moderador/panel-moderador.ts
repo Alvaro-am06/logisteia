@@ -272,50 +272,29 @@ export class PanelModeradorComponent implements OnInit {
   gestionarUsuario(dni: string, accion: 'banear' | 'suspender' | 'activar' | 'eliminar') {
     console.log('🔴 CLICK en botón:', accion, 'para DNI:', dni);
     
-    let mensaje = '';
-    let motivoRequerido = false;
+    // Por ahora ejecutar directamente sin confirmación
+    // TODO: Implementar modal de confirmación personalizado
+    let motivo = 'Acción ejecutada por el moderador';
     
-    switch(accion) {
-      case 'banear':
-        mensaje = '¿Estás seguro de banear a este usuario?';
-        motivoRequerido = true;
-        break;
-      case 'suspender':
-        mensaje = '¿Estás seguro de suspender a este usuario?';
-        motivoRequerido = true;
-        break;
-      case 'activar':
-        mensaje = '¿Estás seguro de activar a este usuario?';
-        break;
-      case 'eliminar':
-        mensaje = '¿Estás seguro de ELIMINAR a este usuario? Esta acción no se puede deshacer.';
-        motivoRequerido = true;
-        break;
-    }
-    
-    console.log('💬 Mostrando confirm:', mensaje);
-    if (!confirm(mensaje)) {
-      console.log('❌ Usuario canceló la acción');
-      return;
-    }
-    
-    let motivo = '';
-    if (motivoRequerido) {
-      console.log('📝 Solicitando motivo...');
-      motivo = prompt('Motivo de la acción:') || 'Sin motivo especificado';
-      console.log('📝 Motivo ingresado:', motivo);
+    if (accion === 'banear') {
+      motivo = 'Usuario baneado por comportamiento inapropiado';
+    } else if (accion === 'suspender') {
+      motivo = 'Cuenta suspendida temporalmente';
+    } else if (accion === 'eliminar') {
+      motivo = 'Usuario eliminado del sistema';
     }
     
     const headers = this.getAuthHeaders();
-    console.log('Enviando acción:', accion, 'para usuario:', dni);
-    console.log('Headers:', headers);
+    console.log('📤 Enviando acción:', accion, 'para usuario:', dni);
+    console.log('📋 Headers:', headers);
+    console.log('📝 Motivo:', motivo);
     
     this.http.post<any>(`${environment.apiUrl}/api/moderador/banear.php`, 
       { usuario_dni: dni, accion, motivo }, 
       { headers }
     ).subscribe({
       next: (response) => {
-        console.log('Respuesta del servidor:', response);
+        console.log('✅ Respuesta del servidor:', response);
         if (response.success) {
           this.cargarUsuarios(); // Recargar lista
           this.cargarEstadisticasServidor(); // Actualizar estadísticas
@@ -323,15 +302,15 @@ export class PanelModeradorComponent implements OnInit {
             this.cargarHistorialBaneos(); // Actualizar historial de baneos
           }
           const mensaje = response.data?.message || response.message || 'Acción realizada exitosamente';
-          alert(mensaje);
+          alert('✅ ' + mensaje);
         } else {
-          console.error('Error en respuesta:', response);
-          alert('Error: ' + (response.error || 'No se pudo realizar la acción'));
+          console.error('❌ Error en respuesta:', response);
+          alert('❌ Error: ' + (response.error || 'No se pudo realizar la acción'));
         }
       },
       error: (error) => {
-        console.error('Error en petición:', error);
-        alert('Error al realizar la acción: ' + (error.error?.error || error.message || 'Error desconocido'));
+        console.error('❌ Error en petición:', error);
+        alert('❌ Error al realizar la acción: ' + (error.error?.error || error.message || 'Error desconocido'));
       }
     });
   }
