@@ -48,6 +48,20 @@ interface ProyectoResumen {
   precio_total: number;
 }
 
+interface Usuario {
+  dni: string;
+  nombre: string;
+  email: string;
+  rol: string;
+  estado: string;
+  telefono: string | null;
+  fecha_registro: string;
+  equipo_nombre: string | null;
+  equipo_id: number | null;
+  total_proyectos: number;
+  equipos_participante: number;
+}
+
 @Component({
   selector: 'app-panel-moderador',
   standalone: true,
@@ -80,6 +94,7 @@ export class PanelModeradorComponent implements OnInit {
   };
   historialBaneos: BaneoHistorial[] = [];
   proyectos: ProyectoResumen[] = [];
+  usuarios: Usuario[] = [];
   
   vistaActual: 'dashboard' | 'baneos' | 'proyectos' | 'usuarios' | 'perfil' = 'dashboard';
   cargando = false;
@@ -151,7 +166,9 @@ export class PanelModeradorComponent implements OnInit {
     if (vista === 'baneos' && this.historialBaneos.length === 0) {
       this.cargarHistorialBaneos();
     } else if (vista === 'proyectos' && this.proyectos.length === 0) {
-      this.cargarProyectos();
+      else if (vista === 'usuarios' && this.usuarios.length === 0) {
+      this.cargarUsuarios();
+    } this.cargarProyectos();
     }
   }
 
@@ -191,6 +208,25 @@ export class PanelModeradorComponent implements OnInit {
           this.cdr.markForCheck();
         }
       });
+  cargarUsuarios() {
+    this.cargando = true;
+    this.http.get<any>(`${environment.apiUrl}/api/moderador/usuarios.php`)
+      .subscribe({
+        next: (response) => {
+          this.cargando = false;
+          if (response.success) {
+            this.usuarios = response.data || [];
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          this.cargando = false;
+          this.usuarios = [];
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
   }
 
   desbanearUsuario(baneoId: number) {

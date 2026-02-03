@@ -291,8 +291,68 @@
     <!-- Vista Usuarios -->
     <div *ngIf="vistaActual === 'usuarios'" class="space-y-6">
       <h2 class="text-xl md:text-2xl font-semibold text-gray-900">Gestión de Usuarios</h2>
-      <div class="bg-white rounded-lg shadow p-4 md:p-6 text-center">
-        <p class="text-gray-600 text-sm md:text-base">Funcionalidad próximamente disponible</p>
+      
+      <!-- Mensaje de carga -->
+      <div *ngIf="cargando" class="bg-white rounded-lg shadow p-4 md:p-6 text-center">
+        <p class="text-gray-600 text-sm md:text-base">Cargando usuarios...</p>
+      </div>
+
+      <!-- Lista de usuarios -->
+      <div *ngIf="!cargando && usuarios.length > 0" class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">DNI</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipo</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proyectos</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registro</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let usuario of usuarios" class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ usuario.dni }}</td>
+                <td class="px-4 py-3 text-sm text-gray-900">{{ usuario.nombre }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">{{ usuario.email }}</td>
+                <td class="px-4 py-3 text-sm">
+                  <span class="px-2 py-1 text-xs font-medium rounded-full"
+                    [class.bg-blue-100]="usuario.rol === 'jefe_equipo'"
+                    [class.text-blue-800]="usuario.rol === 'jefe_equipo'"
+                    [class.bg-green-100]="usuario.rol === 'trabajador'"
+                    [class.text-green-800]="usuario.rol === 'trabajador'">
+                    {{ usuario.rol === 'jefe_equipo' ? 'Jefe de Equipo' : 'Trabajador' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm">
+                  <span class="px-2 py-1 text-xs font-medium rounded-full"
+                    [class.bg-green-100]="usuario.estado === 'activo'"
+                    [class.text-green-800]="usuario.estado === 'activo'"
+                    [class.bg-red-100]="usuario.estado === 'suspendido' || usuario.estado === 'eliminado'"
+                    [class.text-red-800]="usuario.estado === 'suspendido' || usuario.estado === 'eliminado'">
+                    {{ usuario.estado }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-600">
+                  {{ usuario.equipo_nombre || '-' }}
+                  <span *ngIf="usuario.equipos_participante > 0 && !usuario.equipo_nombre" class="text-xs text-gray-500">
+                    ({{ usuario.equipos_participante }} equipos)
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ usuario.total_proyectos }}</td>
+                <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{{ usuario.fecha_registro }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sin usuarios -->
+      <div *ngIf="!cargando && usuarios.length === 0" class="bg-white rounded-lg shadow p-4 md:p-6 text-center">
+        <p class="text-gray-600 text-sm md:text-base">No hay usuarios registrados</p>
       </div>
     </div>
 
