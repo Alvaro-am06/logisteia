@@ -107,33 +107,36 @@ export class PresupuestosComponent implements OnInit {
       return;
     }
     
-    console.log('Mostrando confirmación...');
-    const confirmado = confirm(`¿Enviar el presupuesto ${presupuesto.numero_presupuesto} por email al cliente ${presupuesto.cliente_nombre}?`);
-    console.log('Confirmado:', confirmado);
-    
-    if (!confirmado) {
-      console.log('Usuario canceló');
-      return;
-    }
-
-    console.log('Enviando petición HTTP...');
-    this.http.post(`${environment.apiUrl}/api/enviar-presupuesto-email.php`, {
-      numero_presupuesto: presupuesto.numero_presupuesto,
-      usuario_dni: this.usuarioDni
-    }).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta recibida:', response);
-        if (response.success) {
-          alert(`Presupuesto enviado correctamente`);
-        } else {
-          alert('Error al enviar: ' + (response.error || 'Error desconocido'));
-        }
-      },
-      error: (err) => {
-        console.error('Error en petición:', err);
-        alert('Error de conexión al enviar presupuesto');
+    // Usar setTimeout para evitar conflictos con el modal
+    setTimeout(() => {
+      console.log('Mostrando confirmación...');
+      const confirmado = confirm(`¿Enviar el presupuesto ${presupuesto.numero_presupuesto} por email al cliente ${presupuesto.cliente_nombre}?`);
+      console.log('Confirmado:', confirmado);
+      
+      if (!confirmado) {
+        console.log('Usuario canceló');
+        return;
       }
-    });
+
+      console.log('Enviando petición HTTP...');
+      this.http.post(`${environment.apiUrl}/api/enviar-presupuesto-email.php`, {
+        numero_presupuesto: presupuesto.numero_presupuesto,
+        usuario_dni: this.usuarioDni
+      }).subscribe({
+        next: (response: any) => {
+          console.log('Respuesta recibida:', response);
+          if (response.success) {
+            alert(`Presupuesto enviado correctamente`);
+          } else {
+            alert('Error al enviar: ' + (response.error || 'Error desconocido'));
+          }
+        },
+        error: (err) => {
+          console.error('Error en petición:', err);
+          alert('Error de conexión al enviar presupuesto');
+        }
+      });
+    }, 100);
   }
 
   eliminarPresupuesto(presupuesto: Presupuesto | null) {
@@ -143,34 +146,37 @@ export class PresupuestosComponent implements OnInit {
       return;
     }
     
-    console.log('Mostrando confirmación de eliminación...');
-    const confirmado = confirm(`¿Estás seguro de eliminar el presupuesto ${presupuesto.numero_presupuesto}?`);
-    console.log('Confirmado eliminación:', confirmado);
-    
-    if (!confirmado) {
-      console.log('Usuario canceló eliminación');
-      return;
-    }
-
-    console.log('Enviando petición de eliminación...');
-    this.http.post(`${environment.apiUrl}/api/eliminar-presupuesto.php`, {
-      numero_presupuesto: presupuesto.numero_presupuesto
-    }).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta eliminación:', response);
-        if (response.success) {
-          alert('Presupuesto eliminado correctamente');
-          this.cerrarModalDetalle();
-          this.cargarPresupuestos();
-        } else {
-          alert('Error al eliminar: ' + (response.error || 'Error desconocido'));
-        }
-      },
-      error: (err) => {
-        console.error('Error al eliminar:', err);
-        alert('Error de conexión al eliminar presupuesto');
+    // Usar setTimeout para evitar conflictos con el modal
+    setTimeout(() => {
+      console.log('Mostrando confirmación de eliminación...');
+      const confirmado = confirm(`¿Estás seguro de eliminar el presupuesto ${presupuesto.numero_presupuesto}?`);
+      console.log('Confirmado eliminación:', confirmado);
+      
+      if (!confirmado) {
+        console.log('Usuario canceló eliminación');
+        return;
       }
-    });
+
+      console.log('Enviando petición de eliminación...');
+      this.http.post(`${environment.apiUrl}/api/eliminar-presupuesto.php`, {
+        numero_presupuesto: presupuesto.numero_presupuesto
+      }).subscribe({
+        next: (response: any) => {
+          console.log('Respuesta eliminación:', response);
+          if (response.success) {
+            alert('Presupuesto eliminado correctamente');
+            this.cerrarModalDetalle();
+            this.cargarPresupuestos();
+          } else {
+            alert('Error al eliminar: ' + (response.error || 'Error desconocido'));
+          }
+        },
+        error: (err) => {
+          console.error('Error al eliminar:', err);
+          alert('Error de conexión al eliminar presupuesto');
+        }
+      });
+    }, 100);
   }
 
   cerrarSesion() {
