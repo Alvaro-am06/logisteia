@@ -311,6 +311,7 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipo</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Proyectos</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registro</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -344,6 +345,41 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ usuario.total_proyectos }}</td>
                 <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">{{ usuario.fecha_registro }}</td>
+                <td class="px-4 py-3 text-sm">
+                  <div class="flex gap-2">
+                    <!-- Activar -->
+                    <button *ngIf="usuario.estado !== 'activo'"
+                      (click)="gestionarUsuario(usuario.dni, 'activar')"
+                      class="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700"
+                      title="Activar usuario">
+                      Activar
+                    </button>
+                    
+                    <!-- Suspender -->
+                    <button *ngIf="usuario.estado === 'activo'"
+                      (click)="gestionarUsuario(usuario.dni, 'suspender')"
+                      class="px-3 py-1 text-xs font-medium text-white bg-yellow-600 rounded hover:bg-yellow-700"
+                      title="Suspender usuario">
+                      Suspender
+                    </button>
+                    
+                    <!-- Banear -->
+                    <button *ngIf="usuario.estado === 'activo'"
+                      (click)="gestionarUsuario(usuario.dni, 'banear')"
+                      class="px-3 py-1 text-xs font-medium text-white bg-orange-600 rounded hover:bg-orange-700"
+                      title="Banear usuario">
+                      Banear
+                    </button>
+                    
+                    <!-- Eliminar -->
+                    <button *ngIf="usuario.estado !== 'eliminado'"
+                      (click)="gestionarUsuario(usuario.dni, 'eliminar')"
+                      class="px-3 py-1 text-xs font-medium text-white bg-red-600 rounded hover:bg-red-700"
+                      title="Eliminar usuario">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>

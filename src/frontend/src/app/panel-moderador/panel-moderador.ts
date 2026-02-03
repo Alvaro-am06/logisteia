@@ -250,6 +250,59 @@ export class PanelModeradorComponent implements OnInit {
       });
   }
 
+  gestionarUsuario(dni: string, accion: 'banear' | 'suspender' | 'activar' | 'eliminar') {
+    let mensaje = '';
+    let motivoRequerido = false;
+    
+    switch(accion) {
+      case 'banear':
+        mensaje = '¿Estás seguro de banear a este usuario?';
+        motivoRequerido = true;
+        break;
+      case 'suspender':
+        mensaje = '¿Estás seguro de suspender a este usuario?';
+        motivoRequerido = true;
+        break;
+      case 'activar':
+        mensaje = '¿Estás seguro de activar a este usuario?';
+        break;
+      case 'eliminar':
+        mensaje = '¿Estás seguro de ELIMINAR a este usuario? Esta acción no se puede deshacer.';
+        motivoRequerido = true;
+        break;
+    }
+    
+    if (!confirm(mensaje)) return;
+    
+    let motivo = '';
+    if (motivoRequerido) {
+      motivo = prompt('Motivo de la acción:') || 'Sin motivo especificado';
+    }
+    
+    const headers = this.getAuthHeaders();
+    this.http.post<any>(`${environment.apiUrl}/api/moderador/banear.php`, 
+      { usuario_dni: dni, accion, motivo }, 
+      { headers }
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.cargarUsuarios(); // Recargar lista
+          this.cargarEstadisticasServidor(); // Actualizar estadísticas
+          if (accion === 'banear') {
+            this.cargarHistorialBaneos(); // Actualizar historial de baneos
+          }
+          alert(response.data?.message || 'Acción realizada exitosamente');
+        } else {
+          alert('Error: ' + (response.error || 'No se pudo realizar la acción'));
+        }
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        alert('Error al realizar la acción');
+      }
+    });
+  }
+
   private getAuthHeaders(): { [key: string]: string } {
     if (!isPlatformBrowser(this.platformId)) {
       return {};
