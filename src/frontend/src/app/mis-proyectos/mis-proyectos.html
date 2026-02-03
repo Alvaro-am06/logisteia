@@ -459,12 +459,12 @@
     <div class="bg-gray-50 px-6 py-4 flex justify-between border-t">
       <div class="flex gap-3">
         <button *ngIf="usuarioRol === 'jefe_equipo'"
-                (click)="eliminarProyecto(proyectoSeleccionado)"
+                (click)="eliminarProyecto(proyectoSeleccionado, $event)"
                 class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium">
           Eliminar
         </button>
         <button *ngIf="usuarioRol === 'jefe_equipo' && proyectoSeleccionado && proyectoSeleccionado.estado !== 'finalizado'" 
-                (click)="finalizarProyecto(proyectoSeleccionado)"
+                (click)="finalizarProyecto(proyectoSeleccionado, $event)"
                 class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all font-medium">
           Finalizar
         </button>

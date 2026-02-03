@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -26,7 +26,6 @@ export class MisProyectos implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
-  private cdr = inject(ChangeDetectorRef);
   private proyectoService = inject(ProyectoService);
   private equipoService = inject(EquipoService);
 
@@ -114,27 +113,31 @@ export class MisProyectos implements OnInit {
 
   cargarProyectos() {
     this.loading = true;
-    this.cdr.detectChanges();
-    this.proyectoService.getProyectos().subscribe({
-      next: (response) => {
-        this.loading = false;
-        if (response && response.success) {
-          this.proyectos = response.proyectos || [];
-          // Actualizar localStorage para el panel
-          localStorage.setItem('proyectosTotal', this.proyectos.length.toString());
-        } else {
-          this.message = 'Error al cargar proyectos';
-          this.proyectos = [];
+
+    setTimeout(() => {
+      this.proyectoService.getProyectos().subscribe({
+        next: (response) => {
+          setTimeout(() => {
+            this.loading = false;
+            if (response && response.success) {
+              this.proyectos = response.proyectos || [];
+              // Actualizar localStorage para el panel
+              localStorage.setItem('proyectosTotal', this.proyectos.length.toString());
+            } else {
+              this.message = 'Error al cargar proyectos';
+              this.proyectos = [];
+            }
+          }, 0);
+        },
+        error: (error) => {
+          setTimeout(() => {
+            this.loading = false;
+            this.message = 'Error de conexión al cargar proyectos';
+            this.proyectos = [];
+          }, 0);
         }
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        this.loading = false;
-        this.message = 'Error de conexión al cargar proyectos';
-        this.proyectos = [];
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    }, 0);
   }
 
   cargarDatosCreacion() {
@@ -195,20 +198,24 @@ export class MisProyectos implements OnInit {
     if (!this.nuevoProyecto.equipo_id) return;
 
     this.cargandoMiembros = true;
-    this.cdr.detectChanges();
-    this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id).subscribe({
-      next: (response) => {
-        this.cargandoMiembros = false;
-        if (response.success) {
-          this.miembrosDisponibles = response.miembros;
+
+    setTimeout(() => {
+      this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id!).subscribe({
+        next: (response) => {
+          setTimeout(() => {
+            this.cargandoMiembros = false;
+            if (response.success) {
+              this.miembrosDisponibles = response.miembros;
+            }
+          }, 0);
+        },
+        error: (error: any) => {
+          setTimeout(() => {
+            this.cargandoMiembros = false;
+          }, 0);
         }
-        this.cdr.detectChanges();
-      },
-      error: (error: any) => {
-        this.cargandoMiembros = false;
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    }, 0);
   }
 
   agregarTrabajador(trabajador: MiembroEquipo) {
@@ -345,12 +352,13 @@ export class MisProyectos implements OnInit {
   }
 
   // Eliminar proyecto
-  eliminarProyecto(proyecto: Proyecto | null) {
-    if (!proyecto) return;
-    
-    if (!confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"? Esta acción no se puede deshacer.`)) {
-      return;
+  eliminarProyecto(proyecto: Proyecto | null, event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
+    
+    if (!proyecto) return;
 
     this.proyectoService.eliminarProyecto(proyecto.id).subscribe({
       next: (response) => {
@@ -377,12 +385,13 @@ export class MisProyectos implements OnInit {
   }
 
   // Finalizar proyecto
-  finalizarProyecto(proyecto: Proyecto | null) {
-    if (!proyecto) return;
-    
-    if (!confirm(`¿Estás seguro de finalizar el proyecto "${proyecto.nombre}"?`)) {
-      return;
+  finalizarProyecto(proyecto: Proyecto | null, event?: Event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
     }
+    
+    if (!proyecto) return;
 
     this.proyectoService.cambiarEstadoProyecto(proyecto.id, 'finalizado').subscribe({
       next: (response) => {
