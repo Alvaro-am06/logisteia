@@ -18,13 +18,6 @@ setupCors();
 header('Content-Type: application/json');
 handlePreflight();
 
-// Solo permitir POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Método no permitido']);
-    exit();
-}
-
 // Obtener datos del POST
 $input = json_decode(file_get_contents('php://input'), true);
 

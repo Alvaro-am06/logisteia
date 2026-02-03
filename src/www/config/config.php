@@ -164,7 +164,7 @@ function setupCors() {
 function handlePreflight() {
     if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(204); // No Content es más apropiado para OPTIONS
-        return true;
+        exit(); // Terminar ejecución para preflight
     }
     return false;
 }
