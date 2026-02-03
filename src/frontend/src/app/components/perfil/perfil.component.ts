@@ -20,6 +20,7 @@ export class PerfilComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
 
   @Input() mostrarNavbar: boolean = true;
+  @Input() mostrarSidebar: boolean = true;
 
   usuario: any = {
     dni: '',

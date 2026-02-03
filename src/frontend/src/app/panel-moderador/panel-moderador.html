@@ -15,9 +15,9 @@
   </div>
 </nav>
 
-<div class="flex min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100">
   <!-- Contenido principal -->
-  <main class="flex-1 p-4 md:p-8 pb-20 md:pb-8 overflow-y-auto">
+  <main class="w-full p-4 md:p-8 pb-20 md:pb-8 overflow-y-auto">
     <div class="max-w-7xl mx-auto">
       <!-- Navegación de pestañas -->
       <nav class="bg-white border-b rounded-t-lg mb-4">
@@ -299,7 +299,7 @@
 
     <!-- Vista Perfil -->
     <div *ngIf="vistaActual === 'perfil'" class="space-y-6">
-      <app-perfil [mostrarNavbar]="false"></app-perfil>
+      <app-perfil [mostrarNavbar]="false" [mostrarSidebar]="false"></app-perfil>
     </div>
     </div>
   </main>

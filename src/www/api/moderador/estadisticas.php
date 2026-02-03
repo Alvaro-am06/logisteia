@@ -58,21 +58,30 @@ try {
         $estadisticas['equipos_total'] = 0;
     }
     
-    // Estadísticas de presupuestos/proyectos
-    $stmt = $db->query("SELECT COUNT(*) FROM presupuestos");
-    $estadisticas['proyectos_total'] = (int)$stmt->fetchColumn();
-    
-    $stmt = $db->query("SELECT COUNT(*) FROM presupuestos WHERE estado = 'borrador'");
-    $estadisticas['proyectos_planificacion'] = (int)$stmt->fetchColumn();
-    
-    $stmt = $db->query("SELECT COUNT(*) FROM presupuestos WHERE estado IN ('enviado', 'aprobado')");
-    $estadisticas['proyectos_en_proceso'] = (int)$stmt->fetchColumn();
-    
-    $stmt = $db->query("SELECT COUNT(*) FROM presupuestos WHERE estado = 'finalizado'");
-    $estadisticas['proyectos_finalizados'] = (int)$stmt->fetchColumn();
-    
-    $stmt = $db->query("SELECT COUNT(*) FROM presupuestos WHERE estado = 'rechazado'");
-    $estadisticas['proyectos_cancelados'] = (int)$stmt->fetchColumn();
+    // Estadísticas de proyectos (tabla proyectos, no presupuestos)
+    try {
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos");
+        $estadisticas['proyectos_total'] = (int)$stmt->fetchColumn();
+        
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'planificacion'");
+        $estadisticas['proyectos_planificacion'] = (int)$stmt->fetchColumn();
+        
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'en_proceso'");
+        $estadisticas['proyectos_en_proceso'] = (int)$stmt->fetchColumn();
+        
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'finalizado'");
+        $estadisticas['proyectos_finalizados'] = (int)$stmt->fetchColumn();
+        
+        $stmt = $db->query("SELECT COUNT(*) FROM proyectos WHERE estado = 'cancelado'");
+        $estadisticas['proyectos_cancelados'] = (int)$stmt->fetchColumn();
+    } catch (PDOException $e) {
+        // Si no existe la tabla proyectos, usar valores 0
+        $estadisticas['proyectos_total'] = 0;
+        $estadisticas['proyectos_planificacion'] = 0;
+        $estadisticas['proyectos_en_proceso'] = 0;
+        $estadisticas['proyectos_finalizados'] = 0;
+        $estadisticas['proyectos_cancelados'] = 0;
+    }
     
     // Baneos activos
     try {

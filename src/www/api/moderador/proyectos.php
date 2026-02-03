@@ -28,31 +28,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     $db = ConexionBBDD::obtener();
     
-    // Consulta para obtener todos los presupuestos con información del usuario
+    // Consulta para obtener todos los proyectos con información del jefe y cliente
     $query = "SELECT 
-                p.id_presupuesto as id,
-                p.numero_presupuesto as codigo,
-                COALESCE(
-                    SUBSTRING_INDEX(SUBSTRING_INDEX(p.notas, 'Proyecto: ', -1), '\n', 1),
-                    CONCAT('Presupuesto ', p.numero_presupuesto)
-                ) as nombre,
-                COALESCE(
-                    SUBSTRING_INDEX(SUBSTRING_INDEX(p.notas, 'Descripción: ', -1), '\n', 1),
-                    ''
-                ) as descripcion,
+                p.id,
+                p.codigo,
+                p.nombre,
+                p.descripcion,
                 u.nombre as jefe_nombre,
-                COALESCE(
-                    SUBSTRING_INDEX(SUBSTRING_INDEX(p.notas, 'Cliente: ', -1), '\n', 1),
-                    'Sin cliente'
-                ) as cliente_nombre,
+                c.nombre as cliente_nombre,
                 p.estado,
-                p.fecha_creacion as fecha_inicio,
-                NULL as fecha_fin,
-                0 as horas_estimadas,
-                p.total as precio_estimado
-              FROM presupuestos p
-              LEFT JOIN usuarios u ON p.usuario_dni = u.dni
-              ORDER BY p.fecha_creacion DESC";
+                p.fecha_inicio,
+                p.fecha_fin,
+                COALESCE(p.horas_estimadas, 0) as horas_estimadas,
+                COALESCE(p.precio_estimado, 0) as precio_estimado
+              FROM proyectos p
+              LEFT JOIN usuarios u ON p.jefe_dni = u.dni
+              LEFT JOIN clientes c ON p.cliente_id = c.id
+              ORDER BY p.fecha_inicio DESC";
     
     $stmt = $db->query($query);
     $proyectos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -62,23 +54,17 @@ try {
         $proyecto['fecha_inicio'] = date('d/m/Y', strtotime($proyecto['fecha_inicio']));
         $proyecto['precio_estimado'] = floatval($proyecto['precio_estimado']);
         $proyecto['horas_estimadas'] = intval($proyecto['horas_estimadas']);
+        $proyecto['id'] = intval($proyecto['id']);
         
-        // Limpiar nombre si tiene formato extraño
-        $proyecto['nombre'] = trim($proyecto['nombre']);
-        if (empty($proyecto['nombre']) || $proyecto['nombre'] === 'Proyecto:') {
-            $proyecto['nombre'] = 'Presupuesto ' . $proyecto['codigo'];
-        }
-        
-        // Limpiar descripción
-        $proyecto['descripcion'] = trim($proyecto['descripcion']);
-        if ($proyecto['descripcion'] === 'Descripción:') {
-            $proyecto['descripcion'] = '';
-        }
-        
-        // Limpiar cliente
-        $proyecto['cliente_nombre'] = trim($proyecto['cliente_nombre']);
-        if (empty($proyecto['cliente_nombre']) || $proyecto['cliente_nombre'] === 'Cliente:') {
+        // Valores por defecto si son NULL
+        if (empty($proyecto['cliente_nombre'])) {
             $proyecto['cliente_nombre'] = 'Sin cliente';
+        }
+        if (empty($proyecto['jefe_nombre'])) {
+            $proyecto['jefe_nombre'] = 'Sin asignar';
+        }
+        if (empty($proyecto['descripcion'])) {
+            $proyecto['descripcion'] = '';
         }
     }
     
