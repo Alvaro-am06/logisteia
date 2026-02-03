@@ -50,15 +50,40 @@ try {
         exit();
     }
     
+    // Verificar si existe la tabla presupuestos
+    try {
+        $checkPresupuestos = $db->query("SHOW TABLES LIKE 'presupuestos'");
+        $presupuestosExists = $checkPresupuestos->fetch() !== false;
+    } catch (Exception $e) {
+        $presupuestosExists = false;
+    }
+    
     // Construir query dinámicamente según columnas disponibles
     $hasCodigoCol = in_array('codigo', $columns);
     $hasFechaFinReal = in_array('fecha_fin_real', $columns);
     $hasPrecioTotal = in_array('precio_total', $columns);
     $hasFechaCreacion = in_array('fecha_creacion', $columns);
+    $hasPresupuestoNumero = in_array('presupuesto_numero', $columns);
     
     $codigoField = $hasCodigoCol ? 'p.codigo' : 'CONCAT("PROY-", p.id) as codigo';
     $fechaFinField = $hasFechaFinReal ? 'p.fecha_fin_real as fecha_fin' : 'NULL as fecha_fin';
     $orderBy = $hasFechaCreacion ? 'p.fecha_creacion DESC' : 'p.id DESC';
+    
+    // Construir el campo de precio según disponibilidad de presupuestos
+    $precioField = 'COALESCE(';
+    if ($presupuestosExists && $hasPresupuestoNumero) {
+        $precioField .= 'pr.total, ';
+    }
+    if ($hasPrecioTotal) {
+        $precioField .= 'p.precio_total, ';
+    }
+    $precioField .= '0) as precio_total';
+    
+    // Construir el LEFT JOIN solo si existe la tabla presupuestos
+    $presupuestoJoin = '';
+    if ($presupuestosExists && $hasPresupuestoNumero) {
+        $presupuestoJoin = 'LEFT JOIN presupuestos pr ON p.presupuesto_numero = pr.numero_presupuesto';
+    }
     
     // Consulta para obtener todos los proyectos con el precio del presupuesto
     $query = "SELECT 
@@ -71,11 +96,11 @@ try {
                 p.estado,
                 p.fecha_inicio,
                 $fechaFinField,
-                COALESCE(pr.total, p.precio_total, 0) as precio_total
+                $precioField
               FROM proyectos p
               LEFT JOIN usuarios u ON p.jefe_dni = u.dni
               LEFT JOIN clientes c ON p.cliente_id = c.id
-              LEFT JOIN presupuestos pr ON p.presupuesto_numero = pr.numero_presupuesto
+              $presupuestoJoin
               ORDER BY $orderBy";
     
     $stmt = $db->query($query);
@@ -84,14 +109,13 @@ try {
     // Formatear datos
     foreach ($proyectos as &$proyecto) {
         // Formatear fecha_inicio solo si existe
-        if ($proyecto['fecha_inicio']) {
+        if (isset($proyecto['fecha_inicio']) && $proyecto['fecha_inicio']) {
             $proyecto['fecha_inicio'] = date('d/m/Y', strtotime($proyecto['fecha_inicio']));
         } else {
             $proyecto['fecha_inicio'] = 'Sin fecha';
         }
         
-        $proyecto['precio_estimado'] = floatval($proyecto['precio_estimado']);
-        $proyecto['horas_estimadas'] = intval($proyecto['horas_estimadas']);
+        $proyecto['precio_total'] = isset($proyecto['precio_total']) ? floatval($proyecto['precio_total']) : 0.0;
         $proyecto['id'] = intval($proyecto['id']);
         
         // Valores por defecto si son NULL
@@ -109,6 +133,6 @@ try {
     sendJsonSuccess($proyectos);
     
 } catch (Exception $e) {
-    logError('Error en proyectos.php: ' . $e->getMessage());
+    logError('Error en moderador/proyectos.php', $e);
     sendJsonError('Error interno del servidor', 500);
 }
