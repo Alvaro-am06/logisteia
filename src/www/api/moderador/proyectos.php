@@ -31,7 +31,7 @@ try {
     // Verificar si la tabla proyectos existe
     try {
         $checkTable = $db->query("SHOW TABLES LIKE 'proyectos'");
-        $tableExists = $checkTable->rowCount() > 0;
+        $tableExists = $checkTable->fetch() !== false;
     } catch (Exception $e) {
         $tableExists = false;
     }
@@ -42,23 +42,42 @@ try {
         exit();
     }
     
+    // Verificar qué columnas tiene la tabla
+    try {
+        $columns = $db->query("SHOW COLUMNS FROM proyectos")->fetchAll(PDO::FETCH_COLUMN);
+    } catch (Exception $e) {
+        sendJsonSuccess([]);
+        exit();
+    }
+    
+    // Construir query dinámicamente según columnas disponibles
+    $hasCodigoCol = in_array('codigo', $columns);
+    $hasFechaFinReal = in_array('fecha_fin_real', $columns);
+    $hasPrecioTotal = in_array('precio_total', $columns);
+    $hasFechaCreacion = in_array('fecha_creacion', $columns);
+    
+    $codigoField = $hasCodigoCol ? 'p.codigo' : 'CONCAT("PROY-", p.id) as codigo';
+    $fechaFinField = $hasFechaFinReal ? 'p.fecha_fin_real as fecha_fin' : 'NULL as fecha_fin';
+    $precioField = $hasPrecioTotal ? 'COALESCE(p.precio_total, 0) as precio_estimado' : '0 as precio_estimado';
+    $orderBy = $hasFechaCreacion ? 'p.fecha_creacion DESC' : 'p.id DESC';
+    
     // Consulta para obtener todos los proyectos con información del jefe y cliente
     $query = "SELECT 
                 p.id,
-                p.codigo,
+                $codigoField,
                 p.nombre,
                 p.descripcion,
                 u.nombre as jefe_nombre,
                 c.nombre as cliente_nombre,
                 p.estado,
                 p.fecha_inicio,
-                p.fecha_fin_real as fecha_fin,
+                $fechaFinField,
                 COALESCE(p.horas_estimadas, 0) as horas_estimadas,
-                COALESCE(p.precio_total, 0) as precio_estimado
+                $precioField
               FROM proyectos p
               LEFT JOIN usuarios u ON p.jefe_dni = u.dni
               LEFT JOIN clientes c ON p.cliente_id = c.id
-              ORDER BY p.fecha_creacion DESC";
+              ORDER BY $orderBy";
     
     $stmt = $db->query($query);
     $proyectos = $stmt->fetchAll(PDO::FETCH_ASSOC);
