@@ -338,4 +338,8 @@ export class PanelModeradorComponent implements OnInit {
     }
     return {};
   }
+
+  trackByDni(index: number, usuario: Usuario): string {
+    return usuario.dni;
+  }
 }
