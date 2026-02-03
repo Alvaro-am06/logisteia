@@ -114,6 +114,7 @@ export class MisProyectos implements OnInit {
 
   cargarProyectos() {
     this.loading = true;
+    this.cdr.detectChanges();
     this.proyectoService.getProyectos().subscribe({
       next: (response) => {
         this.loading = false;
@@ -125,11 +126,13 @@ export class MisProyectos implements OnInit {
           this.message = 'Error al cargar proyectos';
           this.proyectos = [];
         }
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.loading = false;
         this.message = 'Error de conexión al cargar proyectos';
         this.proyectos = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -192,15 +195,18 @@ export class MisProyectos implements OnInit {
     if (!this.nuevoProyecto.equipo_id) return;
 
     this.cargandoMiembros = true;
+    this.cdr.detectChanges();
     this.proyectoService.getMiembrosDisponibles(this.nuevoProyecto.equipo_id).subscribe({
       next: (response) => {
         this.cargandoMiembros = false;
         if (response.success) {
           this.miembrosDisponibles = response.miembros;
         }
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
         this.cargandoMiembros = false;
+        this.cdr.detectChanges();
       }
     });
   }

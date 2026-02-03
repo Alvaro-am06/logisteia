@@ -342,18 +342,14 @@ export class PresupuestoWizard implements OnInit {
   }
 
   cancelar() {
-    if (confirm('¿Está seguro de que desea cancelar? Se perderán todos los datos.')) {
-      this.router.navigate(['/mis-proyectos']);
-    }
+    this.router.navigate(['/mis-proyectos']);
   }
 
   cerrarSesion() {
-    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-      }
-      this.router.navigate(['/login']);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
     }
+    this.router.navigate(['/login']);
   }
 }
