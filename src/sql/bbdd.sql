@@ -15,8 +15,6 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS asignaciones_proyecto;
 DROP TABLE IF EXISTS acciones_administrativas;
-DROP TABLE IF EXISTS pagos;
-DROP TABLE IF EXISTS facturas;
 DROP TABLE IF EXISTS servicios_informatica;
 DROP TABLE IF EXISTS servicios;
 DROP TABLE IF EXISTS detalle_presupuesto;
@@ -117,9 +115,11 @@ CREATE TABLE IF NOT EXISTS `proyectos` (
   `jefe_dni` varchar(255) NOT NULL,
   `cliente_id` int DEFAULT NULL,
   `equipo_id` int DEFAULT NULL,
+  `presupuesto_numero` varchar(255) DEFAULT NULL COMMENT 'Número del presupuesto asociado',
   `estado` enum('creado','en_proceso','finalizado','pausado','cancelado') NOT NULL DEFAULT 'creado',
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin_estimada` date DEFAULT NULL,
+  `fecha_fin_real` date DEFAULT NULL COMMENT 'Fecha real de finalización',
   `horas_estimadas` decimal(10,2) DEFAULT '0.00',
   `precio_hora` decimal(10,2) DEFAULT '0.00',
   `precio_total` decimal(10,2) DEFAULT '0.00',
@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `proyectos` (
   KEY `proyectos_cliente_id_index` (`cliente_id`),
   KEY `proyectos_estado_index` (`estado`),
   KEY `proyectos_codigo_index` (`codigo`),
+  KEY `proyectos_presupuesto_numero_index` (`presupuesto_numero`),
   CONSTRAINT `proyectos_ibfk_1` FOREIGN KEY (`equipo_id`) REFERENCES `equipos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `proyectos_ibfk_2` FOREIGN KEY (`jefe_dni`) REFERENCES `usuarios` (`dni`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `proyectos_ibfk_3` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -239,45 +240,6 @@ CREATE TABLE IF NOT EXISTS `servicios_informatica` (
   `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `servicios_informatica_categoria_index` (`categoria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =====================================================
--- TABLA: facturas
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS `facturas` (
-  `factura_numero` varchar(50) NOT NULL,
-  `usuario_dni` varchar(255) NOT NULL,
-  `presupuesto_numero` varchar(255) DEFAULT NULL,
-  `fecha_emision` date NOT NULL,
-  `fecha_vencimiento` date DEFAULT NULL,
-  `subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `iva` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_factura` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `estado` enum('pendiente','pagada','vencida','anulada') NOT NULL DEFAULT 'pendiente',
-  `nombre_servicios` varchar(255) DEFAULT NULL,
-  `creado_en` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`factura_numero`),
-  KEY `facturas_usuario_dni_index` (`usuario_dni`),
-  KEY `facturas_presupuesto_numero_index` (`presupuesto_numero`),
-  CONSTRAINT `facturas_ibfk_1` FOREIGN KEY (`usuario_dni`) REFERENCES `usuarios` (`dni`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =====================================================
--- TABLA: pagos
--- =====================================================
-
-CREATE TABLE IF NOT EXISTS `pagos` (
-  `numero_pago` int NOT NULL AUTO_INCREMENT,
-  `factura_numero` varchar(50) NOT NULL,
-  `fecha_pago` datetime NOT NULL,
-  `importe` decimal(10,2) NOT NULL,
-  `metodo_pago` enum('transferencia','tarjeta','otro') NOT NULL,
-  `referencia` varchar(255) DEFAULT NULL,
-  `creado_en` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`numero_pago`),
-  KEY `pagos_factura_numero_index` (`factura_numero`),
-  CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`factura_numero`) REFERENCES `facturas` (`factura_numero`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
