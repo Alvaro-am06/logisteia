@@ -225,7 +225,13 @@ export class PanelModeradorComponent implements OnInit {
         next: (response) => {
           this.cargando = false;
           if (response.success) {
-            this.usuarios = response.data || [];
+            this.usuarios = (response.data || []).map((u: Usuario) => ({
+              ...u,
+              estado: u.estado?.trim() || 'activo',
+              rol: u.rol?.trim() || '',
+              nombre: u.nombre?.trim() || '',
+              email: u.email?.trim() || ''
+            }));
             console.log('👥 Usuarios cargados:', this.usuarios);
             // Debug: verificar estado de cada usuario
             this.usuarios.forEach(u => {
