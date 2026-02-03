@@ -280,25 +280,31 @@ export class PanelModeradorComponent implements OnInit {
     }
     
     const headers = this.getAuthHeaders();
+    console.log('Enviando acción:', accion, 'para usuario:', dni);
+    console.log('Headers:', headers);
+    
     this.http.post<any>(`${environment.apiUrl}/api/moderador/banear.php`, 
       { usuario_dni: dni, accion, motivo }, 
       { headers }
     ).subscribe({
       next: (response) => {
+        console.log('Respuesta del servidor:', response);
         if (response.success) {
           this.cargarUsuarios(); // Recargar lista
           this.cargarEstadisticasServidor(); // Actualizar estadísticas
           if (accion === 'banear') {
             this.cargarHistorialBaneos(); // Actualizar historial de baneos
           }
-          alert(response.data?.message || 'Acción realizada exitosamente');
+          const mensaje = response.data?.message || response.message || 'Acción realizada exitosamente';
+          alert(mensaje);
         } else {
+          console.error('Error en respuesta:', response);
           alert('Error: ' + (response.error || 'No se pudo realizar la acción'));
         }
       },
       error: (error) => {
-        console.error('Error:', error);
-        alert('Error al realizar la acción');
+        console.error('Error en petición:', error);
+        alert('Error al realizar la acción: ' + (error.error?.error || error.message || 'Error desconocido'));
       }
     });
   }
