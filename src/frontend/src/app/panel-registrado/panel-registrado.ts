@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 import { EquipoTrabajadorService } from '../services/equipo-trabajador.service';
+import { ProyectoService } from '../services/proyecto.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-panel-registrado',
@@ -13,6 +15,8 @@ export class PanelRegistrado implements OnInit {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private equipoService = inject(EquipoTrabajadorService);
+  private proyectoService = inject(ProyectoService);
+  private http = inject(HttpClient);
 
   // Datos del usuario registrado
   nombreUsuario = 'Usuario Registrado';
@@ -35,14 +39,30 @@ export class PanelRegistrado implements OnInit {
       const usuario = JSON.parse(usuarioData);
       this.nombreUsuario = usuario.nombre || 'Usuario Registrado';
       this.usuarioRol = this.validarRol(usuario.rol);
-      this.proyectosCreados = usuario.proyectos_creados || 0;
-      this.proyectosCompletados = usuario.proyectos_completados || 0;
     }
+
+    // Cargar estadísticas de proyectos desde el backend
+    this.cargarEstadisticas();
 
     // Cargar información del equipo desde el backend solo si es trabajador
     if (this.usuarioRol === 'trabajador') {
       this.cargarEquipo();
     }
+  }
+
+  cargarEstadisticas() {
+    this.proyectoService.getProyectos().subscribe({
+      next: (response) => {
+        if (response && response.success) {
+          const proyectos = response.proyectos || [];
+          this.proyectosCreados = proyectos.length;
+          this.proyectosCompletados = proyectos.filter(p => p.estado === 'finalizado').length;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar estadísticas:', error);
+      }
+    });
   }
 
   cargarEquipo() {
