@@ -37,20 +37,22 @@ export class PresupuestosComponent implements OnInit {
   presupuestoSeleccionado: Presupuesto | null = null;
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const usuarioStr = localStorage.getItem('usuario');
-      if (usuarioStr) {
-        const usuario = JSON.parse(usuarioStr);
-        this.usuarioDni = usuario.dni;
-        this.usuarioRol = usuario.rol;
-        this.nombreUsuario = usuario.nombre || 'Usuario';
-        
-        // Solo jefes de equipo pueden ver presupuestos
-        if (this.usuarioRol === 'jefe_equipo') {
-          this.cargarPresupuestos();
-        } else {
-          this.error = 'No tienes permisos para ver presupuestos';
-        }
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      this.usuarioDni = usuario.dni;
+      this.usuarioRol = usuario.rol;
+      this.nombreUsuario = usuario.nombre || 'Usuario';
+      
+      // Solo jefes de equipo pueden ver presupuestos
+      if (this.usuarioRol === 'jefe_equipo') {
+        this.cargarPresupuestos();
+      } else {
+        this.error = 'No tienes permisos para ver presupuestos';
       }
     }
   }

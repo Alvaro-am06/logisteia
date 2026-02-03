@@ -79,7 +79,6 @@ export class MisProyectos implements OnInit {
   getEstadoTexto = getEstadoTexto;
 
   ngOnInit() {
-    // Solo ejecutar en el navegador
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
