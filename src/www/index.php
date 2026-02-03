@@ -16,11 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Redirigir usuarios ya autenticados al panel de administración
-if (isset($_SESSION['admin_id'])) {
-    header('Location: vistas/panel_admin.php');
-    exit();
-}
+// Angular maneja la autenticación en el frontend
+// Esta página solo sirve como landing para verificar que el backend está activo
 ?>
 <!DOCTYPE html>
 <html lang="es">
