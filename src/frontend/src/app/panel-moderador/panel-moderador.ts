@@ -100,15 +100,19 @@ export class PanelModeradorComponent implements OnInit {
   cargando = false;
 
   ngOnInit() {
+    console.log('🔵 PanelModeradorComponent inicializado');
     // Cargar datos del moderador desde localStorage
     if (isPlatformBrowser(this.platformId)) {
       const usuarioData = localStorage.getItem('usuario');
+      console.log('📦 Datos de usuario:', usuarioData);
       if (usuarioData) {
         this.moderador = JSON.parse(usuarioData);
         this.usuarioRol = formatearRol(this.moderador.rol) || 'Moderador';
+        console.log('✅ Moderador cargado:', this.moderador);
         // Cargar estadísticas desde el servidor
         this.cargarEstadisticasServidor();
       } else {
+        console.log('❌ No hay usuario en localStorage, redirigiendo a login');
         this.router.navigate(['/login']);
       }
     }
@@ -122,17 +126,21 @@ export class PanelModeradorComponent implements OnInit {
   }
 
   cargarEstadisticasServidor() {
+    console.log('📊 Cargando estadísticas del servidor...');
     this.http.get<any>(`${environment.apiUrl}/api/moderador/estadisticas.php`)
       .subscribe({
         next: (response) => {
+          console.log('📊 Respuesta estadísticas:', response);
           if (response.success && response.data) {
             this.estadisticas = response.data;
+            this.cdr.markForCheck();
           } else {
             // Fallback a datos del localStorage
             this.cargarEstadisticasLocal();
           }
         },
-        error: () => {
+        error: (error) => {
+          console.error('❌ Error cargando estadísticas:', error);
           // Fallback a datos del localStorage
           this.cargarEstadisticasLocal();
         }
