@@ -9,29 +9,32 @@ Este manual está dirigido a desarrolladores que deseen entender, mantener o amp
 ## Stack tecnológico
 
 ### Frontend
-- **Framework**: Angular 21.0 con TypeScript
-- **Estilos**: Tailwind CSS + SCSS
-- **Gestión de estado**: RxJS con Observables
-- **HTTP Client**: Angular HttpClient con interceptores
-- **Autenticación**: JWT en localStorage
-- **Compilación**: Angular CLI con Vite
+- **Framework**: Angular 21.0 con TypeScript 5.9.2
+- **Estilos**: Tailwind CSS 3.x
+- **Gestión de estado**: RxJS 7.8.0 con Observables
+- **HTTP Client**: Angular HttpClient con AuthInterceptor
+- **Autenticación**: JWT Bearer tokens en localStorage
+- **Compilación**: Angular CLI con Vite/esbuild
 
 ### Backend
-- **Lenguaje**: PHP 8.2
-- **Servidor**: PHP-FPM
-- **Base de datos**: MySQL 8.0
-- **ORM**: PDO con consultas preparadas
-- **Autenticación**: JWT (Firebase PHP-JWT)
-- **Email**: PHPMailer 7.0
-- **OAuth**: Google API Client
-- **Variables de entorno**: vlucas/phpdotenv
+- **Lenguaje**: Java 25 LTS
+- **Framework**: Spring Boot 4.0.6
+- **Base de datos**: MySQL 8.0 con mysql-connector-j 8.4.0
+- **ORM**: Spring Data JPA con Hibernate 7.2.12
+- **Autenticación**: JWT con JJWT 0.12.3
+- **Seguridad**: Spring Security 7.0.5
+- **Build Tool**: Maven 3.9.6
+- **Servidor embebido**: Tomcat 11.0.22
+- **Logging**: SLF4J con Logback
+- **Pool de conexiones**: HikariCP
+- **Mapeo**: MapStruct para DTOs
 
 ### Infraestructura
-- **Contenedores**: Docker y Docker Compose
-- **Servidor web**: Caddy 2 (proxy reverso y SSL)
+- **Contenedores**: Docker y Docker Compose (opcional)
+- **Servidor web**: Nginx o Caddy (proxy reverso y SSL)
 - **SSL**: Let's Encrypt automático
 - **Despliegue**: Git push con hooks post-receive
-- **Hosting**: AWS EC2
+- **Hosting**: Oracle Cloud (recomendado)
 
 ---
 
@@ -42,93 +45,115 @@ Este manual está dirigido a desarrolladores que deseen entender, mantener o amp
 ```
 logisteia/
 │
-├── docker/                          # Configuración Docker
-│   ├── backend/
-│   │   └── Dockerfile              # PHP 8.2-FPM + Composer
-│   ├── frontend/
-│   │   └── Dockerfile              # Node 20 + Caddy
-│   └── caddy/
-│       └── Caddyfile               # Configuración proxy y SSL
-│
 ├── src/
-│   ├── frontend/                    # Aplicación Angular
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   │   ├── components/     # Componentes reutilizables
-│   │   │   │   ├── guards/         # Guardias de autenticación
-│   │   │   │   ├── services/       # Servicios HTTP
-│   │   │   │   ├── utils/          # Utilidades y helpers
-│   │   │   │   ├── login/          # Módulo de login
-│   │   │   │   ├── panel-jefe-equipo/
-│   │   │   │   ├── panel-moderador/
-│   │   │   │   ├── panel-registrado/
-│   │   │   │   ├── mi-equipo/
-│   │   │   │   ├── mis-proyectos/
-│   │   │   │   ├── presupuesto/
-│   │   │   │   └── usuarios/
-│   │   │   └── environments/       # Configuración por entorno
-│   │   ├── angular.json
-│   │   ├── package.json
-│   │   └── tailwind.config.js
+│   ├── main/
+│   │   ├── java/com/logisteia/backend/
+│   │   │   ├── LogisteiaBackendApplication.java     # Punto de entrada Spring Boot
+│   │   │   │
+│   │   │   ├── controllers/                         # Controladores REST
+│   │   │   │   ├── AuthController.java              # POST /api/v1/auth/login
+│   │   │   │   ├── UsuarioController.java           # CRUD /api/v1/usuarios
+│   │   │   │   ├── ClienteController.java           # CRUD /api/v1/clientes
+│   │   │   │   ├── EquipoController.java            # CRUD /api/v1/equipos
+│   │   │   │   ├── ProyectoController.java          # CRUD /api/v1/projetos
+│   │   │   │   ├── TareaController.java             # CRUD /api/v1/tareas
+│   │   │   │   └── ... otros controladores
+│   │   │   │
+│   │   │   ├── services/                            # Lógica de negocio
+│   │   │   │   ├── AuthService.java                 # Login y JWT
+│   │   │   │   ├── UsuarioService.java              # CRUD Usuarios
+│   │   │   │   ├── ClienteService.java              # CRUD Clientes
+│   │   │   │   ├── JwtService.java                  # Generación/Validación JWT
+│   │   │   │   └── ... otros servicios
+│   │   │   │
+│   │   │   ├── repositories/                        # Acceso a datos (Spring Data JPA)
+│   │   │   │   ├── UsuarioRepository.java
+│   │   │   │   ├── ClienteRepository.java
+│   │   │   │   ├── EquipoRepository.java
+│   │   │   │   └── ... otros repositorios
+│   │   │   │
+│   │   │   ├── entities/                            # Entidades JPA
+│   │   │   │   ├── Usuario.java
+│   │   │   │   ├── Cliente.java
+│   │   │   │   ├── Equipo.java
+│   │   │   │   ├── Proyecto.java
+│   │   │   │   ├── Tarea.java
+│   │   │   │   └── ... otras entidades
+│   │   │   │
+│   │   │   ├── dtos/                                # Data Transfer Objects
+│   │   │   │   ├── LoginRequestDTO.java
+│   │   │   │   ├── LoginResponseDTO.java
+│   │   │   │   ├── UsuarioResponseDTO.java
+│   │   │   │   ├── ClienteDTO.java
+│   │   │   │   └── ... otros DTOs
+│   │   │   │
+│   │   │   ├── config/                              # Configuración de Spring
+│   │   │   │   ├── SecurityConfig.java              # Spring Security + JWT
+│   │   │   │   ├── WebConfig.java                   # CORS y beans globales
+│   │   │   │   ├── JwtAuthenticationFilter.java     # Filtro JWT
+│   │   │   │   └── GlobalExceptionHandler.java      # Manejo de excepciones
+│   │   │   │
+│   │   │   ├── enums/                               # Enumeraciones
+│   │   │   │   ├── UserRole.java
+│   │   │   │   ├── ProjectStatus.java
+│   │   │   │   └── TaskStatus.java
+│   │   │   │
+│   │   │   ├── mappers/                             # Conversión Entity ↔ DTO
+│   │   │   │   ├── UsuarioMapper.java
+│   │   │   │   ├── ClienteMapper.java
+│   │   │   │   └── ... otros mappers
+│   │   │   │
+│   │   │   └── exceptions/                          # Excepciones personalizadas
+│   │   │       ├── ResourceNotFoundException.java
+│   │   │       ├── AuthenticationException.java
+│   │   │       └── ... otras excepciones
+│   │   │
+│   │   └── resources/
+│   │       ├── application.yml                      # Configuración desarrollo
+│   │       ├── application-oracle.yml               # Configuración Oracle Cloud
+│   │       └── data.sql                             # Datos iniciales
 │   │
-│   ├── www/                         # Backend PHP
-│   │   ├── api/                    # Endpoints REST
-│   │   │   ├── login.php
-│   │   │   ├── login-google.php
-│   │   │   ├── usuarios.php
-│   │   │   ├── clientes.php
-│   │   │   ├── proyectos.php
-│   │   │   ├── equipo.php
-│   │   │   ├── presupuestos.php
-│   │   │   ├── servicios.php
-│   │   │   ├── servicios-it.php
-│   │   │   ├── historial.php
-│   │   │   └── moderador/
-│   │   │       ├── estadisticas.php
-│   │   │       ├── desbanear.php
-│   │   │       └── historial-baneos.php
-│   │   │
-│   │   ├── config/                 # Configuración centralizada
-│   │   │   ├── config.php          # Configuración principal
-│   │   │   ├── jwt.php             # Helpers JWT
-│   │   │   ├── email.php           # Configuración PHPMailer
-│   │   │   ├── ratelimit.php       # Rate limiting
-│   │   │   └── helpers.php         # Funciones auxiliares
-│   │   │
-│   │   ├── controladores/          # Lógica de negocio
-│   │   │   ├── ControladorDeAutenticacion.php
-│   │   │   ├── ControladorCliente.php
-│   │   │   └── UsuarioControlador.php
-│   │   │
-│   │   ├── modelos/                # Capa de acceso a datos
-│   │   │   ├── ConexionBBDD.php    # Singleton PDO
-│   │   │   ├── Usuarios.php
-│   │   │   ├── Cliente.php
-│   │   │   ├── Proyecto.php
-│   │   │   ├── Presupuesto.php
-│   │   │   ├── PresupuestoWizard.php
-│   │   │   ├── Servicio.php
-│   │   │   ├── Administrador.php
-│   │   │   └── AccionesAdministrativas.php
-│   │   │
-│   │   ├── vistas/                 # Vistas PHP legacy
-│   │   │   ├── panel_admin.php
-│   │   │   ├── plantilla.php
-│   │   │   └── usuarios.php
-│   │   │
-│   │   ├── logs/                   # Logs de aplicación
-│   │   ├── index.php               # Entrada principal legacy
-│   │   └── .env.example            # Plantilla de variables
+│   ├── test/
+│   │   └── java/com/logisteia/backend/
+│   │       ├── dtos/
+│   │       │   ├── LoginRequestDTOTest.java
+│   │       │   └── UsuarioResponseDTOTest.java
+│   │       ├── entities/
+│   │       │   └── UsuarioTest.java
+│   │       ├── enums/
+│   │       │   ├── UserRoleTest.java
+│   │       │   └── ProjectStatusTest.java
+│   │       └── mappers/
+│   │           └── UsuarioMapperTest.java
 │   │
-│   └── sql/                        # Scripts de base de datos
-│       ├── produccion_optimizada.sql  # Script principal
-│       ├── bbdd.sql                   # Script legacy
-│       └── migraciones/               # Scripts de migración
+│   └── frontend/                                    # Aplicación Angular
+│       ├── src/
+│       │   ├── app/
+│       │   │   ├── components/                      # Componentes reutilizables
+│       │   │   ├── guards/                          # Auth guards
+│       │   │   ├── services/                        # Servicios HTTP
+│       │   │   │   ├── auth.service.ts
+│       │   │   │   ├── usuario.service.ts
+│       │   │   │   ├── cliente.service.ts
+│       │   │   │   └── ... otros servicios
+│       │   │   ├── interceptors/                    # HTTP Interceptors
+│       │   │   │   └── auth.interceptor.ts          # Inyecta JWT
+│       │   │   └── ... módulos y componentes
+│       │   ├── environments/
+│       │   │   ├── environment.ts                   # Producción
+│       │   │   └── environment.development.ts       # Desarrollo
+│       │   ├── proxy.conf.js                        # Proxy de desarrollo
+│       │   └── main.ts
+│       └── package.json
 │
-├── compose.yml                      # Docker Compose
-├── composer.json                    # Dependencias PHP
-├── .env                            # Variables de entorno (no en Git)
-└── .gitignore
+├── sql/                                             # Scripts SQL
+│   ├── bbdd.sql                                     # Esquema base de datos
+│   ├── datos_iniciales.sql                          # Datos de prueba
+│   └── datos_pruebas.sql                            # Datos para testing
+│
+├── pom.xml                                          # Dependencias Maven
+├── compose.yml                                      # Docker Compose
+└── README.md
 ```
 
 ---
@@ -142,59 +167,77 @@ logisteia/
 │                    FRONTEND                         │
 │            Angular 21 + TypeScript                  │
 │                                                     │
-│  Componentes → Services → HTTP Interceptors        │
+│  Componentes → Services → AuthInterceptor          │
 └─────────────┬───────────────────────────────────────┘
               │ HTTP/HTTPS (JSON)
-              │ JWT en Authorization header
+              │ Authorization: Bearer <JWT>
 ┌─────────────▼───────────────────────────────────────┐
-│                CADDY (Proxy)                        │
-│   api.logisteia.com → backend:9000                 │
-│   logisteia.com → Angular + PHP                    │
+│                NGINX/CADDY (Proxy)                  │
+│      /api/v1/* → localhost:8080                    │
+│      /* → Angular static files                      │
 └─────────────┬───────────────────────────────────────┘
               │
 ┌─────────────▼───────────────────────────────────────┐
-│                 BACKEND PHP                         │
+│              SPRING BOOT 4.0.6 (Java 25)           │
+│         Tomcat 11.0.22 embebido                     │
 │                                                     │
-│  API Endpoints → Controladores → Modelos           │
+│  Controllers → Services → Repositories → Entities  │
 │                                                     │
-│  - Validación JWT                                  │
-│  - Rate limiting                                   │
-│  - Sanitización de datos                           │
-│  - Logging de acciones                             │
+│  - SecurityConfig + JWT Filter                     │
+│  - CORS + Spring Security                          │
+│  - GlobalExceptionHandler                          │
+│  - Logging con SLF4J                               │
 └─────────────┬───────────────────────────────────────┘
-              │
+              │ JDBC
 ┌─────────────▼───────────────────────────────────────┐
-│              MySQL 8.0                              │
+│              MySQL 8.0 (HikariCP)                   │
 │         Base de datos Logisteia                     │
 │                                                     │
-│  17 tablas con relaciones y foreign keys           │
+│  Entidades JPA con Hibernate ORM                    │
+│  11+ tablas con relaciones y índices               │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Flujo de una petición típica
+### Flujo de una petición típica (Login)
 
-1. **Usuario realiza acción en Angular**
-   - Componente invoca método del servicio
-   - Servicio construye petición HTTP
+1. **Usuario ingresa credenciales en Angular**
+   ```typescript
+   // Componente llama al servicio
+   this.authService.login({email, senha})
+   ```
 
-2. **HTTP Interceptor procesa la petición**
-   - Agrega JWT token en header `Authorization: Bearer <token>`
-   - Agrega headers CORS necesarios
+2. **AuthService realiza POST a /api/v1/auth/login**
+   ```typescript
+   // service realiza petición HTTP
+   return this.http.post('/api/v1/auth/login', credentials)
+   ```
 
-3. **Caddy recibe la petición**
-   - Aplica SSL/TLS
-   - Enruta a backend PHP-FPM
+3. **AuthInterceptor intercepta la petición**
+   ```typescript
+   // Agrega headers si es necesario (en respuestas posteriores)
+   ```
 
-4. **API endpoint PHP procesa**
-   - Valida JWT token
-   - Verifica rate limiting
-   - Sanitiza entrada
-   - Llama al controlador correspondiente
+4. **Spring Security procesa la petición**
+   - AuthController recibe POST /api/v1/auth/login
+   - SecurityConfig permite endpoint público (sin JWT requerido)
+   - AuthService valida credenciales contra DB
+   - JwtService genera JWT token
+   - Retorna {token, usuario}
 
-5. **Controlador ejecuta lógica de negocio**
-   - Valida datos de negocio
-   - Llama a modelos necesarios
-   - Gestiona transacciones si es necesario
+5. **Frontend almacena el JWT**
+   ```typescript
+   localStorage.setItem('access_token', response.token)
+   ```
+
+6. **Peticiones posteriores incluyen JWT**
+   - AuthInterceptor obtiene token de localStorage
+   - Agrega header: `Authorization: Bearer <token>`
+   - Todas las peticiones a /api/v1/* llevan el token
+
+7. **Backend valida JWT en cada petición**
+   - JwtAuthenticationFilter valida el token
+   - Si es válido, permite acceso al recurso
+   - Si no, retorna 401 Unauthorized
 
 6. **Modelo accede a base de datos**
    - Ejecuta consultas preparadas con PDO
