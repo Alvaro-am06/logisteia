@@ -1,4 +1,5 @@
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\config\SecurityConfig.java
+C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\config\WebConfig.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\controllers\AccionAdministrativaController.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\controllers\AsignacionProyectoController.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\controllers\AuthController.java
@@ -67,6 +68,7 @@ C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\back
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\exceptions\GlobalExceptionHandler.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\exceptions\ResourceNotFoundException.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\exceptions\ValidationErrorResponse.java
+C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\LogisteiaBackendApplication.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\mappers\AccionAdministrativaMapper.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\mappers\AsignacionProyectoMapper.java
 C:\Users\el_an\Documents\Repositorios\logisteia\src\main\java\com\logisteia\backend\mappers\ClienteMapper.java

@@ -49,6 +49,7 @@ com\logisteia\backend\repositories\UsuarioRepository.class
 com\logisteia\backend\enums\InvitationStatus.class
 com\logisteia\backend\mappers\PresupuestoMapper.class
 com\logisteia\backend\services\ServicioInformaticaService.class
+com\logisteia\backend\LogisteiaBackendApplication.class
 com\logisteia\backend\security\JwtService.class
 com\logisteia\backend\services\UsuarioService.class
 com\logisteia\backend\entities\Cliente.class
@@ -70,6 +71,7 @@ com\logisteia\backend\controllers\AuthController.class
 com\logisteia\backend\dtos\ProyectoCreateUpdateDTO.class
 com\logisteia\backend\entities\Cliente$ClienteBuilder.class
 com\logisteia\backend\mappers\ClienteMapper.class
+com\logisteia\backend\config\WebConfig.class
 com\logisteia\backend\mappers\AsignacionProyectoMapper.class
 com\logisteia\backend\controllers\UsuarioController.class
 com\logisteia\backend\dtos\EquipoCreateUpdateDTO.class

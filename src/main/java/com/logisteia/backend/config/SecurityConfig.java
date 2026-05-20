@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 import com.logisteia.backend.security.JwtAuthenticationFilter;
 
 /**
@@ -24,6 +25,7 @@ import com.logisteia.backend.security.JwtAuthenticationFilter;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     /**
      * Configura la cadena de filtros de seguridad.
@@ -31,6 +33,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // Habilitar CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            
             // Deshabilitar CSRF (no necesario con JWT stateless)
             .csrf(csrf -> csrf.disable())
             
@@ -43,6 +48,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Permitir acceso público a autenticación
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                
+                // Permitir OPTIONS para CORS preflight
+                .requestMatchers("/**").permitAll()
                 
                 // Requerir autenticación para todo lo demás
                 .requestMatchers("/api/v1/**").authenticated()
