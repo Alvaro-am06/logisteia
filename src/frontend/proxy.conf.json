@@ -1,7 +1,11 @@
 {
   "/api/*": {
-    "target": "http://localhost/logisteia/src/www",
+    "target": "http://localhost:8080",
     "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": "/api"
+    },
+    "logLevel": "debug"
   }
 }

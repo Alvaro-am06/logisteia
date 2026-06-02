@@ -16,24 +16,27 @@ LOGISTEIA es una aplicación web de gestión empresarial que incluye:
 
 **Frontend:**
 - Angular 21.0
-- TypeScript
+- TypeScript 5.9.2
 - Tailwind CSS
-- RxJS
+- RxJS 7.8.0
+- AuthInterceptor para JWT automático
 
 **Backend:**
-- PHP 8.2 con PHP-FPM
-- Composer para gestión de dependencias
-- JWT para autenticación
-- PHPMailer para envío de correos
-- Firebase PHP-JWT para tokens
-- Google API Client para OAuth
+- Spring Boot 4.0.6
+- Java 25 LTS
+- Spring Security 7.0.5 con JWT (JJWT 0.12.3)
+- Spring Data JPA con Hibernate 7.2.12
+- Maven 3.9.6 para gestión de dependencias
+- Tomcat 11.0.22 (embedded)
+- Logs con SLF4J
 
 **Base de datos:**
-- MySQL 8.0
+- MySQL 8.0 con mysql-connector-j 8.4.0
+- HikariCP para connection pooling
 
 **Infraestructura:**
-- Docker y Docker Compose
-- Caddy como servidor web y proxy reverso
+- Docker y Docker Compose (opcional)
+- Nginx o Caddy como proxy reverso
 - Certificados SSL automáticos con Let's Encrypt
 
 ---
@@ -42,10 +45,12 @@ LOGISTEIA es una aplicación web de gestión empresarial que incluye:
 
 ### Requisitos previos
 
-- Docker Desktop instalado y en ejecución
+- **Java 25 LTS** instalado
+- Maven 3.9.x instalado
+- MySQL 8.0 instalado y ejecutándose
 - Git instalado
-- Editor de código (recomendado: VS Code)
 - Node.js 20+ (para desarrollo frontend)
+- Editor de código (recomendado: VS Code)
 
 ### Pasos de instalación
 
@@ -56,83 +61,106 @@ git clone git@github.com:Alvaro-am06/logisteia.git
 cd logisteia
 ```
 
-#### 2. Configurar variables de entorno
+#### 3. Configurar variables de entorno
 
 Crear archivo `.env` en la raíz del proyecto:
 
 ```env
 # Base de datos
-DB_HOST=db
+DB_HOST=localhost
+DB_PORT=3306
 DB_NAME=Logisteia
 DB_USER=root
 DB_PASS=tu_contraseña_segura
 
 # JWT
 JWT_SECRET=genera_una_clave_aleatoria_de_64_caracteres
-JWT_EXPIRATION=3600
-
-# Google OAuth
-GOOGLE_CLIENT_ID=tu_google_client_id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=tu_google_client_secret
-
-# Email (PHPMailer)
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=tu_email@gmail.com
-MAIL_PASSWORD=tu_app_password
-MAIL_FROM_ADDRESS=tu_email@gmail.com
-MAIL_FROM_NAME=LOGISTEIA
+JWT_EXPIRATION=3600000
 
 # Aplicación
-APP_ENV=development
-APP_DEBUG=true
-APP_URL=http://localhost
+SERVER_PORT=8080
+SPRING_PROFILES_ACTIVE=development
+SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
+
+# CORS
+CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000,http://localhost
 ```
 
 **Nota:** Para generar un JWT_SECRET seguro, ejecuta:
 ```bash
-php -r "echo bin2hex(random_bytes(32)) . PHP_EOL;"
+# Linux/Mac
+openssl rand -hex 32
+
+# Windows PowerShell
+[System.BitConverter]::ToString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)) -replace '-'
 ```
 
-#### 3. Instalar dependencias PHP
+#### 4. Compilar el Backend
 
 ```bash
-composer install
+# Descargar dependencias y compilar
+mvn clean install
+
+# O simplemente compilar sin tests
+mvn clean compile -DskipTests
 ```
 
-#### 4. Inicializar la base de datos
-
-El script `src/sql/produccion_optimizada.sql` se ejecuta automáticamente al iniciar Docker por primera vez. Incluye:
-
-- Todas las tablas necesarias (17 tablas)
-- Usuarios de prueba:
-  - Moderador: `admin@logisteia.com` / `1234`
-  - Jefe de equipo: `jefe@logisteia.com` / `1234`
-  - Trabajador: `trabajador@logisteia.com` / `1234`
-- Servicios informáticos predefinidos
-- Estructura completa de equipos, proyectos, tareas, etc.
-
-#### 5. Levantar los contenedores Docker
+#### 5. Instalar dependencias del Frontend
 
 ```bash
-docker compose up -d
+cd src/frontend
+npm install
 ```
 
-Esto iniciará 4 contenedores:
-- `logisteia_db`: MySQL 8.0 (puerto interno 3306)
-- `logisteia_backend`: PHP 8.2-FPM
-- `logisteia_web`: Caddy + Angular compilado (puerto 80/443)
-- `logisteia_pma`: phpMyAdmin (accesible a través de Caddy)
+#### 6. Ejecutar la aplicación localmente
 
-#### 6. Verificar los servicios
+**Opción A: Terminal local**
 
-- **Frontend Angular:** http://localhost
-- **API Backend:** http://localhost/api/login.php
-- **phpMyAdmin:** http://localhost:8080 (si está configurado en compose.yml)
+```bash
+# Terminal 1: Backend Spring Boot
+mvn spring-boot:run
 
-#### 7. Desarrollo del frontend
+# Terminal 2: Frontend Angular
+cd src/frontend
+ng serve --proxy-config proxy.conf.js
+```
 
-Para desarrollar en el frontend con hot-reload:
+La aplicación estará disponible en:
+- Frontend: http://localhost:4200
+- Backend: http://localhost:8080
+- API Docs: http://localhost:8080/actuator/health
+
+**Opción B: Con Docker Compose**
+
+```bash
+# Construir y levantar contenedores
+docker compose up -d --build
+
+# Ver logs
+docker compose logs -f
+```
+
+#### 7. Inicializar la base de datos
+
+La primera vez que arranca, Spring Boot ejecuta automáticamente las migraciones de Liquibase (o Hibernate con `ddl-auto=create-drop`). 
+
+Usuarios de prueba predefinidos:
+- Email: `admin@logisteia.es` / Contraseña: `admin123`
+- Email: `usuario@logisteia.es` / Contraseña: `user123`
+
+#### 8. Tests
+
+```bash
+# Ejecutar tests unitarios (64 tests)
+mvn clean test
+
+# Ejecutar con cobertura
+mvn clean test jacoco:report
+```
+
+La salida esperada: **BUILD SUCCESS - 64/64 tests passed**
+
+#### 9. Build para producción
 
 ```bash
 cd src/frontend

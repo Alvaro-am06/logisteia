@@ -1,0 +1,6 @@
+com\logisteia\backend\entities\UsuarioTest.class
+com\logisteia\backend\enums\ProjectStatusTest.class
+com\logisteia\backend\dtos\LoginRequestDTOTest.class
+com\logisteia\backend\enums\UserRoleTest.class
+com\logisteia\backend\dtos\UsuarioResponseDTOTest.class
+com\logisteia\backend\mappers\UsuarioMapperTest.class
