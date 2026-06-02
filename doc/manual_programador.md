@@ -729,28 +729,90 @@ docker compose up -d --build
 docker compose exec backend bash
 ```
 
-### Producción (Oracle Cloud)
+### Producción
 
 ```bash
 # Hacer commit de cambios
 git add .
 git commit -m "Descripción de cambios"
 
-# Desplegar a Oracle Cloud
+# Hacer push a GitHub
 git push origin main
 
-# En el servidor de Oracle:
-cd /home/ubuntu/logisteia
+# En el servidor remoto:
+cd /opt/logisteia
 git pull origin main
-docker compose down
-docker compose up -d --build
+docker-compose build
+docker-compose up -d
 ```
+
+Para detalles completos de despliegue en producción, ver [DEPLOYMENT.md](../DEPLOYMENT.md)
 
 ### Rollback en caso de error
 
 ```bash
 # Conectarse al servidor
-ssh -i proyecto.pem ubuntu@logisteia-server.com
+ssh ubuntu@tu-dominio.com
+
+# Revertir a commit anterior
+cd /opt/logisteia
+git log --oneline -5
+git reset --hard <COMMIT_HASH>
+
+# Reaplicar cambios
+docker-compose build
+docker-compose up -d
+
+# Verificar salud
+curl http://localhost/api/actuator/health
+```
+
+---
+
+## Monitoreo en Producción
+
+### Health Checks
+
+```bash
+# Backend
+curl http://localhost/api/actuator/health
+
+# Respuesta esperada:
+# {"status":"UP","components":{"db":{"status":"UP"},...}}
+```
+
+### Ver Logs
+
+```bash
+# Logs en tiempo real
+docker-compose logs -f backend
+
+# Últimas 100 líneas
+docker-compose logs --tail=100 backend
+
+# Específicamente del archivo de logs
+docker-compose exec backend tail -f /var/log/logisteia/app.log
+```
+
+### Métricas
+
+```bash
+# Obtener métricas disponibles
+curl http://localhost/api/actuator/metrics
+
+# Métrica específica (JVM memory)
+curl http://localhost/api/actuator/metrics/jvm.memory.used
+```
+
+### Backups de Base de Datos
+
+```bash
+# Backup manual
+docker-compose exec db mysqldump -u logisteia_user -p Logisteia > backup-$(date +%Y%m%d).sql
+
+# Restaurar desde backup
+docker-compose exec -T db mysql -u logisteia_user -p Logisteia < backup-20260603.sql
+```
 
 # Ver commits recientes
 cd ~/logisteia
