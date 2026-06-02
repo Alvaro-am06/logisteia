@@ -1,30 +1,9 @@
-# --- Etapa 1: Compilar Angular ---
-FROM node:20 as build-step
+# Dockerfile antiguo - reemplazado por docker/nginx/Dockerfile
+# Este archivo se mantiene para referencia histórica
 
-WORKDIR /app
-
-# Copiamos dependencias
-COPY src/frontend/package.json src/frontend/package-lock.json ./
-RUN npm install
-
-# Copiamos el código y compilamos
-COPY src/frontend/ .
-RUN npm run build -- --configuration production
-
-# --- Etapa 2: Servidor Caddy ---
-FROM caddy:alpine
-
-# Copiamos la configuración de Caddy
-COPY docker/caddy/Caddyfile /etc/caddy/Caddyfile
-
-# Copiamos la aplicación compilada
-COPY --from=build-step /app/dist/frontend/browser /srv
-
-# --- ARREGLO CRÍTICO ---
-# Angular 17+ SSR genera 'index.csr.html' en lugar de 'index.html'.
-# Lo renombramos para que Caddy lo reconozca como la página principal.
-COPY --from=build-step /app/dist/frontend/browser/index.html /srv/index.html
-
-# Exponemos puertos
-EXPOSE 80
-EXPOSE 443
+# Ver: docker/nginx/Dockerfile para la configuración actual
+# 
+# Cambios en la arquitectura:
+# - Se reemplazó Caddy con Nginx como proxy reverso
+# - El backend pasó de PHP a Spring Boot (Java)
+# - Frontend se sirve desde Nginx con proxy hacia el backend
