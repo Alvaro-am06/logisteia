@@ -24,8 +24,8 @@ LOGISTEIA es una plataforma web moderna y completa para la gestión integral de 
 ### Primera vez - Registro
 
 1. Abre tu navegador y accede a la URL de LOGISTEIA:
-   - Producción: https://logisteia.com
-   - Desarrollo: http://localhost
+   - **Producción**: https://tu-dominio.com
+   - **Desarrollo Local**: http://localhost
 
 2. En la pantalla de login, haz clic en "Regístrate aquí"
 

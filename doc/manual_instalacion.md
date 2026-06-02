@@ -35,9 +35,9 @@ LOGISTEIA es una aplicación web de gestión empresarial que incluye:
 - HikariCP para connection pooling
 
 **Infraestructura:**
-- Docker y Docker Compose (opcional)
-- Nginx o Caddy como proxy reverso
-- Certificados SSL automáticos con Let's Encrypt
+- Docker y Docker Compose
+- Nginx (Alpine) como proxy reverso + SPA routing
+- Certificados SSL con Let's Encrypt (opcional)
 
 ---
 
@@ -57,136 +57,135 @@ LOGISTEIA es una aplicación web de gestión empresarial que incluye:
 #### 1. Clonar el repositorio
 
 ```bash
-git clone git@github.com:Alvaro-am06/logisteia.git
+git clone https://github.com/Alvaro-am06/logisteia.git
 cd logisteia
+git checkout main
 ```
 
-#### 3. Configurar variables de entorno
+#### 2. Configurar variables de entorno (Desarrollo)
 
-Crear archivo `.env` en la raíz del proyecto:
+```bash
+# Copiar plantilla
+cp .env.template .env
 
+# Editar valores locales
+nano .env
+```
+
+**Valores mínimos para desarrollo**:
 ```env
-# Base de datos
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=Logisteia
-DB_USER=root
-DB_PASS=tu_contraseña_segura
-
-# JWT
-JWT_SECRET=genera_una_clave_aleatoria_de_64_caracteres
-JWT_EXPIRATION=3600000
-
-# Aplicación
-SERVER_PORT=8080
+DB_USER=logisteia_user
+DB_PASS=desarrollo
+JWT_SECRET=tu_secret_desarrollo_minimo_32_caracteres
 SPRING_PROFILES_ACTIVE=development
-SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
-
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:3000,http://localhost
+CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost
 ```
 
-**Nota:** Para generar un JWT_SECRET seguro, ejecuta:
+Para generar un JWT_SECRET seguro:
 ```bash
 # Linux/Mac
-openssl rand -hex 32
+openssl rand -base64 32
 
 # Windows PowerShell
-[System.BitConverter]::ToString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)) -replace '-'
+[System.Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
 ```
 
-#### 4. Compilar el Backend
+#### 3. Ejecutar con Docker Compose (Recomendado)
 
 ```bash
-# Descargar dependencias y compilar
-mvn clean install
+# Validar configuración
+docker-compose config
 
-# O simplemente compilar sin tests
-mvn clean compile -DskipTests
-```
+# Construir imágenes
+docker-compose build
 
-#### 5. Instalar dependencias del Frontend
-
-```bash
-cd src/frontend
-npm install
-```
-
-#### 6. Ejecutar la aplicación localmente
-
-**Opción A: Terminal local**
-
-```bash
-# Terminal 1: Backend Spring Boot
-mvn spring-boot:run
-
-# Terminal 2: Frontend Angular
-cd src/frontend
-ng serve --proxy-config proxy.conf.js
-```
-
-La aplicación estará disponible en:
-- Frontend: http://localhost:4200
-- Backend: http://localhost:8080
-- API Docs: http://localhost:8080/actuator/health
-
-**Opción B: Con Docker Compose**
-
-```bash
-# Construir y levantar contenedores
-docker compose up -d --build
+# Iniciar servicios
+docker-compose up -d
 
 # Ver logs
-docker compose logs -f
+docker-compose logs -f
 ```
 
-#### 7. Inicializar la base de datos
+**Servicios disponibles**:
+- Frontend: http://localhost
+- Backend API: http://localhost/api
+- Health Check: http://localhost/api/actuator/health
+- phpMyAdmin: http://localhost:8081 (opcional)
 
-La primera vez que arranca, Spring Boot ejecuta automáticamente las migraciones de Liquibase (o Hibernate con `ddl-auto=create-drop`). 
-
-Usuarios de prueba predefinidos:
-- Email: `admin@logisteia.es` / Contraseña: `admin123`
-- Email: `usuario@logisteia.es` / Contraseña: `user123`
-
-#### 8. Tests
+#### 4. Ejecución local nativa (Sin Docker)
 
 ```bash
-# Ejecutar tests unitarios (64 tests)
-mvn clean test
+# Terminal 1: Iniciar MySQL
+mysql -u logisteia_user -p
 
-# Ejecutar con cobertura
-mvn clean test jacoco:report
-```
+# Terminal 2: Backend Spring Boot
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=development"
 
-La salida esperada: **BUILD SUCCESS - 64/64 tests passed**
-
-#### 9. Build para producción
-
-```bash
+# Terminal 3: Frontend Angular
 cd src/frontend
-npm install
-npm start
+ng serve --proxy-config proxy.conf.json --port 4200
 ```
 
-Esto iniciará el servidor de desarrollo en `http://localhost:4200` con proxy a la API backend.
+**Servicios disponibles**:
+- Frontend: http://localhost:4200
+- Backend: http://localhost:8080
+- API: http://localhost:8080/api
+
+#### 5. Usuarios de prueba
+
+Los siguientes usuarios están precargados en la base de datos:
+- **Admin**: `admin@logisteia.es` / `admin123`
+- **Usuario**: `usuario@logisteia.es` / `user123`
+
+#### 6. Detener servicios
+
+```bash
+# Parar contenedores (preserva datos)
+docker-compose down
+
+# Parar y eliminar volúmenes (limpia todo)
+docker-compose down -v
+
+# Parar servicio específico
+docker-compose stop backend
+```
 
 ---
 
-## Instalación en producción (AWS)
+## Tests (Desarrollo)
+
+```bash
+# Ejecutar tests unitarios
+mvn clean test
+
+# Ejecutar dentro del contenedor
+docker-compose exec backend mvn clean test
+
+# Con cobertura
+mvn clean test jacoco:report
+```
 
 ### Requisitos previos
 
-- Servidor Ubuntu en AWS EC2
+- Servidor Ubuntu 20.04+ (Cloud: AWS, Azure, Oracle Cloud, GCP, etc.)
 - Dominio configurado apuntando al servidor
-- Docker y Docker Compose instalados en el servidor
-- Acceso SSH con clave privada (.pem)
+- Docker 20.10+ y Docker Compose 2.0+ instalados
+- Acceso SSH con clave privada o contraseña
+- Certificado SSL (Let's Encrypt o comercial, opcional)
 
 ### Arquitectura de despliegue
 
-El proyecto utiliza Git como sistema de despliegue:
+El proyecto utiliza Git HTTPS como sistema de despliegue:
 
 ```
-Repositorio local → git push production main → Servidor AWS
+Repositorio local → git push origin main → GitHub
+            ↓
+        Servidor (manual pull)
+            ↓
+docker compose up -d --build
 ```
 
 ### Configuración inicial del servidor
@@ -194,7 +193,11 @@ Repositorio local → git push production main → Servidor AWS
 #### 1. Conectarse al servidor
 
 ```bash
-ssh -i proyecto.pem ubuntu@logisteia.com
+# SSH con contraseña
+ssh ubuntu@tu-dominio.com
+
+# O con clave privada
+ssh -i proyecto.pem ubuntu@tu-dominio.com
 ```
 
 #### 2. Instalar dependencias
@@ -204,152 +207,207 @@ ssh -i proyecto.pem ubuntu@logisteia.com
 sudo apt update && sudo apt upgrade -y
 
 # Instalar Docker
-sudo apt install docker.io docker-compose -y
+sudo apt install -y docker.io docker-compose git curl wget
 
-# Agregar usuario al grupo docker
+# Agregar usuario al grupo docker (sin necesidad de sudo)
 sudo usermod -aG docker ubuntu
+
+# Aplicar cambios de grupo
 newgrp docker
 
-# Instalar Git
-sudo apt install git -y
+# Verificar instalación
+docker --version
+docker-compose --version
+git --version
 ```
 
-#### 3. Configurar repositorio Git en el servidor
+#### 3. Clonar repositorio
 
 ```bash
-# Crear directorio para el repositorio bare
-mkdir -p ~/logisteia.git
-cd ~/logisteia.git
-git init --bare
+# Crear directorio de aplicación
+mkdir -p /opt/logisteia
+cd /opt/logisteia
 
-# Crear directorio para el código
-mkdir -p ~/logisteia
+# Clonar repositorio (HTTPS)
+git clone https://github.com/Alvaro-am06/logisteia.git .
+
+# Cambiar a rama main
+git checkout main
 ```
 
-#### 4. Crear hook post-receive
-
-Crear el archivo `~/logisteia.git/hooks/post-receive`:
+#### 4. Crear archivo .env
 
 ```bash
-#!/bin/bash
-GIT_WORK_TREE=/home/ubuntu/logisteia git checkout -f main
-cd /home/ubuntu/logisteia
-docker compose down
-docker compose up -d --build
+# Copiar plantilla
+cp .env.template .env
+
+# Editar con valores de producción
+nano .env
 ```
 
-Dar permisos de ejecución:
-
-```bash
-chmod +x ~/logisteia.git/hooks/post-receive
-```
-
-### Configuración del repositorio local
-
-#### 1. Agregar remote de producción
-
-```bash
-git remote add production ssh://ubuntu@logisteia.com/home/ubuntu/logisteia.git
-```
-
-#### 2. Configurar archivo .env en el servidor
-
-Conectarse al servidor y crear `/home/ubuntu/logisteia/.env`:
-
+**Variables críticas a configurar**:
 ```env
+# Base de datos
 DB_HOST=db
+DB_PORT=3306
 DB_NAME=Logisteia
-DB_USER=root
-DB_PASS=contraseña_produccion_segura
+DB_USER=logisteia_user
+DB_PASS=<CONTRASEÑA_SEGURA_MIN_12_CHARS>
 
-JWT_SECRET=clave_64_caracteres_hexadecimales_produccion
-JWT_EXPIRATION=3600
+# JWT - Generar con: openssl rand -base64 32
+JWT_SECRET=<RESULTADO_OPENSSL>
+JWT_EXPIRATION_MS=86400000
+JWT_REFRESH_EXPIRATION_MS=604800000
 
-GOOGLE_CLIENT_ID=client_id_produccion.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=secret_produccion
+# CORS - USAR DOMINIO REAL, NO LOCALHOST
+CORS_ALLOWED_ORIGINS=https://tu-dominio.com,https://www.tu-dominio.com
 
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=noreply@logisteia.com
-MAIL_PASSWORD=app_password_produccion
-MAIL_FROM_ADDRESS=noreply@logisteia.com
-MAIL_FROM_NAME=LOGISTEIA
-
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://logisteia.com
+# Producción
+SPRING_PROFILES_ACTIVE=production
+LOG_LEVEL=WARN
+LOG_FILE=/var/log/logisteia/app.log
 ```
 
-#### 3. Actualizar JWT_SECRET en producción
-
-Si necesitas actualizar el JWT_SECRET después del despliegue:
+#### 5. Crear directorios de logs
 
 ```bash
-# En tu máquina local, hacer push del script
-git push production main
-
-# Conectarse al servidor
-ssh -i proyecto.pem ubuntu@logisteia.com
-
-# Ejecutar el script de actualización
-cd ~/logisteia
-bash update-env-production.sh
+sudo mkdir -p /var/log/logisteia
+sudo chown $USER:$USER /var/log/logisteia
+sudo chmod 755 /var/log/logisteia
 ```
 
-### Desplegar cambios
-
-Desde tu máquina local:
+#### 6. Construir e iniciar servicios
 
 ```bash
-# Hacer commit de los cambios
+# Validar configuración
+docker-compose config
+
+# Construir imágenes
+docker-compose build
+
+# Iniciar servicios en background
+docker-compose up -d
+
+# Ver estado
+docker-compose ps
+
+# Ver logs en tiempo real
+docker-compose logs -f
+```
+
+#### 7. Verificar salud
+
+```bash
+# Health check del backend
+curl http://localhost/api/actuator/health
+
+# Respuesta esperada:
+# {"status":"UP","components":{"db":{"status":"UP"},...}}
+```
+
+#### 8. Configurar SSL/HTTPS (Recomendado)
+
+```bash
+# Instalar Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# Obtener certificado (Let's Encrypt)
+sudo certbot certonly --standalone \
+  -d tu-dominio.com \
+  -d www.tu-dominio.com
+
+# Los certificados estarán en:
+# /etc/letsencrypt/live/tu-dominio.com/
+```
+
+Luego actualizar `compose.yml` y `docker/nginx/nginx.conf` con rutas de certificados.
+
+#### 9. Configurar actualizaciones automáticas
+
+```bash
+# Crear script de actualización
+cat > ~/update-logisteia.sh << 'EOF'
+#!/bin/bash
+cd /opt/logisteia
+git pull origin main
+docker-compose build
+docker-compose up -d
+EOF
+
+# Dar permisos
+chmod +x ~/update-logisteia.sh
+
+# Programar con cron (ej: diarios a las 2 AM)
+crontab -e
+# Agregar línea:
+# 0 2 * * * /home/ubuntu/update-logisteia.sh
+```
+
+### Desplegar cambios desde máquina local
+
+```bash
+# Hacer commit de cambios
 git add .
 git commit -m "Descripción de cambios"
 
-# Desplegar a producción
-git push production main
+# Hacer push a GitHub
+git push origin main
+
+# Conectarse al servidor
+ssh ubuntu@tu-dominio.com
 ```
 
-El hook post-receive automáticamente:
-1. Actualiza el código en el servidor
-2. Reconstruye las imágenes Docker
-3. Reinicia los contenedores
+**En el servidor**:
 
-### Configuración de Caddy y SSL
+```bash
+cd /opt/logisteia
 
-El archivo `docker/caddy/Caddyfile` configura automáticamente:
+# Actualizar código
+git pull origin main
 
-- **logisteia.com / www.logisteia.com:** Frontend Angular + Backend PHP
-- **api.logisteia.com:** API Backend
-- **pma.logisteia.com:** phpMyAdmin (opcional)
-- Certificados SSL automáticos de Let's Encrypt
-- Redirección HTTP a HTTPS
-- Compresión gzip
+# Reconstruir imágenes
+docker-compose build
 
-Los certificados se guardan en el volumen `caddy_data` y se renuevan automáticamente.
+# Aplicar cambios
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f backend
+```
+
+### Rollback (Revertir cambios)
+
+```bash
+cd /opt/logisteia
+
+# Ver historial de commits
+git log --oneline -10
+
+# Revertir a commit anterior
+git reset --hard <COMMIT_HASH>
+
+# Reaplicar cambios
+docker-compose build
+docker-compose up -d
+```
+
+### Configuración de SSL/HTTPS
+
+La configuración SSL ya está lista en `docker/nginx/nginx.conf`. Solo necesitas:
+
+1. Obtener certificados con Let's Encrypt (ver paso 8 de configuración inicial)
+2. Montar los certificados en `compose.yml`:
+   ```yaml
+   volumes:
+     - /etc/letsencrypt/live/tu-dominio.com/fullchain.pem:/etc/nginx/certs/cert.pem:ro
+     - /etc/letsencrypt/live/tu-dominio.com/privkey.pem:/etc/nginx/certs/key.pem:ro
+   ```
+3. Descomentar el bloque HTTPS en `docker/nginx/nginx.conf`
+4. Reiniciar: `docker-compose restart web`
 
 ---
 
-## Estructura de la base de datos
-
-El script `src/sql/produccion_optimizada.sql` crea 17 tablas:
-
-1. **usuarios** - Gestión de usuarios (jefe_equipo, trabajador, moderador)
-2. **equipos** - Equipos de trabajo
-3. **miembros_equipo** - Relación usuarios-equipos con invitaciones
-4. **clientes** - Base de clientes por jefe de equipo
-5. **proyectos** - Gestión de proyectos
-6. **tareas** - Tareas dentro de proyectos
-7. **asignaciones_proyecto** - Asignación de trabajadores a proyectos
-8. **registro_horas** - Cronómetro de horas trabajadas
-9. **presupuestos** - Presupuestos generados
-10. **detalle_presupuesto** - Líneas de cada presupuesto
-11. **servicios** - Catálogo de servicios generales
-12. **servicios_informatica** - Catálogo de servicios IT
-13. **facturas** - Facturación
-14. **pagos** - Registro de pagos
-15. **acciones_administrativas** - Auditoría de acciones
-16. **historial_baneos** - Control de baneos de usuarios
-17. **invitaciones** - Sistema de invitaciones por email
+## Monitoreo y Mantenimiento
 
 ---
 
