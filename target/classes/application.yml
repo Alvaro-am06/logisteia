@@ -2,11 +2,11 @@ spring:
   application:
     name: logisteia-backend
 
-  # Configuración de Base de Datos
+  # Configuración de Base de Datos - DESARROLLO
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:Logisteia}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: ${DB_USER:root}
-    password: ${DB_PASS:root}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:Logisteia}?useSSL=${DB_USE_SSL:false}&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER:logisteia_user}
+    password: ${DB_PASS:desarrollo}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -14,12 +14,14 @@ spring:
       connection-timeout: 20000
       idle-timeout: 300000
       max-lifetime: 1200000
+      auto-commit: true
 
   # Configuración JPA/Hibernate
   jpa:
     hibernate:
-      ddl-auto: update  # Cambiar a 'validate' en producción
+      ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: false
+    open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -28,6 +30,7 @@ spring:
         jdbc:
           batch_size: 20
           fetch_size: 50
+          batch_versioned_data: true
         order_inserts: true
         order_updates: true
 
@@ -35,9 +38,12 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+      indent-output: false
     default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
 
-# Logging
+# Logging (Desarrollo)
 logging:
   level:
     root: INFO
@@ -45,18 +51,19 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
 
 # Server
 server:
   port: ${SERVER_PORT:8080}
   servlet:
-    context-path: /
+    context-path: /api
   error:
     include-message: always
     include-stacktrace: on_param
+    include-exception: false
 
-# Configuración de CORS (será refinada en Security)
+# Configuración de CORS
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:3000}
@@ -67,5 +74,6 @@ app:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:mySecretKeyThatShouldBeVeryLongAndSecureInProductionEnvironment12345}
-  expiration: ${JWT_EXPIRATION:86400000}  # 24 horas en milisegundos
+  secret: ${JWT_SECRET:changeMe}
+  expiration: ${JWT_EXPIRATION_MS:86400000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}
