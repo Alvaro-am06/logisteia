@@ -4,33 +4,26 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/**
+ * DTOs del backend - deben coincidir exactamente
+ */
 export interface Usuario {
   dni: string;
-  nombre: string;
+  nome: string;
   email: string;
-  telefono: string;
   rol: string;
   estado: string;
-  fecha_registro: string;
+  criadoEm: string;
 }
 
 export interface UsuarioDetalle {
   usuario: Usuario;
-  historial: HistorialAccion[];
-}
-
-export interface HistorialAccion {
-  creado_en: string;
-  administrador_dni: string;
-  accion: string;
-  usuario_dni: string;
-  motivo: string;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
-  error?: string;
+  message?: string;
 }
 
 @Injectable({
@@ -40,54 +33,40 @@ export class UsuarioService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  private apiUrl = `${environment.apiUrl}/api/usuarios/usuarios.php`;
-  private historialUrl = `${environment.apiUrl}/api/usuarios/historial.php`;
+  private apiUrl = `${environment.apiUrl}/api/v1/usuarios`;
 
-  // Obtener todos los usuarios
+  /**
+   * Obtener todos los usuarios
+   */
   getUsuarios(): Observable<ApiResponse<Usuario[]>> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<ApiResponse<Usuario[]>>(this.apiUrl, { headers });
-  }
-
-  // Obtener usuario específico por DNI
-  getUsuario(dni: string): Observable<ApiResponse<UsuarioDetalle>> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<ApiResponse<UsuarioDetalle>>(`${this.apiUrl}/${dni}`, { headers });
-  }
-
-  // Cambiar rol de usuario (activar/suspender/eliminar)
-  cambiarRol(dni: string, operacion: string, motivo?: string): Observable<ApiResponse<{message: string}>> {
-    const headers = this.getAuthHeaders();
-    return this.http.post<ApiResponse<{message: string}>>(`${this.apiUrl}/${dni}`, {
-      operacion,
-      motivo
-    }, { headers });
-  }
-
-  // Obtener historial completo de acciones administrativas
-  getHistorial(): Observable<ApiResponse<HistorialAccion[]>> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<ApiResponse<HistorialAccion[]>>(this.historialUrl, { headers });
+    return this.http.get<ApiResponse<Usuario[]>>(this.apiUrl);
   }
 
   /**
-   * Obtener headers de autenticación desde localStorage
+   * Obtener usuario específico por DNI
    */
-  private getAuthHeaders(): { [key: string]: string } {
-    if (!isPlatformBrowser(this.platformId)) {
-      return {};
-    }
+  getUsuario(dni: string): Observable<ApiResponse<UsuarioDetalle>> {
+    return this.http.get<ApiResponse<UsuarioDetalle>>(`${this.apiUrl}/${dni}`);
+  }
 
-    const usuario = localStorage.getItem('usuario');
-    if (usuario) {
-      const userData = JSON.parse(usuario);
-      return {
-        'X-User-DNI': userData.dni || '',
-        'X-User-Rol': userData.rol || '',
-        'X-User-Nombre': userData.nombre || '',
-        'X-User-Email': userData.email || ''
-      };
-    }
-    return {};
+  /**
+   * Crear nuevo usuario
+   */
+  criarUsuario(usuario: any): Observable<ApiResponse<Usuario>> {
+    return this.http.post<ApiResponse<Usuario>>(this.apiUrl, usuario);
+  }
+
+  /**
+   * Actualizar usuario
+   */
+  atualizarUsuario(dni: string, usuario: any): Observable<ApiResponse<Usuario>> {
+    return this.http.put<ApiResponse<Usuario>>(`${this.apiUrl}/${dni}`, usuario);
+  }
+
+  /**
+   * Eliminar usuario
+   */
+  eliminarUsuario(dni: string): Observable<ApiResponse<{message: string}>> {
+    return this.http.delete<ApiResponse<{message: string}>>(`${this.apiUrl}/${dni}`);
   }
 }

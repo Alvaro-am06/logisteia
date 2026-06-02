@@ -2,6 +2,43 @@
 
 Este documento describe la estructura de tablas, columnas, tipos, restricciones e índices del modelo de datos de LOGISTEIA.
 
+**Nota:** Este esquema de base de datos es agnóstico a la tecnología backend. Actualmente se utiliza con Spring Boot 4.0.6 (Java 25) en lugar de PHP, pero las tablas, columnas y relaciones permanecen idénticas. Spring Data JPA/Hibernate mapea estas tablas a entidades Java.
+
+---
+
+## Mapeo a Entidades Spring Boot
+
+Las tablas MySQL se mapean a entidades JPA con anotaciones:
+- `@Entity` - Mapeo a tabla
+- `@Id` - Clave primaria
+- `@Column` - Propiedades de columna
+- `@OneToMany`, `@ManyToOne`, `@ManyToMany` - Relaciones
+- `@Temporal` - Tipos de fecha/hora
+
+Ejemplo en Java:
+```java
+@Entity
+@Table(name = "usuarios")
+public class Usuario {
+    @Id
+    private String dni;
+    
+    @Column(unique = true, nullable = false)
+    private String email;
+    
+    @Column(nullable = false)
+    private String nombre;
+    
+    @Column(nullable = false)
+    private String contrase; // Hash de contraseña
+    
+    @Enumerated(EnumType.STRING)
+    private UserRole rol; // ENUM en Spring
+    
+    // ... más campos y relaciones
+}
+```
+
 ---
 
 ## usuarios

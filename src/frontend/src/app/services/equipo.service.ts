@@ -1,48 +1,19 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface MiembroEquipo {
-  id: number;
-  dni: string;
-  nombre: string;
-  email: string;
-  telefono: string | null;
-  rol_proyecto: string;
-  fecha_ingreso: string;
-  activo: boolean;
-  estado_usuario: string;
-}
-
 export interface Equipo {
-  id: number;
-  nombre: string;
-}
-
-export interface MiembrosEquipoResponse {
-  equipo: Equipo;
-  miembros: MiembroEquipo[];
-}
-
-export interface AgregarMiembroRequest {
-  email_trabajador: string;
-}
-
-export interface AgregarMiembroResponse {
-  message: string;
-  miembro: {
-    email: string;
-    nombre: string;
-    rol_proyecto: string;
-  };
+  id: string;
+  nome: string;
+  descricao?: string;
+  criadoEm?: string;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
-  error?: string;
+  message?: string;
 }
 
 @Injectable({
@@ -50,63 +21,40 @@ export interface ApiResponse<T> {
 })
 export class EquipoService {
   private http = inject(HttpClient);
-  private platformId = inject(PLATFORM_ID);
-  private apiUrl = `${environment.apiUrl}/api/equipos/equipo.php`;
+  private apiUrl = `${environment.apiUrl}/api/v1/equipos`;
 
   /**
-   * Obtener los miembros del equipo del jefe de equipo autenticado
+   * Obtener todos los equipos
    */
-  getMiembrosEquipo(): Observable<ApiResponse<MiembrosEquipoResponse>> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<ApiResponse<MiembrosEquipoResponse>>(this.apiUrl, { headers });
+  getEquipos(): Observable<ApiResponse<Equipo[]>> {
+    return this.http.get<ApiResponse<Equipo[]>>(this.apiUrl);
   }
 
   /**
-   * Obtener equipos del jefe de equipo autenticado
+   * Obtener equipo específico por ID
    */
-  getEquiposJefe(dniJefe: string): Observable<{success: boolean, equipos: Equipo[]}> {
-    const headers = this.getAuthHeaders();
-    return this.http.get<{success: boolean, equipos: Equipo[]}>(`${environment.apiUrl}/api/equipos/equipo.php?jefe=${dniJefe}`, { headers });
+  getEquipo(id: string): Observable<ApiResponse<Equipo>> {
+    return this.http.get<ApiResponse<Equipo>>(`${this.apiUrl}/${id}`);
   }
 
   /**
-   * Agregar un nuevo miembro al equipo
+   * Criar nuevo equipo
    */
-  agregarMiembroEquipo(request: AgregarMiembroRequest): Observable<ApiResponse<AgregarMiembroResponse>> {
-    const headers = this.getAuthHeaders();
-    return this.http.post<ApiResponse<AgregarMiembroResponse>>(this.apiUrl, request, { headers });
+  criarEquipo(equipo: Partial<Equipo>): Observable<ApiResponse<Equipo>> {
+    return this.http.post<ApiResponse<Equipo>>(this.apiUrl, equipo);
   }
 
   /**
-   * Eliminar un miembro del equipo
+   * Actualizar equipo
    */
-  eliminarMiembroEquipo(dni: string): Observable<{success: boolean, message?: string, error?: string}> {
-    const headers = this.getAuthHeaders();
-    return this.http.request<{success: boolean, message?: string, error?: string}>('DELETE', this.apiUrl, {
-      headers,
-      body: { trabajador_dni: dni }
-    });
+  atualizarEquipo(id: string, equipo: Partial<Equipo>): Observable<ApiResponse<Equipo>> {
+    return this.http.put<ApiResponse<Equipo>>(`${this.apiUrl}/${id}`, equipo);
   }
 
   /**
-   * Obtener headers de autenticación desde localStorage
+   * Eliminar equipo
    */
-  private getAuthHeaders(): { [key: string]: string } {
-    if (!isPlatformBrowser(this.platformId)) {
-      return {};
-    }
-    
-    const usuario = localStorage.getItem('usuario');
-    if (usuario) {
-      const userData = JSON.parse(usuario);
-      const headers = {
-        'X-User-DNI': userData.dni || '',
-        'X-User-Rol': userData.rol || '',
-        'X-User-Nombre': userData.nombre || '',
-        'X-User-Email': userData.email || ''
-      };
-      return headers;
-    }
-    return {};
+  eliminarEquipo(id: string): Observable<ApiResponse<{message: string}>> {
+    return this.http.delete<ApiResponse<{message: string}>>(`${this.apiUrl}/${id}`);
   }
 }
