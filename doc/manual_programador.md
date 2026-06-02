@@ -2,7 +2,7 @@
 
 ## Introducción
 
-Este manual está dirigido a desarrolladores que deseen entender, mantener o ampliar el proyecto LOGISTEIA. El sistema es una aplicación web full-stack moderna que combina un frontend Angular con un backend PHP, desplegada en contenedores Docker con arquitectura de microservicios.
+Este manual está dirigido a desarrolladores que deseen entender, mantener o ampliar el proyecto LOGISTEIA. El sistema es una aplicación web full-stack moderna que combina un frontend Angular con un backend Spring Boot 4.0, desplegada en contenedores Docker con arquitectura de microservicios.
 
 ---
 
@@ -17,21 +17,22 @@ Este manual está dirigido a desarrolladores que deseen entender, mantener o amp
 - **Compilación**: Angular CLI con Vite
 
 ### Backend
-- **Lenguaje**: PHP 8.2
-- **Servidor**: PHP-FPM
+- **Lenguaje**: Java 25 LTS
+- **Framework**: Spring Boot 4.0.6
+- **Servidor**: Tomcat (embebido)
 - **Base de datos**: MySQL 8.0
-- **ORM**: PDO con consultas preparadas
-- **Autenticación**: JWT (Firebase PHP-JWT)
-- **Email**: PHPMailer 7.0
-- **OAuth**: Google API Client
-- **Variables de entorno**: vlucas/phpdotenv
+- **ORM**: Spring Data JPA + Hibernate
+- **Autenticación**: Spring Security 7.0.5 + JJWT
+- **Mapeo de objetos**: MapStruct
+- **Inyección de dependencias**: Spring DI (Autowired)
+- **Logging**: SLF4J + Logback
 
 ### Infraestructura
 - **Contenedores**: Docker y Docker Compose
-- **Servidor web**: Caddy 2 (proxy reverso y SSL)
+- **Servidor web**: Nginx (proxy reverso)
 - **SSL**: Let's Encrypt automático
-- **Despliegue**: Git push con hooks post-receive
-- **Hosting**: AWS EC2
+- **Despliegue**: Docker Compose
+- **Hosting**: Oracle Cloud
 
 ---
 
@@ -43,12 +44,10 @@ Este manual está dirigido a desarrolladores que deseen entender, mantener o amp
 logisteia/
 │
 ├── docker/                          # Configuración Docker
-│   ├── backend/
-│   │   └── Dockerfile              # PHP 8.2-FPM + Composer
 │   ├── frontend/
-│   │   └── Dockerfile              # Node 20 + Caddy
-│   └── caddy/
-│       └── Caddyfile               # Configuración proxy y SSL
+│   │   └── Dockerfile              # Node 20 + Angular
+│   └── nginx/
+│       └── nginx.conf              # Configuración proxy reverso
 │
 ├── src/
 │   ├── frontend/                    # Aplicación Angular
@@ -71,62 +70,34 @@ logisteia/
 │   │   ├── package.json
 │   │   └── tailwind.config.js
 │   │
-│   ├── www/                         # Backend PHP
-│   │   ├── api/                    # Endpoints REST
-│   │   │   ├── login.php
-│   │   │   ├── login-google.php
-│   │   │   ├── usuarios.php
-│   │   │   ├── clientes.php
-│   │   │   ├── proyectos.php
-│   │   │   ├── equipo.php
-│   │   │   ├── presupuestos.php
-│   │   │   ├── servicios.php
-│   │   │   ├── servicios-it.php
-│   │   │   ├── historial.php
-│   │   │   └── moderador/
-│   │   │       ├── estadisticas.php
-│   │   │       ├── desbanear.php
-│   │   │       └── historial-baneos.php
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/logisteia/
+│   │   │       ├── controllers/    # REST Controllers
+│   │   │       ├── services/       # Lógica de negocio
+│   │   │       ├── repositories/   # Data access layer (JPA)
+│   │   │       ├── entities/       # Entidades JPA
+│   │   │       ├── dto/            # Data Transfer Objects
+│   │   │       ├── config/         # Configuración Spring
+│   │   │       ├── utils/          # Utilidades
+│   │   │       └── LogisteiaBackendApplication.java
 │   │   │
-│   │   ├── config/                 # Configuración centralizada
-│   │   │   ├── config.php          # Configuración principal
-│   │   │   ├── jwt.php             # Helpers JWT
-│   │   │   ├── email.php           # Configuración PHPMailer
-│   │   │   ├── ratelimit.php       # Rate limiting
-│   │   │   └── helpers.php         # Funciones auxiliares
-│   │   │
-│   │   ├── controladores/          # Lógica de negocio
-│   │   │   ├── ControladorDeAutenticacion.php
-│   │   │   ├── ControladorCliente.php
-│   │   │   └── UsuarioControlador.php
-│   │   │
-│   │   ├── modelos/                # Capa de acceso a datos
-│   │   │   ├── ConexionBBDD.php    # Singleton PDO
-│   │   │   ├── Usuarios.php
-│   │   │   ├── Cliente.php
-│   │   │   ├── Proyecto.php
-│   │   │   ├── Presupuesto.php
-│   │   │   ├── PresupuestoWizard.php
-│   │   │   ├── Servicio.php
-│   │   │   ├── Administrador.php
-│   │   │   └── AccionesAdministrativas.php
-│   │   │
-│   │   ├── vistas/                 # Vistas PHP legacy
-│   │   │   ├── panel_admin.php
-│   │   │   ├── plantilla.php
-│   │   │   └── usuarios.php
-│   │   │
-│   │   ├── logs/                   # Logs de aplicación
-│   │   ├── index.php               # Entrada principal legacy
-│   │   └── .env.example            # Plantilla de variables
+│   │   └── resources/
+│   │       ├── application.yml      # Configuración principal
+│   │       ├── application-dev.yml  # Configuración desarrollo
+│   │       ├── application-prod.yml # Configuración producción
+│   │       └── logback-spring.xml   # Configuración logging
+│   │
+│   ├── test/
+│   │   ├── java/                   # Tests unitarios e integración
+│   │   └── resources/
 │   │
 │   └── sql/                        # Scripts de base de datos
 │       ├── produccion_optimizada.sql  # Script principal
-│       ├── bbdd.sql                   # Script legacy
 │       └── migraciones/               # Scripts de migración
 │
+├── pom.xml                          # Dependencias Maven
 ├── compose.yml                      # Docker Compose
-├── composer.json                    # Dependencias PHP
 ├── .env                            # Variables de entorno (no en Git)
 └── .gitignore
 ```
@@ -147,20 +118,20 @@ logisteia/
               │ HTTP/HTTPS (JSON)
               │ JWT en Authorization header
 ┌─────────────▼───────────────────────────────────────┐
-│                CADDY (Proxy)                        │
-│   api.logisteia.com → backend:9000                 │
-│   logisteia.com → Angular + PHP                    │
+│              Nginx (Proxy Reverso)                 │
+│   api.logisteia.com → spring-boot:8080            │
+│   logisteia.com → Angular Frontend                │
 └─────────────┬───────────────────────────────────────┘
               │
 ┌─────────────▼───────────────────────────────────────┐
-│                 BACKEND PHP                         │
+│           BACKEND SPRING BOOT 4.0                   │
 │                                                     │
-│  API Endpoints → Controladores → Modelos           │
+│  @RestController → @Service → @Repository         │
 │                                                     │
-│  - Validación JWT                                  │
-│  - Rate limiting                                   │
-│  - Sanitización de datos                           │
-│  - Logging de acciones                             │
+│  - Validación JWT (Spring Security)                │
+│  - Exception Handling Global                       │
+│  - Transacciones ACID                              │
+│  - Logging con SLF4J                               │
 └─────────────┬───────────────────────────────────────┘
               │
 ┌─────────────▼───────────────────────────────────────┐
@@ -181,31 +152,36 @@ logisteia/
    - Agrega JWT token en header `Authorization: Bearer <token>`
    - Agrega headers CORS necesarios
 
-3. **Caddy recibe la petición**
+3. **Nginx recibe la petición**
    - Aplica SSL/TLS
-   - Enruta a backend PHP-FPM
+   - Enruta a Spring Boot en puerto 8080
 
-4. **API endpoint PHP procesa**
-   - Valida JWT token
-   - Verifica rate limiting
-   - Sanitiza entrada
-   - Llama al controlador correspondiente
+4. **DispatcherServlet procesa la petición**
+   - Mapea URL a @RestController
+   - Aplica filtros de seguridad
 
-5. **Controlador ejecuta lógica de negocio**
-   - Valida datos de negocio
-   - Llama a modelos necesarios
-   - Gestiona transacciones si es necesario
+5. **@RestController procesa**
+   - Valida JWT token con JwtAuthenticationFilter
+   - Extrae usuario autenticado
+   - Valida anotaciones (@Valid)
+   - Llama al servicio correspondiente
 
-6. **Modelo accede a base de datos**
-   - Ejecuta consultas preparadas con PDO
-   - Devuelve resultados al controlador
+6. **@Service ejecuta lógica de negocio**
+   - Valida reglas de negocio
+   - Llama a repositories necesarios
+   - Gestiona transacciones con @Transactional
 
-7. **Respuesta JSON al frontend**
+7. **@Repository accede a base de datos**
+   - Spring Data JPA ejecuta queries
+   - Hibernate mapea resultados a entidades
+   - Devuelve datos al servicio
+
+8. **Respuesta JSON al frontend**
+   - GlobalExceptionHandler captura excepciones
    - Formato estandarizado: `{success: boolean, data: any, error?: string}`
-   - Headers CORS configurados
-   - Código HTTP apropiado
+   - Código HTTP apropiado según @ResponseStatus
 
-8. **Angular procesa respuesta**
+9. **Angular procesa respuesta**
    - Observable emite datos
    - Componente actualiza vista
    - Manejo de errores si aplica
@@ -216,7 +192,7 @@ logisteia/
 
 ### Autenticación tradicional (Email/Password)
 
-**Endpoint**: `POST /api/login.php`
+**Endpoint**: `POST /api/v1/auth/login`
 
 ```json
 {
@@ -240,16 +216,16 @@ logisteia/
 ```
 
 **Proceso**:
-1. Rate limiting por IP y email
-2. Validación de formato de datos
-3. Consulta a base de datos con hash de contraseña
-4. Verificación de estado del usuario (no baneado/eliminado)
-5. Generación de JWT con payload de usuario
+1. Validación de entrada con @Valid
+2. Consulta a BD con JPA
+3. Verificación de contraseña con BCrypt
+4. Validación de estado del usuario
+5. Generación de JWT con JwtProvider
 6. Registro de acción en logs
 
 ### Autenticación con Google OAuth
 
-**Endpoint**: `POST /api/login-google.php`
+**Endpoint**: `POST /api/v1/auth/google`
 
 ```json
 {
@@ -258,9 +234,9 @@ logisteia/
 ```
 
 **Proceso**:
-1. Validación del token de Google con Google API
+1. Validación del token de Google con Google API Client
 2. Extracción de email y datos del usuario
-3. Búsqueda de usuario existente por email
+3. Búsqueda de usuario existente con JPA
 4. Si no existe, creación automática con rol `trabajador`
 5. Generación de JWT
 6. Respuesta con token y datos
@@ -288,97 +264,42 @@ intercept(req: HttpRequest<any>, next: HttpHandler) {
 }
 ```
 
-**Validación en backend** (`config/jwt.php`):
-```php
-function validarTokenJWT($token) {
-    try {
-        $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
-        return (array)$decoded->data;
-    } catch (Exception $e) {
-        return null;
+**Validación en backend** (`config/JwtAuthenticationFilter.java`):
+```java
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain chain) throws ServletException, IOException {
+        String token = extractTokenFromHeader(request);
+        if (token != null && jwtProvider.validateToken(token)) {
+            String email = jwtProvider.getEmailFromToken(token);
+            UserDetails user = userDetailsService.loadUserByUsername(email);
+            // Establecer seguridad
+        }
+        chain.doFilter(request, response);
     }
 }
 ```
 
 ---
 
-## API REST - Endpoints disponibles
+## API REST - Endpoints disponibles (v1)
 
-### Autenticación
+> Ver documentación completa en: [REFERENCIA_ENDPOINTS_FASE2B.md](REFERENCIA_ENDPOINTS_FASE2B.md)
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/api/login.php` | Login con email/password |
-| POST | `/api/login-google.php` | Login con Google OAuth |
-| POST | `/api/RegistroUsuario.php` | Registro de nuevo usuario |
-| POST | `/api/completar-registro-google.php` | Completar perfil OAuth |
+### Endpoints principales
 
-### Usuarios
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/usuarios.php` | Listar todos los usuarios |
-| GET | `/api/usuarios.php?dni={dni}` | Obtener usuario específico |
-| POST | `/api/usuarios.php` | Cambiar estado de usuario |
-
-### Equipos
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/equipo.php` | Obtener equipo del jefe actual |
-| GET | `/api/equipo.php?jefe={dni}` | Equipos de un jefe específico |
-| POST | `/api/equipo.php` | Crear o actualizar equipo |
-| POST | `/api/confirmar-invitacion.php` | Aceptar invitación a equipo |
-
-### Proyectos
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/proyectos.php` | Obtener proyectos del usuario |
-| POST | `/api/proyectos.php` | Crear nuevo proyecto |
-| GET | `/api/proyectos.php/{id}/trabajadores` | Trabajadores asignados |
-| POST | `/api/proyectos.php/{id}/trabajadores` | Asignar trabajadores |
-| DELETE | `/api/proyectos.php/{id}/trabajadores/{dni}` | Remover asignación |
-
-### Clientes
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/clientes.php` | Listar clientes del jefe |
-| POST | `/api/clientes.php` | Crear nuevo cliente |
-| PUT | `/api/clientes.php` | Actualizar cliente |
-| DELETE | `/api/clientes.php?id={id}` | Eliminar cliente |
-
-### Presupuestos
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/mis-presupuestos-wizard.php` | Listar presupuestos |
-| POST | `/api/guardar-presupuesto-wizard.php` | Crear presupuesto |
-| GET | `/api/exportar-presupuesto-pdf.php` | Exportar a PDF |
-| POST | `/api/enviar-presupuesto-email.php` | Enviar por email |
-
-### Servicios
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/servicios.php` | Servicios generales |
-| GET | `/api/servicios-it.php` | Servicios informáticos |
-
-### Moderador
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/moderador/estadisticas.php` | Estadísticas del sistema |
-| POST | `/api/moderador/desbanear.php` | Desbanear usuario |
-| GET | `/api/moderador/historial-baneos.php` | Historial de baneos |
-| GET | `/api/moderador/proyectos.php` | Proyectos de todos los jefes |
-
-### Historial
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/api/historial.php` | Acciones administrativas |
+- `POST /api/v1/auth/login` - Login con email/password
+- `POST /api/v1/auth/google` - Login con Google OAuth  
+- `POST /api/v1/auth/registro` - Registro de nuevo usuario
+- `GET /api/v1/usuarios` - Listar usuarios
+- `GET /api/v1/equipos` - Obtener equipo del jefe
+- `POST /api/v1/equipos` - Crear/actualizar equipo
+- `GET /api/v1/proyectos` - Obtener proyectos
+- `POST /api/v1/proyectos` - Crear proyecto
+- Y más... (ver referencia completa)
 
 ---
 
@@ -386,74 +307,93 @@ function validarTokenJWT($token) {
 
 ### Modelo de Usuario
 
-**Tabla**: `usuarios`
+**Entidad JPA**: `com.logisteia.entities.Usuario`
 
 **Campos principales**:
 - `dni` (PK): Identificador único
-- `email`: Email único
+- `email`: Email único (@Column(unique=true))
 - `nombre`: Nombre completo
-- `contrase`: Hash de contraseña (bcrypt)
-- `rol`: ENUM('jefe_equipo', 'trabajador', 'moderador')
-- `estado`: ENUM('activo', 'baneado', 'eliminado')
+- `password`: Hash de contraseña (BCrypt)
+- `rol`: ENUM('JEFE_EQUIPO', 'TRABAJADOR', 'MODERADOR')
+- `estado`: ENUM('ACTIVO', 'BANEADO', 'ELIMINADO')
 - `telefono`: Teléfono opcional
-- `fecha_registro`: Timestamp
+- `fechaRegistro`: Timestamp
 
-**Clase PHP** (`modelos/Usuarios.php`):
-```php
-class Usuarios {
-    private $db;
+**Clase Java**:
+```java
+@Entity
+@Table(name = "usuarios")
+public class Usuario {
+    @Id
+    private String dni;
     
-    public function obtenerTodos() { }
-    public function obtenerPorDni($dni) { }
-    public function obtenerPorEmail($email) { }
-    public function crear($datos) { }
-    public function actualizar($dni, $datos) { }
-    public function cambiarEstado($dni, $estado, $motivo) { }
+    @Column(unique = true, nullable = false)
+    private String email;
+    
+    @Enumerated(EnumType.STRING)
+    private RolUsuario rol;
+    
+    @Enumerated(EnumType.STRING)
+    private EstadoUsuario estado;
 }
 ```
 
 ### Modelo de Proyecto
 
-**Tabla**: `proyectos`
+**Entidad JPA**: `com.logisteia.entities.Proyecto`
 
 **Relaciones**:
-- `jefe_dni` → `usuarios.dni`
-- `cliente_id` → `clientes.id`
-- `equipo_id` → `equipos.id`
+- `jefe` → `@ManyToOne` Usuario (JEFE_EQUIPO)
+- `cliente` → `@ManyToOne` Cliente
+- `equipo` → `@ManyToOne` Equipo
 
 **Estados**:
-- creado
-- en_proceso
-- finalizado
-- pausado
-- cancelado
+- CREADO
+- EN_PROCESO
+- FINALIZADO
+- PAUSADO
+- CANCELADO
 
-**Clase PHP** (`modelos/Proyecto.php`):
-```php
-class Proyecto {
-    public function obtenerPorJefe($jefe_dni) { }
-    public function obtenerPorTrabajador($trabajador_dni) { }
-    public function crear($datos) { }
-    public function actualizar($id, $datos) { }
-    public function cambiarEstado($id, $estado) { }
-    public function asignarTrabajadores($proyecto_id, $trabajadores) { }
+**Clase Java**:
+```java
+@Entity
+@Table(name = "proyectos")
+public class Proyecto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @ManyToOne
+    @JoinColumn(name = "jefe_dni", nullable = false)
+    private Usuario jefe;
+    
+    @Enumerated(EnumType.STRING)
+    private EstadoProyecto estado;
 }
 ```
 
 ### Modelo de Presupuesto
 
-**Tablas relacionadas**:
-- `presupuestos` (maestro)
-- `detalle_presupuesto` (líneas)
-- `servicios` y `servicios_informatica` (catálogos)
+**Entidades JPA relacionadas**:
+- `Presupuesto` (maestro)
+- `DetallePresupuesto` (líneas)
+- `Servicio` y `ServicioInformatica` (catálogos)
 
-**Clase PHP** (`modelos/PresupuestoWizard.php`):
-```php
-class PresupuestoWizard {
-    public function crearPresupuesto($datos) { }
-    public function obtenerPresupuestos($jefe_dni) { }
-    public function generarPDF($presupuesto_id) { }
-    public function enviarPorEmail($presupuesto_id, $email) { }
+**Clase Java**:
+```java
+@Entity
+@Table(name = "presupuestos")
+@Transactional(readOnly = false)
+public class Presupuesto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @OneToMany(mappedBy = "presupuesto", cascade = CascadeType.ALL)
+    private List<DetallePresupuesto> detalles;
+    
+    @Enumerated(EnumType.STRING)
+    private EstadoPresupuesto estado;
 }
 ```
 
@@ -480,7 +420,7 @@ JWT_EXPIRATION=3600             # 1 hora en segundos
 GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=xxx
 
-# Email (PHPMailer)
+# Email (JavaMail)
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=email@gmail.com
@@ -500,22 +440,32 @@ LOGIN_TIMEOUT_MINUTES=15
 
 ### Carga de configuración
 
-**PHP** (`config/config.php`):
-```php
-require_once '/app/vendor/autoload.php';
+**Spring Boot** (`application.yml`):
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:3306/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    hibernate:
+      ddl-auto: validate
 
-$dotenv = Dotenv\Dotenv::createImmutable('/app');
-$dotenv->load();
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
 
-define('DB_HOST', $_ENV['DB_HOST'] ?? '127.0.0.1');
-define('JWT_SECRET', $_ENV['JWT_SECRET']);
+logging:
+  level:
+    root: INFO
+    com.logisteia: DEBUG
 ```
 
 **Angular** (`environments/environment.ts`):
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'https://api.logisteia.com'
+  apiUrl: 'https://api.logisteia.com/api/v1'
 };
 ```
 
@@ -539,47 +489,50 @@ export const environment = {
 - JWT en header Authorization
 - Verificación de origen en CORS
 
-**4. Rate Limiting**
-```php
-function verificarRateLimitLogin($identifier) {
-    $attempts = $_SESSION['login_attempts_' . md5($identifier)] ?? 0;
-    
-    if ($attempts >= MAX_LOGIN_ATTEMPTS) {
-        return false; // Bloqueado
+**4. Rate Limiting con Spring Security**
+```java
+@Component
+public class RateLimitingFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain chain) throws ServletException, IOException {
+        // Rate limiting implementation
     }
-    
-    return true;
 }
 ```
 
 **5. Validación de JWT**
-```php
-$token = obtenerTokenDeHeader();
-$usuario = validarTokenJWT($token);
-
-if (!$usuario) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Token inválido']);
-    exit();
+```java
+@Component
+public class JwtProvider {
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
 }
 ```
 
 **6. Hashing de contraseñas**
-```php
-$hash = password_hash($password, PASSWORD_BCRYPT);
-$valido = password_verify($password, $hash);
+```java
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+}
 ```
 
 ### Headers de seguridad
 
-**Backend PHP** (`config/config.php`):
-```php
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
-```
+**Spring Security** (`config/SecurityConfig.java`):
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- X-XSS-Protection: 1; mode=block
 
-**Caddy** (automático):
+**Nginx** (automático):
 - SSL/TLS con Let's Encrypt
 - HSTS (HTTP Strict Transport Security)
 - Redirección HTTP → HTTPS
@@ -588,40 +541,66 @@ header('X-XSS-Protection: 1; mode=block');
 
 ## Buenas prácticas implementadas
 
-### Backend PHP
+### Backend Spring Boot
 
-1. **Arquitectura MVC**
-   - Separación clara de responsabilidades
-   - Modelos: acceso a datos
-   - Controladores: lógica de negocio
-   - Vistas: presentación (API devuelve JSON)
+1. **Arquitectura en capas**
+   - Controllers: Manejo de peticiones
+   - Services: Lógica de negocio
+   - Repositories: Acceso a datos
+   - DTOs: Transferencia de datos
 
-2. **Patrón Singleton**
-   - Conexión única a base de datos
-   - Ahorro de recursos
-
-3. **Dependency Injection**
-   - Controladores reciben instancias de modelos
+2. **Inyección de dependencias**
+   - Todos los componentes se inyectan con @Autowired
    - Facilita testing y mantenimiento
 
-4. **Logging centralizado**
-```php
-function logError($mensaje, $contexto = []) {
-    error_log(json_encode([
-        'timestamp' => date('Y-m-d H:i:s'),
-        'message' => $mensaje,
-        'context' => $contexto
-    ]));
+3. **Transacciones ACID**
+   - @Transactional en servicios
+   - Manejo automático de rollback
+
+4. **Validación centralizada**
+```java
+@RestController
+public class UsuarioController {
+    @PostMapping
+    public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody CrearUsuarioDTO dto) {
+        // Validación automática
+        return ResponseEntity.ok(usuarioService.crear(dto));
+    }
 }
 ```
 
-5. **Documentación PHPDoc**
-```php
+5. **Manejo de errores centralizado**
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> handleUsuarioNoEncontrado() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+}
+```
+
+6. **Logging con SLF4J**
+```java
+private static final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
+
+logger.info("Usuario creado: {}", usuario.getDni());
+logger.error("Error al obtener usuario", exception);
+```
+
+7. **Documentación con Javadoc**
+```java
 /**
  * Crea un nuevo usuario en el sistema
  * 
- * @param array $datos Datos del usuario (dni, email, nombre, etc.)
- * @return array Resultado con success y mensaje
+ * @param dto Datos del usuario a crear
+ * @return Usuario creado
+ * @throws DniYaExisteException si el DNI ya existe
+ */
+public UsuarioDTO crear(CrearUsuarioDTO dto) {
+    // Implementación
+}
+```
  * @throws PDOException Si falla la inserción
  */
 public function crear($datos) { }
@@ -679,29 +658,33 @@ catchError(error => {
 
 ## Testing y debugging
 
-### Backend PHP
+### Backend Spring Boot
 
 **Logs de aplicación**:
 ```bash
 # Ver logs en tiempo real
 docker compose logs -f backend
 
-# Logs de errores PHP
-docker compose exec backend tail -f /var/www/html/logs/php_errors.log
+# Logs de Spring Boot en archivo
+docker compose exec backend tail -f /var/log/spring-boot.log
 ```
 
-**Debugging con var_dump**:
-```php
-if (APP_DEBUG) {
-    var_dump($variable);
-    die();
+**Debugging con punto de quiebre**:
+```java
+@RestController
+public class UsuarioController {
+    @GetMapping("/{dni}")
+    public ResponseEntity<UsuarioDTO> obtenerUsuario(@PathVariable String dni) {
+        // Punto de quiebre aquí con debugger
+        return ResponseEntity.ok(usuarioService.obtenerPorDni(dni));
+    }
 }
 ```
 
 **Testing de endpoints**:
 ```bash
 # Con curl
-curl -X POST https://api.logisteia.com/api/login.php \
+curl -X POST https://api.logisteia.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@logisteia.com","password":"1234"}'
 
@@ -746,28 +729,28 @@ docker compose up -d --build
 docker compose exec backend bash
 ```
 
-### Producción
+### Producción (Oracle Cloud)
 
 ```bash
 # Hacer commit de cambios
 git add .
 git commit -m "Descripción de cambios"
 
-# Desplegar a AWS
-git push production main
+# Desplegar a Oracle Cloud
+git push origin main
 
-# El hook post-receive automáticamente:
-# 1. Actualiza código en /home/ubuntu/logisteia
-# 2. Ejecuta docker compose down
-# 3. Ejecuta docker compose up -d --build
-# 4. Los contenedores se reconstruyen con los cambios
+# En el servidor de Oracle:
+cd /home/ubuntu/logisteia
+git pull origin main
+docker compose down
+docker compose up -d --build
 ```
 
 ### Rollback en caso de error
 
 ```bash
 # Conectarse al servidor
-ssh -i proyecto.pem ubuntu@logisteia.com
+ssh -i proyecto.pem ubuntu@logisteia-server.com
 
 # Ver commits recientes
 cd ~/logisteia
@@ -835,25 +818,33 @@ presupuestos
 ### Documentación oficial
 
 - **Angular**: https://angular.dev
-- **PHP**: https://www.php.net/docs.php
+- **Spring Boot**: https://spring.io/projects/spring-boot
+- **Spring Security**: https://spring.io/projects/spring-security
 - **MySQL**: https://dev.mysql.com/doc/
 - **Docker**: https://docs.docker.com
-- **Caddy**: https://caddyserver.com/docs/
+- **Nginx**: https://nginx.org/en/docs/
 
 ### Librerías utilizadas
 
-- **PHPMailer**: https://github.com/PHPMailer/PHPMailer
-- **Firebase PHP-JWT**: https://github.com/firebase/php-jwt
-- **Google API Client**: https://github.com/googleapis/google-api-php-client
-- **Tailwind CSS**: https://tailwindcss.com/docs
+- **Spring Data JPA**: JPA implementation para acceso a datos
+- **JJWT**: Librería de JWT para Java
+- **MapStruct**: Generador de code para mapeo de objetos
+- **Lombok**: Reductor de boilerplate
+- **Tailwind CSS**: Framework de CSS utility-first
 
 ### Convenciones de código
 
-**PHP**:
-- PSR-12 para estilo de código
-- CamelCase para clases: `UsuarioControlador`
-- snake_case para funciones: `obtener_usuario()`
-- Constantes en MAYÚSCULAS: `DB_HOST`
+**Java**:
+- Google Java Style Guide
+- PascalCase para clases: `UsuarioController`
+- camelCase para métodos y variables: `obtenerUsuario()`
+- UPPER_SNAKE_CASE para constantes: `DB_HOST`
+- @RestController, @Service, @Repository anotaciones
+
+**TypeScript**:
+- PascalCase para clases e interfaces: `Usuario`, `ProyectoService`
+- camelCase para variables y funciones: `obtenerUsuarios()`
+- kebab-case para nombres de archivos: `usuario.service.ts`
 
 **TypeScript/Angular**:
 - PascalCase para clases e interfaces: `Usuario`, `ProyectoService`
